@@ -19,6 +19,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { OtpInput, toEnglishDigits } from "./OtpInput";
+import { requestLoginOtp } from "../api/request-login-otp";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 120;
@@ -53,59 +54,54 @@ export function LoginOtpForm() {
     return () => clearInterval(id);
   }, [step, secondsLeft]);
 
-  const sendCode = async () => {
-    setError(null);
+const sendCode = async () => {
+  setError(null);
 
-    const normalized = toEnglishDigits(mobile).trim();
-    if (!MOBILE_REGEX.test(normalized)) {
-      setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)");
-      return;
-    }
+  const normalized = toEnglishDigits(mobile).trim();
+  if (!MOBILE_REGEX.test(normalized)) {
+    setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: normalized }),
-      });
+  setLoading(true);
+  try {
+    await requestLoginOtp({ phone: normalized });
 
-      if (!res.ok) throw new Error();
-
-      setMobile(normalized);
-      setOtp("");
-      setSecondsLeft(RESEND_SECONDS);
-      setStep("code");
-      toast.success("کد تأیید ارسال شد");
-    } catch {
-      setError("ارسال کد با مشکل مواجه شد. لطفاً دوباره تلاش کنید.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyCode = async (code: string) => {
-    if (loading) return;
-    setError(null);
-    setLoading(true);
-
-    const result = await signIn("otp", {
-      mobile,
-      code,
-      redirect: false,
-    });
-
+    setMobile(normalized);
+    setOtp("");
+    setSecondsLeft(RESEND_SECONDS);
+    setStep("code");
+    toast.success("کد تأیید ارسال شد");
+  } catch {
+    setError("ارسال کد با مشکل مواجه شد. لطفاً دوباره تلاش کنید.");
+  } finally {
     setLoading(false);
+  }
+};
 
-    if (result?.error) {
-      setError("کد وارد شده اشتباه یا منقضی شده است");
-      setOtp(""); 
-      return;
-    }
+const verifyCode = async (code: string) => {
+  if (loading) return;
+  setError(null);
+  setLoading(true);
 
-    toast.success("خوش آمدید");
-    router.push("/");
-  };
+  const result = await signIn("otp", {
+    phone: mobile,
+    code,
+    redirect: false,
+  });
+
+  setLoading(false);
+
+  if (result?.error) {
+    setError("کد وارد شده اشتباه یا منقضی شده است");
+    setOtp("");
+    return;
+  }
+
+  toast.success("خوش آمدید");
+  router.push("/");
+  router.refresh();
+};
 
   const editMobile = () => {
     setStep("mobile");

@@ -5,7 +5,7 @@ export async function forgotPassword(
   input: ForgotPasswordInput
 ): Promise<ForgotPasswordResponse> {
   const { data } = await apiClient.post<ForgotPasswordResponse>(
-    "/auth/password/forgot",
+    "/auth/forgot-password",
     input
   );
   return data;

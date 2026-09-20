@@ -18,11 +18,11 @@ export interface RequestLoginOtpInput {
 
 export interface VerifyLoginOtpInput {
   phone: string;
-  otp: string;
+  code: string;
 }
 
 export interface ForgotPasswordInput {
-  identifier: string;
+  email: string;
 }
 
 export interface VerifyResetOtpInput {

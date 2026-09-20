@@ -2,9 +2,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { login } from "./features/auth/api/login";
 import { ApiError, ApiErrorCode } from "./lib/api/error";
-
+import { decodeJwt } from "jose";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
+  trustHost: true,
   pages: { signIn: "/login" },
   providers: [
     Credentials({
@@ -13,29 +14,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const identifier = credentials?.identifier as string | undefined;
-        const password = credentials?.password as string | undefined;
-
-        if (!identifier || !password) return null;
-
         try {
-          const { user, accessToken } = await login({ identifier, password });
+          const { accessToken } = await login({
+            identifier: credentials?.identifier as string,
+            password: credentials?.password as string,
+          });
+
+          const payload = decodeJwt(accessToken) as {
+            userId: string;
+            role: string;
+          };
 
           return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
+            id: payload.userId,
+            role: payload.role,
             accessToken,
           };
-        } catch (err) {
-          if (err instanceof ApiError) {
-            if (err.code === ApiErrorCode.INVALID_CREDENTIALS) {
-              return null;
-            }
+        } catch (e) {
+          if (e instanceof ApiError) {
+            console.error("[authorize]", e.code, e.message);
+          } else {
+            console.error("[authorize]", e);
           }
-          throw err;
+          return null;
         }
       },
     }),
@@ -59,3 +60,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
+
+
