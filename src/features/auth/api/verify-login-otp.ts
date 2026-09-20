@@ -5,7 +5,7 @@ export async function verifyLoginOtp(
   input: VerifyLoginOtpInput
 ): Promise<VerifyLoginOtpResponse> {
   const { data } = await apiClient.post<VerifyLoginOtpResponse>(
-    "/auth/login/verify-otp",
+    "/auth/otp/verify",
     input
   );
   return data;

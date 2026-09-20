@@ -5,8 +5,9 @@ export async function requestLoginOtp(
   input: RequestLoginOtpInput
 ): Promise<RequestOtpResponse> {
   const { data } = await apiClient.post<RequestOtpResponse>(
-    "/auth/login/request-otp",
+    "/auth/otp/request",
     input
   );
+  debugger
   return data;
 }
