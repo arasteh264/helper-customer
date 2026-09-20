@@ -3,7 +3,6 @@ import Credentials from "next-auth/providers/credentials";
 import { login } from "./features/auth/api/login";
 import { ApiError, ApiErrorCode } from "./lib/api/error";
 
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
@@ -31,9 +30,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken,
           };
         } catch (err) {
-          const apiError = err instanceof ApiError ? err : null;
-          if (apiError?.code === ApiErrorCode.INVALID_CREDENTIALS) {
-            return null;
+          if (err instanceof ApiError) {
+            if (err.code === ApiErrorCode.INVALID_CREDENTIALS) {
+              return null;
+            }
           }
           throw err;
         }
