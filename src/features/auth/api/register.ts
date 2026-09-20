@@ -1,9 +1,7 @@
-import { RegisterInput } from "@/src/app/(auth)/reset-password/page";
 import { apiClient } from "@/src/lib/api/client";
+import type { RegisterInput, RegisterResponse } from "../types/auth.types";
 
-
-export async function register(input: RegisterInput) {
-  const { data } = await apiClient.post("/auth/register", input);
-
+export async function register(input: RegisterInput): Promise<RegisterResponse> {
+  const { data } = await apiClient.post<RegisterResponse>("/auth/register", input);
   return data;
 }

@@ -1,14 +1,12 @@
-import { RequestLoginOtpInput } from "@/src/app/(auth)/reset-password/page";
 import { apiClient } from "@/src/lib/api/client";
+import type { VerifyLoginOtpInput, VerifyLoginOtpResponse } from "../types/auth.types";
 
-
-export async function requestLoginOtp(
-  input: RequestLoginOtpInput
-) {
-  const { data } = await apiClient.post(
-    "/auth/login/request-otp",
+export async function verifyLoginOtp(
+  input: VerifyLoginOtpInput
+): Promise<VerifyLoginOtpResponse> {
+  const { data } = await apiClient.post<VerifyLoginOtpResponse>(
+    "/auth/login/verify-otp",
     input
   );
-
   return data;
 }
