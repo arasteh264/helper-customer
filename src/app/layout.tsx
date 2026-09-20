@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { QueryProvider } from "../providers/QueryProvider";
+import { SiteFooter } from "../components/layout/footer/site-footer";
+import { SiteHeader } from "../components/layout/header/site-header";
 
 const vazirmatn = localFont({
   src: "../assets/fonts/Vazirmatn-RD[wght].woff2",
