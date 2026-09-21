@@ -1,0 +1,116 @@
+import { CalendarClock, MapPin, Phone, Wallet } from "lucide-react";
+
+import { Button } from "@/src/components/ui/button";
+
+import { formatDateTime, formatMoney } from "../utils/format";
+import { JOB_STATUS } from "../utils/job-status";
+import { StatusBadge } from "./ui/status-badge";
+import { Job } from "../types/types";
+
+export type JobAction = "accept" | "reject" | "start" | "complete";
+
+interface JobCardProps {
+  job: Job;
+  onAction: (id: string, action: JobAction) => void;
+}
+
+export function JobCard({ job, onAction }: JobCardProps) {
+  const status = JOB_STATUS[job.status];
+  const showPhone =
+    !!job.customerPhone && (job.status === "accepted" || job.status === "in_progress");
+
+  return (
+    <article className="rounded-2xl border border-foreground/10 bg-card p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-foreground/50">{job.service}</p>
+          <h3 className="mt-0.5 text-base font-semibold leading-7 text-foreground">
+            {job.title}
+          </h3>
+        </div>
+        <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+      </div>
+
+      <dl className="mt-4 grid gap-3 text-sm text-foreground/65 sm:grid-cols-2">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.05]">
+            <CalendarClock size={16} />
+          </span>
+          <div>
+            <dt className="sr-only">زمان</dt>
+            <dd>{formatDateTime(job.scheduledAt)}</dd>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.05]">
+            <Wallet size={16} />
+          </span>
+          <div>
+            <dt className="sr-only">مبلغ</dt>
+            <dd className="font-medium text-foreground">
+              {job.price > 0 ? formatMoney(job.price) : "—"}
+            </dd>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:col-span-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.05]">
+            <MapPin size={16} />
+          </span>
+          <div className="min-w-0">
+            <dt className="sr-only">آدرس</dt>
+            <dd className="truncate">{job.address}</dd>
+          </div>
+        </div>
+      </dl>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-4">
+        <div className="text-sm">
+          <p className="font-medium text-foreground">{job.customerName}</p>
+          {showPhone ? (
+            <a
+              href={`tel:${job.customerPhone}`}
+              className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+            >
+              <Phone size={13} />
+              <span dir="ltr">{job.customerPhone}</span>
+            </a>
+          ) : (
+            <p className="mt-0.5 text-xs text-foreground/45">
+              شماره‌ی مشتری بعد از پذیرش کار نمایش داده می‌شود
+            </p>
+          )}
+          {job.note && (
+            <p className="mt-2 text-xs leading-6 text-foreground/55">
+              توضیح مشتری: {job.note}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {job.status === "new" && (
+            <>
+              <Button type="button" variant="outline" onClick={() => onAction(job.id, "reject")}>
+                رد
+              </Button>
+              <Button type="button" onClick={() => onAction(job.id, "accept")}>
+                پذیرش کار
+              </Button>
+            </>
+          )}
+          {job.status === "accepted" && (
+            <Button type="button" onClick={() => onAction(job.id, "start")}>
+              شروع کار
+            </Button>
+          )}
+          {job.status === "in_progress" && (
+            <Button type="button" onClick={() => onAction(job.id, "complete")}>
+              تکمیل کار
+            </Button>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}

@@ -1,0 +1,202 @@
+// داده‌ی نمونه. در پروژه‌ی واقعی از API / دیتابیس گرفته شود.
+import type {
+  DaySchedule,
+  FinanceSummary,
+  Job,
+  Provider,
+  Review,
+  Transaction,
+  VerificationDoc,
+} from "./types";
+
+export const provider: Provider = {
+  id: "ali-rezaei",
+  fullName: "علی رضایی",
+  headline: "لوله‌کش ساختمان",
+  bio: "لوله‌کش با ۹ سال سابقه در رفع نشتی، نصب شیرآلات و تأسیسات ساختمان. با تعهد به زمان و ضمانت کار.",
+  city: "تهران",
+  experienceYears: 9,
+  startingPrice: 350000,
+  phone: "09121234567",
+  email: "ali@example.com",
+  skills: ["لوله‌کشی", "رفع نشتی", "نصب شیرآلات", "تأسیسات"],
+  serviceAreas: ["تهران - منطقه ۳", "تهران - منطقه ۵"],
+  portfolio: [],
+  rating: 4.9,
+  reviewsCount: 312,
+  completedJobs: 210,
+  responseRate: 96,
+  memberSince: "2024-03-10T00:00:00+03:30",
+};
+
+export const verificationDocs: VerificationDoc[] = [
+  {
+    id: "national-id",
+    label: "کارت ملی",
+    description: "تصویر واضح از روی کارت ملی",
+    status: "verified",
+  },
+  {
+    id: "certificate",
+    label: "مدرک یا گواهی مهارت",
+    description: "گواهینامه‌ی فنی‌وحرفه‌ای یا مدرک مرتبط با تخصص",
+    status: "pending",
+  },
+  {
+    id: "criminal-record",
+    label: "گواهی عدم سوءپیشینه",
+    description: "برای ورود به منزل مشتریان الزامی است",
+    status: "rejected",
+    note: "تصویر ناخوانا بود. لطفاً دوباره و با کیفیت بهتر بارگذاری کنید.",
+  },
+];
+
+export const defaultSchedule: DaySchedule[] = [
+  { id: "sat", label: "شنبه", enabled: true, from: "08:00", to: "18:00" },
+  { id: "sun", label: "یکشنبه", enabled: true, from: "08:00", to: "18:00" },
+  { id: "mon", label: "دوشنبه", enabled: true, from: "08:00", to: "18:00" },
+  { id: "tue", label: "سه‌شنبه", enabled: true, from: "08:00", to: "18:00" },
+  { id: "wed", label: "چهارشنبه", enabled: true, from: "08:00", to: "18:00" },
+  { id: "thu", label: "پنجشنبه", enabled: true, from: "08:00", to: "13:00" },
+  { id: "fri", label: "جمعه", enabled: false, from: "09:00", to: "13:00" },
+];
+
+export const jobs: Job[] = [
+  {
+    id: "j-1041",
+    title: "تعمیر نشتی لوله‌ی آشپزخانه",
+    service: "لوله‌کشی",
+    customerName: "سارا نوری",
+    address: "تهران، سعادت‌آباد، خیابان سرو",
+    scheduledAt: "2026-09-23T10:00:00+03:30",
+    price: 450000,
+    status: "new",
+    note: "زیر سینک آب چکه می‌کند.",
+  },
+  {
+    id: "j-1042",
+    title: "نصب شیرآلات حمام",
+    service: "نصب و تعویض",
+    customerName: "محسن کاظمی",
+    address: "تهران، ونک، خیابان ملاصدرا",
+    scheduledAt: "2026-09-24T14:30:00+03:30",
+    price: 600000,
+    status: "new",
+  },
+  {
+    id: "j-1038",
+    title: "تعویض سیفون و رفع گرفتگی",
+    service: "لوله‌کشی",
+    customerName: "الهام رستمی",
+    customerPhone: "09351112233",
+    address: "تهران، شهرک غرب، بلوار دادمان",
+    scheduledAt: "2026-09-22T16:00:00+03:30",
+    price: 350000,
+    status: "accepted",
+  },
+  {
+    id: "j-1035",
+    title: "لوله‌کشی واحد بازسازی‌شده",
+    service: "تأسیسات",
+    customerName: "حامد صادقی",
+    customerPhone: "09124445566",
+    address: "تهران، پونک، خیابان ایران‌زمین",
+    scheduledAt: "2026-09-21T09:00:00+03:30",
+    price: 3200000,
+    status: "in_progress",
+  },
+  {
+    id: "j-1029",
+    title: "رفع نشتی شیر اصلی",
+    service: "لوله‌کشی",
+    customerName: "نگار مرادی",
+    customerPhone: "09371239876",
+    address: "تهران، گیشا، خیابان کوشک",
+    scheduledAt: "2026-09-18T11:00:00+03:30",
+    price: 500000,
+    status: "completed",
+  },
+  {
+    id: "j-1024",
+    title: "نصب آبگرمکن دیواری",
+    service: "نصب و تعویض",
+    customerName: "بهرام یزدانی",
+    customerPhone: "09122223344",
+    address: "تهران، صادقیه، بلوار آیت‌الله کاشانی",
+    scheduledAt: "2026-09-14T15:00:00+03:30",
+    price: 1200000,
+    status: "completed",
+  },
+  {
+    id: "j-1019",
+    title: "بازدید و برآورد قیمت",
+    service: "لوله‌کشی",
+    customerName: "شیوا قاسمی",
+    address: "تهران، اکباتان",
+    scheduledAt: "2026-09-10T10:00:00+03:30",
+    price: 0,
+    status: "cancelled",
+    note: "لغو توسط مشتری",
+  },
+];
+
+export const reviews: Review[] = [
+  {
+    id: "r-1",
+    customerName: "نگار مرادی",
+    rating: 5,
+    text: "سر وقت آمدند و نشتی را در کمتر از یک ساعت رفع کردند. خیلی مرتب و حرفه‌ای.",
+    date: "2026-09-18T18:00:00+03:30",
+    service: "رفع نشتی",
+  },
+  {
+    id: "r-2",
+    customerName: "بهرام یزدانی",
+    rating: 5,
+    text: "آبگرمکن را تمیز نصب کردند و نکات نگهداری را هم توضیح دادند.",
+    date: "2026-09-14T20:00:00+03:30",
+    service: "نصب آبگرمکن",
+  },
+  {
+    id: "r-3",
+    customerName: "پگاه ملکی",
+    rating: 4,
+    text: "کار خوب بود، فقط کمی دیر رسیدند.",
+    date: "2026-09-08T12:00:00+03:30",
+    service: "لوله‌کشی",
+  },
+];
+
+export const finance: FinanceSummary = {
+  withdrawable: 8450000,
+  pending: 2300000,
+  totalEarned: 55400000,
+  commissionRate: 10,
+  minWithdrawal: 100000,
+  monthly: [
+    { label: "فروردین", amount: 6200000 },
+    { label: "اردیبهشت", amount: 8400000 },
+    { label: "خرداد", amount: 7100000 },
+    { label: "تیر", amount: 9800000 },
+    { label: "مرداد", amount: 11300000 },
+    { label: "شهریور", amount: 12600000 },
+  ],
+  bank: {
+    bankName: "بانک ملت",
+    holder: "علی رضایی",
+    sheba: "IR120120000000001234567890",
+    verified: true,
+  },
+};
+
+export const transactions: Transaction[] = [
+  { id: "t-9", date: "2026-09-18T18:30:00+03:30", description: "درآمد کار: رفع نشتی شیر اصلی", type: "earning", amount: 450000, status: "completed" },
+  { id: "t-8", date: "2026-09-18T18:30:00+03:30", description: "کارمزد پلتفرم (۱۰٪)", type: "commission", amount: -50000, status: "completed" },
+  { id: "t-7", date: "2026-09-15T10:00:00+03:30", description: "برداشت به حساب بانک ملت", type: "withdrawal", amount: -5000000, status: "completed" },
+  { id: "t-6", date: "2026-09-14T20:00:00+03:30", description: "درآمد کار: نصب آبگرمکن دیواری", type: "earning", amount: 1080000, status: "pending" },
+  { id: "t-5", date: "2026-09-14T20:00:00+03:30", description: "کارمزد پلتفرم (۱۰٪)", type: "commission", amount: -120000, status: "pending" },
+  { id: "t-4", date: "2026-09-09T13:00:00+03:30", description: "بازگشت وجه: لغو کار توسط مشتری", type: "refund", amount: -150000, status: "completed" },
+  { id: "t-3", date: "2026-09-05T17:15:00+03:30", description: "درآمد کار: تعویض شیرفلکه", type: "earning", amount: 720000, status: "completed" },
+  { id: "t-2", date: "2026-09-01T09:45:00+03:30", description: "برداشت به حساب بانک ملت", type: "withdrawal", amount: -3000000, status: "failed" },
+  { id: "t-1", date: "2026-08-28T16:00:00+03:30", description: "درآمد کار: لوله‌کشی آشپزخانه", type: "earning", amount: 2700000, status: "completed" },
+];
