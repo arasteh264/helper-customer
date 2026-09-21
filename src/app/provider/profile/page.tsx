@@ -11,6 +11,7 @@ import { ProfileForm } from "@/src/features/provider/components/profile-form";
 import { defaultSchedule, provider, verificationDocs } from "@/src/features/provider/types/data";
 
 
+
 export const metadata: Metadata = { title: "پروفایل | پنل متخصص" };
 
 export default function ProviderProfilePage() {
