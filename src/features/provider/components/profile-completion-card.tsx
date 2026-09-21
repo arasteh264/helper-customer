@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, Circle } from "lucide-react";
+import { CompletionItem } from "../lib/completion";
 
-import type { CompletionItem } from "../utils/completion";
+
 
 interface Props {
   percent: number;
