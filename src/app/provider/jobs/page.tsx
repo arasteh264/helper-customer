@@ -1,0 +1,20 @@
+import type { Metadata } from "next";
+
+import { JobsBoard } from "@/src/features/provider/components/jobs-board";
+import { PageHeader } from "@/src/features/provider/components/ui/page-header";
+import { jobs } from "@/src/features/provider/types/data";
+
+export const metadata: Metadata = { title: "کارها | پنل متخصص" };
+
+export default function ProviderJobsPage() {
+  // TODO: کارهای متخصص را از API / دیتابیس بگیرید
+  return (
+    <>
+      <PageHeader
+        title="کارهای من"
+        description="درخواست‌های جدید را بررسی کنید و کارهای در دست اجرا را مدیریت کنید."
+      />
+      <JobsBoard initialJobs={jobs} />
+    </>
+  );
+}
