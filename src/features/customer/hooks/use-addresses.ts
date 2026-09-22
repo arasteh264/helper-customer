@@ -14,7 +14,14 @@ export function useAddresses(initial: Address[]) {
 
   const { run: create, isPending: creating } = useMutation(
     async (values: AddressValues) => {
-     
+      const result = await customerApi.createAddress(values);
+      setAddresses((prev) => {
+        const nextAddress = { ...values, id: result.id };
+        return values.isDefault
+          ? [...prev.map((address) => ({ ...address, isDefault: false })), nextAddress]
+          : [...prev, nextAddress];
+      });
+      return result;
     },
     { success: "آدرس جدید اضافه شد" }
   );

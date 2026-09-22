@@ -15,8 +15,13 @@ export const customerApi = {
   changePassword: (values: ChangePasswordValues) =>
     apiClient("/api/customer/password", { method: "PATCH",  }),
 
-  createAddress: (values: AddressValues) =>
-    apiClient<{ id: string }>("/api/customer/addresses", { method: "POST",  }),
+  createAddress: async (values: AddressValues) => {
+    const { data } = await apiClient<{ id: string }>("/api/customer/addresses", {
+      method: "POST",
+      data: values,
+    });
+    return data;
+  },
 
   updateAddress: (id: string, values: AddressValues) =>
     apiClient(`/api/customer/addresses/${id}`, { method: "PATCH",  }),
