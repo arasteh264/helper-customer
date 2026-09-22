@@ -1,0 +1,47 @@
+// src/lib/icons.ts
+import {
+  Home,
+  User,
+  Settings,
+  LayoutDashboard,
+  ListChecks,
+  MapPin,
+  Heart,
+  Wallet,
+  Hammer,
+  Sparkles,
+  Zap,
+  Paintbrush,
+  GraduationCap,
+  Scale,
+  Laptop,
+  Camera,
+  HeartPulse,
+  Car,
+  Droplets,
+  type LucideIcon,
+} from "lucide-react";
+
+export const ICONS = {
+  home: Home,
+  user: User,
+  settings: Settings,
+  layoutDashboard: LayoutDashboard,
+  listChecks: ListChecks,
+  mapPin: MapPin,
+  heart: Heart,
+  wallet: Wallet,
+  hammer: Hammer,
+  sparkles: Sparkles,
+  zap: Zap,
+  paintbrush: Paintbrush,
+  graduationCap: GraduationCap,
+  scale: Scale,
+  laptop: Laptop,
+  camera: Camera,
+  heartPulse: HeartPulse,
+  car: Car,
+  droplets: Droplets,
+} as const satisfies Record<string, LucideIcon>;
+
+export type IconKey = keyof typeof ICONS;

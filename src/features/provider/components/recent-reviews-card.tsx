@@ -2,8 +2,8 @@ import { Star } from "lucide-react";
 
 
 import { formatDate } from "../utils/format";
-import { SectionCard } from "./ui/section-card";
 import { Review } from "../types/types";
+import { SectionCard } from "@/src/components/shared/section-card";
 
 export function RecentReviewsCard({ reviews }: { reviews: Review[] }) {
   return (

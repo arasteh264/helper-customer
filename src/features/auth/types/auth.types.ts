@@ -9,7 +9,7 @@ export interface RegisterInput {
   phone: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  confirmPassword?: string;
 }
 
 export interface RequestLoginOtpInput {

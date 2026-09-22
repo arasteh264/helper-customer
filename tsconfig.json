@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/app/customer/page.tsx", "src/features/customer/utils/pending-actions.tsx"  ],
   "exclude": ["node_modules"]
 }

@@ -1,4 +1,5 @@
-import type { BadgeTone } from "../components/ui/status-badge";
+
+import { BadgeTone } from "@/src/components/shared/status-badge";
 import { JobStatus, TransactionStatus, TransactionType, VerificationStatus } from "../types/types";
 
 

@@ -5,9 +5,10 @@ import { useMemo, useState } from "react";
 
 import { formatDateTime, formatMoney } from "../utils/format";
 import { TRANSACTION_STATUS, TRANSACTION_TYPE } from "../utils/job-status";
-import { SectionCard } from "./ui/section-card";
-import { StatusBadge } from "./ui/status-badge";
+
 import { Transaction, TransactionType } from "../types/types";
+import { SectionCard } from "@/src/components/shared/section-card";
+import { StatusBadge } from "@/src/components/shared/status-badge";
 
 
 type Filter = "all" | "earning" | "withdrawal" | "deductions";

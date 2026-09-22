@@ -7,11 +7,12 @@ import { defaultSchedule, finance, jobs, provider, reviews, verificationDocs } f
 import { formatMoney, formatNumber } from "@/src/features/provider/utils/format";
 import { AvailabilityToggle } from "@/src/features/provider/components/availability-toggle";
 import { ProfileCompletionCard } from "@/src/features/provider/components/profile-completion-card";
-import { StatCard } from "@/src/features/provider/components/ui/stat-card";
 import { UpcomingJobsCard } from "@/src/features/provider/components/upcoming-jobs-card";
-import { SectionCard } from "@/src/features/provider/components/ui/section-card";
+
 import { EarningsChart } from "@/src/features/provider/components/earnings-chart";
 import { RecentReviewsCard } from "@/src/features/provider/components/recent-reviews-card";
+import { StatCard } from "@/src/components/shared/stat-card";
+import { SectionCard } from "@/src/components/shared/section-card";
 
 
 
@@ -52,7 +53,6 @@ export default function ProviderOverviewPage() {
 
       <ProfileCompletionCard percent={percent} items={items} />
 
-      {/* آمار */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           icon={TrendingUp}

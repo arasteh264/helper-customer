@@ -1,21 +1,18 @@
 import type { ReactNode } from "react";
 
+import { PanelShell } from "@/src/components/layout/panel-shell";
 
-
-import { ProviderShell } from "@/src/features/provider/components/provider-shell";
 import { provider } from "@/src/features/provider/types/data";
+import { providerNav } from "@/src/features/provider/components/provider-nav-data";
 
 export default function ProviderLayout({ children }: { children: ReactNode }) {
   return (
-    <ProviderShell
-      provider={{
-        id: provider.id,
-        name: provider.fullName,
-        headline: provider.headline,
-        avatar: provider.avatar,
-      }}
+    <PanelShell
+      subtitle="پنل ارائه‌دهنده"
+      nav={providerNav}
+      user={{ name: provider.fullName, subtitle: provider.headline, avatar: provider.avatar }}
     >
       {children}
-    </ProviderShell>
+    </PanelShell>
   );
 }

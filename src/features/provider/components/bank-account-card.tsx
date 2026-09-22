@@ -2,9 +2,10 @@ import { BadgeCheck, Landmark, LifeBuoy } from "lucide-react";
 
 
 import { maskSheba } from "../utils/format";
-import { SectionCard } from "./ui/section-card";
-import { StatusBadge } from "./ui/status-badge";
+
 import { BankAccount } from "../types/types";
+import { SectionCard } from "@/src/components/shared/section-card";
+import { StatusBadge } from "@/src/components/shared/status-badge";
 
 export function BankAccountCard({ bank }: { bank: BankAccount }) {
   return (

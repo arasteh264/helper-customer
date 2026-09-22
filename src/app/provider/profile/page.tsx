@@ -5,10 +5,11 @@ import { getProfileCompletion } from "@/src/features/provider/lib/completion";
 import { AvailabilityEditor } from "@/src/features/provider/components/availability-editor";
 import { PortfolioUploader } from "@/src/features/provider/components/portfolio-uploader";
 import { ProfileCompletionCard } from "@/src/features/provider/components/profile-completion-card";
-import { PageHeader } from "@/src/features/provider/components/ui/page-header";
+
 import { VerificationSection } from "@/src/features/provider/components/verification-section";
 import { ProfileForm } from "@/src/features/provider/components/profile-form";
 import { defaultSchedule, provider, verificationDocs } from "@/src/features/provider/types/data";
+import { PageHeader } from "@/src/components/shared/page-header";
 
 
 

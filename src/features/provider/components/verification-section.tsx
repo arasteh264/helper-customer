@@ -13,8 +13,9 @@ import {
 
 import type { VerificationDoc, VerificationStatus } from "../types/provider.types";
 import { VERIFICATION_STATUS } from "../utils/job-status";
-import { SectionCard } from "./ui/section-card";
-import { StatusBadge } from "./ui/status-badge";
+import { SectionCard } from "@/src/components/shared/section-card";
+import { StatusBadge } from "@/src/components/shared/status-badge";
+
 
 const MAX_SIZE = 5 * 1024 * 1024;
 
