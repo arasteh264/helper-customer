@@ -20,6 +20,7 @@ import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { OtpInput, toEnglishDigits } from "./OtpInput";
 import { requestLoginOtp } from "../api/request-login-otp";
+import { verifyLoginOtp } from "../api/verify-login-otp";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 120;

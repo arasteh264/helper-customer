@@ -23,6 +23,7 @@ import {
   serviceMenuItems,
   type HeaderUser,
 } from "./nav-data";
+import { ICONS } from "@/src/features/provider/lib/icons";
 
 const FOCUSABLE = "a[href], button:not([disabled]), input, summary";
 
@@ -161,7 +162,7 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
 
                   <ul className="mt-1 grid grid-cols-1 gap-1 pb-2 pr-2">
                     {serviceMenuItems.map((item) => {
-                      const Icon = item.icon;
+                      const Icon = ICONS[item.icon];
                       return (
                         <li key={item.href}>
                           <Link

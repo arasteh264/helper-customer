@@ -17,10 +17,11 @@ import {
 } from "../schemas/provider-profile.schema";
 import { formatMoney, toEnglishDigits } from "../utils/format";
 
-import { ChipsInput } from "./ui/chips-input";
-import { SectionCard } from "./ui/section-card";
+
 import { AvatarUploader } from "./avatar-uploader";
 import { Provider } from "../types/types";
+import { SectionCard } from "@/src/components/shared/section-card";
+import { ChipsInput } from "./ui/chips-input";
 
 const SKILL_SUGGESTIONS = ["لوله‌کشی", "رفع نشتی", "نصب شیرآلات", "تأسیسات", "رفع گرفتگی", "نصب آبگرمکن"];
 const AREA_SUGGESTIONS = ["تهران - منطقه ۱", "تهران - منطقه ۳", "تهران - منطقه ۵", "کرج", "شهریار"];
@@ -184,7 +185,6 @@ export function ProfileForm({ provider }: { provider: Provider }) {
         </div>
       </SectionCard>
 
-      {/* ───── درباره‌ی من ───── */}
       <SectionCard
         id="bio"
         title="درباره‌ی شما"
@@ -213,7 +213,6 @@ export function ProfileForm({ provider }: { provider: Provider }) {
         </p>
       </SectionCard>
 
-      {/* ───── تخصص‌ها و محدوده ───── */}
       <SectionCard
         id="skills"
         title="تخصص‌ها و محدوده‌ی خدمت"
@@ -256,7 +255,6 @@ export function ProfileForm({ provider }: { provider: Provider }) {
         </div>
       </SectionCard>
 
-      {/* ───── قیمت و تماس ───── */}
       <SectionCard
         id="pricing"
         title="قیمت و راه‌های ارتباطی"

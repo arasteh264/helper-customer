@@ -6,8 +6,9 @@ import { Copy, Loader2, Save } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 
-import { SectionCard } from "./ui/section-card";
+
 import { DaySchedule } from "../types/types";
+import { SectionCard } from "@/src/components/shared/section-card";
 
 
 const timeCls =

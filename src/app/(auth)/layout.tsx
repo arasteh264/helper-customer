@@ -3,29 +3,16 @@ import {
   ShieldCheck,
   Clock3,
   Headset,
-  BadgeCheck,
   Star,
-  CheckCircle2,
   ArrowRight,
-  Wrench,
-  Sparkles,
-  Zap,
-  Droplets,
-  Truck,
 } from "lucide-react";
+import SpecialistsScene from "./specialists-scene";
+
 
 const features = [
   { icon: ShieldCheck, text: "متخصصان احراز هویت‌شده" },
   { icon: Clock3, text: "رزرو سریع، در کمتر از دو دقیقه" },
   { icon: Headset, text: "پشتیبانی و ضمانت کیفیت خدمات" },
-];
-
-const services = [
-  { icon: Wrench, label: "تعمیرات" },
-  { icon: Sparkles, label: "نظافت" },
-  { icon: Zap, label: "برق‌کاری" },
-  { icon: Droplets, label: "لوله‌کشی" },
-  { icon: Truck, label: "اسباب‌کشی" },
 ];
 
 export default function AuthLayout({
@@ -57,7 +44,7 @@ export default function AuthLayout({
 
         <div className="relative">
           <h2 className="text-3xl font-semibold leading-snug text-primary-foreground xl:text-4xl xl:leading-snug">
-            متخصصان مورد تأیید，
+            متخصصان مورد تأیید،
             <br />
             برای هر نیاز شما
           </h2>
@@ -66,61 +53,12 @@ export default function AuthLayout({
             هستند.
           </p>
 
-          <ul className="mt-6 flex flex-wrap gap-2">
-            {services.map(({ icon: Icon, label }) => (
-              <li
-                key={label}
-                className="flex items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1.5 text-xs text-primary-foreground backdrop-blur-sm"
-              >
-                <Icon size={14} />
-                {label}
-              </li>
-            ))}
-          </ul>
-
-          <div className="relative mt-10 max-w-sm">
-            <div className="rounded-2xl bg-background p-4 text-foreground shadow-2xl shadow-black/20">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
-                    ر
-                  </span>
-                  <span className="absolute -bottom-0.5 -left-0.5 flex h-3.5 w-3.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-60 motion-safe:animate-ping" />
-                    <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-background bg-green-500" />
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    <p className="truncate text-sm font-semibold">
-                      رضا محمدی
-                    </p>
-                    <BadgeCheck size={16} className="shrink-0 text-primary" />
-                  </div>
-                  <p className="text-xs text-foreground/60">
-                    لوله‌کش ساختمان
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-1 text-xs font-medium text-amber-600">
-                  <Star size={12} className="fill-current" />
-                  ۴.۹
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center justify-between rounded-xl bg-foreground/5 px-3 py-2.5 text-xs">
-                <span className="text-foreground/60">نزدیک‌ترین زمان</span>
-                <span className="font-medium">امروز، ساعت ۱۶:۰۰</span>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-6 -left-4 flex items-center gap-2 rounded-xl bg-background px-3 py-2 text-xs font-medium text-foreground shadow-xl shadow-black/20">
-              <CheckCircle2 size={16} className="text-green-600" />
-              رزرو شما تأیید شد
-            </div>
+          <div className="mt-8 max-w-md">
+            <SpecialistsScene />
           </div>
         </div>
 
-        <div className="relative mt-16">
+        <div className="relative mt-10">
           <ul className="space-y-3">
             {features.map(({ icon: Icon, text }) => (
               <li

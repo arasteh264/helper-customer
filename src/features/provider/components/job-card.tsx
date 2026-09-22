@@ -4,8 +4,9 @@ import { Button } from "@/src/components/ui/button";
 
 import { formatDateTime, formatMoney } from "../utils/format";
 import { JOB_STATUS } from "../utils/job-status";
-import { StatusBadge } from "./ui/status-badge";
+
 import { Job } from "../types/types";
+import { StatusBadge } from "@/src/components/shared/status-badge";
 
 export type JobAction = "accept" | "reject" | "start" | "complete";
 

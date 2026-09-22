@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 import { JobsBoard } from "@/src/features/provider/components/jobs-board";
-import { PageHeader } from "@/src/features/provider/components/ui/page-header";
+
 import { jobs } from "@/src/features/provider/types/data";
+import { PageHeader } from "@/src/components/shared/page-header";
 
 export const metadata: Metadata = { title: "کارها | پنل متخصص" };
 

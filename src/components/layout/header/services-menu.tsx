@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronDown } from "lucide-react";
 
 import { ButtonLink } from "@/src/components/shared/button-link";
 import { serviceMenuItems } from "./nav-data";
+import { ICONS } from "@/src/features/provider/lib/icons";
 
 export function ServicesMenu({ active }: { active: boolean }) {
   const [open, setOpen] = useState(false);
@@ -91,7 +92,7 @@ export function ServicesMenu({ active }: { active: boolean }) {
           <div className="flex-1 p-3">
             <ul className="grid grid-cols-2 gap-1">
               {serviceMenuItems.slice(0, 10).map((item) => {
-                const Icon = item.icon;
+                const Icon = ICONS[item.icon];
                 return (
                   <li key={item.href}>
                     <Link

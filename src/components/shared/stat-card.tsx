@@ -4,6 +4,7 @@ interface StatCardProps {
   icon: LucideIcon;
   label: string;
   value: string;
+  /** توضیح کوچک زیر مقدار، مثلاً «۱۴٪ بیشتر از ماه قبل» */
   hint?: string;
   hintTone?: "positive" | "negative" | "neutral";
 }

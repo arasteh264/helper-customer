@@ -4,48 +4,41 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import {
-  Briefcase,
-  ExternalLink,
-  LayoutDashboard,
-  LogOut,
-  UserRound,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
+import { ExternalLink, LogOut, type LucideIcon } from "lucide-react";
+import { IconKey, ICONS } from "@/src/features/provider/lib/icons";
 
-interface NavItem {
+export interface PanelNavItem {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: IconKey;
+  /** فقط وقتی مسیر دقیقاً برابر باشد فعال شود (برای صفحه‌ی «نمای کلی») */
+  exact?: boolean;
+  /** در نوار پایین موبایل نمایش داده شود (حداکثر ۵ مورد) */
+  mobile?: boolean;
 }
 
-const NAV: NavItem[] = [
-  { label: "نمای کلی", href: "/provider", icon: LayoutDashboard },
-  { label: "کارها", href: "/provider/jobs", icon: Briefcase },
-  { label: "پنل مالی", href: "/provider/finance", icon: Wallet },
-  { label: "پروفایل", href: "/provider/profile", icon: UserRound },
-];
-
-interface ProviderShellProps {
-  provider: { id: string; name: string; headline: string; avatar?: string };
+interface PanelShellProps {
+  /** مثلاً «پنل مشتری» */
+  subtitle: string;
+  nav: PanelNavItem[];
+  user: { name: string; subtitle?: string; avatar?: string };
+  /** لینک اختیاری بالای کارت کاربر، مثلاً «مشاهده‌ی پروفایل عمومی» */
+  extraLink?: { label: string; href: string };
   children: ReactNode;
 }
 
-function isActive(pathname: string, href: string) {
-  return href === "/provider"
-    ? pathname === href
-    : pathname === href || pathname.startsWith(`${href}/`);
+function isActive(pathname: string, item: PanelNavItem) {
+  return item.exact
+    ? pathname === item.href
+    : pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function Avatar({ name, avatar, size = 40 }: { name: string; avatar?: string; size?: number }) {
-  return avatar ? (
+function Avatar({ name, src, size = 40 }: { name: string; src?: string; size?: number }) {
+  return src ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={avatar}
+      src={src}
       alt=""
-      width={size}
-      height={size}
       className="shrink-0 rounded-full object-cover"
       style={{ width: size, height: size }}
     />
@@ -59,29 +52,34 @@ function Avatar({ name, avatar, size = 40 }: { name: string; avatar?: string; si
   );
 }
 
-export function ProviderShell({ provider, children }: ProviderShellProps) {
+export function PanelShell({ subtitle, nav, user, extraLink, children }: PanelShellProps) {
   const pathname = usePathname();
+  const mobileNav = nav.filter((i) => i.mobile).slice(0, 5);
 
   return (
     <div className="min-h-screen bg-foreground/[0.025] lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="sticky top-0 hidden h-screen flex-col border-e border-foreground/10 bg-card lg:flex">
-        <div className="flex h-16 items-center gap-2.5 border-b border-foreground/10 px-6">
+        <Link
+          href="/"
+          className="flex h-16 items-center gap-2.5 border-b border-foreground/10 px-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        >
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-base font-bold text-primary-foreground">
             H
           </span>
           <div className="leading-tight">
             <p className="text-base font-bold text-foreground">Helper</p>
-            <p className="text-[11px] text-foreground/50">پنل متخصص</p>
+            <p className="text-[11px] text-foreground/50">{subtitle}</p>
           </div>
-        </div>
+        </Link>
 
-        <nav aria-label="منوی پنل" className="flex-1 space-y-1 p-4">
-          {NAV.map(({ label, href, icon: Icon }) => {
-            const active = isActive(pathname, href);
+        <nav aria-label="منوی پنل" className="flex-1 space-y-1 overflow-y-auto p-4">
+          {nav.map((item) => {
+            const active = isActive(pathname, item);
+            const Icon = ICONS[item.icon];
             return (
               <Link
-                key={href}
-                href={href}
+                key={item.href}
+                href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={[
                   "flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
@@ -91,30 +89,30 @@ export function ProviderShell({ provider, children }: ProviderShellProps) {
                 ].join(" ")}
               >
                 <Icon size={19} />
-                {label}
+                {item.label}
               </Link>
             );
           })}
         </nav>
 
         <div className="space-y-3 border-t border-foreground/10 p-4">
-          <Link
-            href={`/specialists/${provider.id}`}
-            className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-primary"
-          >
-            مشاهده‌ی پروفایل عمومی
-            <ExternalLink size={14} />
-          </Link>
+          {extraLink && (
+            <Link
+              href={extraLink.href}
+              className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-primary"
+            >
+              {extraLink.label}
+              <ExternalLink size={14} />
+            </Link>
+          )}
 
           <div className="flex items-center gap-3 rounded-xl bg-foreground/[0.04] p-3">
-            <Avatar name={provider.name} avatar={provider.avatar} />
+            <Avatar name={user.name} src={user.avatar} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">
-                {provider.name}
-              </p>
-              <p className="truncate text-xs text-foreground/50">
-                {provider.headline}
-              </p>
+              <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
+              {user.subtitle && (
+                <p className="truncate text-xs text-foreground/50">{user.subtitle}</p>
+              )}
             </div>
             <button
               type="button"
@@ -131,23 +129,23 @@ export function ProviderShell({ provider, children }: ProviderShellProps) {
 
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-foreground/10 bg-background/85 px-4 backdrop-blur-xl lg:hidden">
-          <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
               H
             </span>
-            <span className="text-sm font-semibold text-foreground">
-              پنل متخصص
-            </span>
-          </div>
+            <span className="text-sm font-semibold text-foreground">{subtitle}</span>
+          </Link>
           <div className="flex items-center gap-2">
-            <Link
-              href={`/specialists/${provider.id}`}
-              aria-label="مشاهده‌ی پروفایل عمومی"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
-            >
-              <ExternalLink size={18} />
-            </Link>
-            <Avatar name={provider.name} avatar={provider.avatar} size={34} />
+            {extraLink && (
+              <Link
+                href={extraLink.href}
+                aria-label={extraLink.label}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
+              >
+                <ExternalLink size={18} />
+              </Link>
+            )}
+            <Avatar name={user.name} src={user.avatar} size={34} />
           </div>
         </header>
 
@@ -163,13 +161,17 @@ export function ProviderShell({ provider, children }: ProviderShellProps) {
         aria-label="منوی پنل"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/10 bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
       >
-        <ul className="grid grid-cols-4">
-          {NAV.map(({ label, href, icon: Icon }) => {
-            const active = isActive(pathname, href);
+        <ul
+          className="grid"
+          style={{ gridTemplateColumns: `repeat(${mobileNav.length}, minmax(0, 1fr))` }}
+        >
+          {mobileNav.map((item) => {
+            const active = isActive(pathname, item);
+            const Icon = ICONS[item.icon];
             return (
-              <li key={href}>
+              <li key={item.href}>
                 <Link
-                  href={href}
+                  href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={[
                     "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
@@ -183,7 +185,7 @@ export function ProviderShell({ provider, children }: ProviderShellProps) {
                   >
                     <Icon size={20} />
                   </span>
-                  {label}
+                  {item.label}
                 </Link>
               </li>
             );

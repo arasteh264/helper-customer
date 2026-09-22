@@ -1,14 +1,17 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { login } from "./features/auth/api/login";
+import { verifyLoginOtp } from "./features/auth/api/verify-login-otp";
 import { ApiError, ApiErrorCode } from "./lib/api/error";
 import { decodeJwt } from "jose";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
   trustHost: true,
   pages: { signIn: "/login" },
   providers: [
     Credentials({
+      id: "credentials",
       credentials: {
         identifier: { label: "Identifier", type: "text" },
         password: { label: "Password", type: "password" },
@@ -25,11 +28,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role: string;
           };
 
-          return {
-            id: payload.userId,
-            role: payload.role,
-            accessToken,
+          return { id: payload.userId, role: payload.role, accessToken };
+        } catch (e) {
+          if (e instanceof ApiError) {
+            console.error("[authorize]", e.code, e.message);
+          } else {
+            console.error("[authorize]", e);
+          }
+          return null;
+        }
+      },
+    }),
+    Credentials({
+      id: "otp",
+      credentials: {
+        phone: { label: "Phone", type: "text" },
+        code: { label: "Code", type: "text" },
+      },
+      async authorize(credentials) {
+        try {
+          const { accessToken } = await verifyLoginOtp({
+            phone: credentials?.phone as string,
+            code: credentials?.code as string,
+          });
+
+          const payload = decodeJwt(accessToken) as {
+            userId: string;
+            role: string;
           };
+
+          return { id: payload.userId, role: payload.role, accessToken };
         } catch (e) {
           if (e instanceof ApiError) {
             console.error("[authorize]", e.code, e.message);
@@ -60,5 +88,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
-
-

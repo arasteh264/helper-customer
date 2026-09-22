@@ -4,9 +4,10 @@ import { CalendarClock, ChevronLeft, MapPin } from "lucide-react";
 
 import { formatDateTime, formatMoney } from "../utils/format";
 import { JOB_STATUS } from "../utils/job-status";
-import { SectionCard } from "./ui/section-card";
-import { StatusBadge } from "./ui/status-badge";
+
 import { Job } from "../types/types";
+import { SectionCard } from "@/src/components/shared/section-card";
+import { StatusBadge } from "@/src/components/shared/status-badge";
 
 export function UpcomingJobsCard({ jobs }: { jobs: Job[] }) {
   const upcoming = jobs

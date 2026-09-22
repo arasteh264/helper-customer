@@ -8,6 +8,6 @@ export async function requestLoginOtp(
     "/auth/otp/request",
     input
   );
-  debugger
+  
   return data;
 }

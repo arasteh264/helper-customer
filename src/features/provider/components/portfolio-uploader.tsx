@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ImagePlus, Trash2 } from "lucide-react";
+import { SectionCard } from "@/src/components/shared/section-card";
 
-import { SectionCard } from "./ui/section-card";
+
 
 const MAX_ITEMS = 8;
 const MIN_RECOMMENDED = 3;

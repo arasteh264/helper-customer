@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 interface SectionCardProps {
+  /** شناسه برای لینک‌های لنگر (مثلاً از کارت تکمیل پروفایل) */
   id?: string;
   title: string;
   description?: string;

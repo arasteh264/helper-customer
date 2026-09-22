@@ -30,10 +30,10 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { OtpInput, toEnglishDigits } from "./OtpInput";
-
+import { isAxiosError } from "axios";
+import { register as registerUser } from "@/src/features/auth/api/register";
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 120;
-
 
 const toPersianDigits = (value: string | number) =>
   String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
@@ -42,7 +42,7 @@ const formatTime = (total: number) => {
   const m = Math.floor(total / 60);
   const s = total % 60;
   return toPersianDigits(
-    `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
   );
 };
 
@@ -97,11 +97,10 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
     defaultValues: {
-      fullName: "",
-      mobile: "",
+      name: "",
+      phone: "",
       email: "",
       password: "",
-      terms: false,
     },
   });
 
@@ -118,48 +117,40 @@ export function RegisterForm() {
     setServerError(null);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: values.fullName,
-          mobile: values.mobile,
-          email: values.email || undefined,
-          password: values.password,
-        }),
+      await registerUser({
+        name: values.name,
+        phone: values.phone,
+        email: values.email,
+        password: values.password,
       });
-
-      if (res.status === 409) {
-        setError("mobile", {
-          message: "با این شماره قبلاً ثبت‌نام شده است. وارد شوید.",
-        });
-        return;
-      }
-
-      if (!res.ok) throw new Error();
 
       setOtp("");
       setSecondsLeft(RESEND_SECONDS);
       setStep("verify");
       toast.success("کد تأیید به شماره شما پیامک شد");
-    } catch {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 409) {
+        setError("phone", {
+          message: "با این شماره قبلاً ثبت‌نام شده است. وارد شوید.",
+        });
+        return;
+      }
       setServerError("ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.");
     }
   };
 
-  /* ───────── مرحله ۲: تأیید شماره ───────── */
   const verifyCode = async (code: string) => {
     if (verifying) return;
     setServerError(null);
     setVerifying(true);
 
-    const { mobile, password } = getValues();
+    const { phone, password } = getValues();
 
     try {
       const res = await fetch("/api/auth/register/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile, code }),
+        body: JSON.stringify({ phone, code }),
       });
 
       if (!res.ok) {
@@ -169,7 +160,7 @@ export function RegisterForm() {
       }
 
       const result = await signIn("credentials", {
-        identifier: mobile,
+        identifier: phone,
         password,
         redirect: false,
       });
@@ -191,7 +182,7 @@ export function RegisterForm() {
       const res = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: getValues("mobile") }),
+        body: JSON.stringify({ phone: getValues("phone") }),
       });
       if (!res.ok) throw new Error();
       setOtp("");
@@ -220,7 +211,9 @@ export function RegisterForm() {
             )}
           </span>
           <h1 className="text-xl font-semibold tracking-tight text-foreground">
-            {step === "details" ? "ایجاد حساب کاربری" : "شماره خود را تأیید کنید"}
+            {step === "details"
+              ? "ایجاد حساب کاربری"
+              : "شماره خود را تأیید کنید"}
           </h1>
           <p className="mt-1.5 text-sm leading-6 text-foreground/60">
             {step === "details" ? (
@@ -229,7 +222,7 @@ export function RegisterForm() {
               <>
                 کد {toPersianDigits(OTP_LENGTH)} رقمی به شماره{" "}
                 <span dir="ltr" className="font-medium text-foreground">
-                  {toPersianDigits(getValues("mobile"))}
+                  {toPersianDigits(getValues("phone"))}
                 </span>{" "}
                 ارسال شد
               </>
@@ -255,56 +248,51 @@ export function RegisterForm() {
               noValidate
             >
               <div className="space-y-2">
-                <Label htmlFor="fullName">نام و نام خانوادگی</Label>
+                <Label htmlFor="name">نام و نام خانوادگی</Label>
                 <div className="relative">
                   <User
                     size={18}
                     className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-foreground/35"
                   />
                   <Input
-                    id="fullName"
+                    id="name"
                     type="text"
                     autoComplete="name"
                     autoFocus
                     placeholder="مثلاً سارا احمدی"
-                    error={!!errors.fullName}
-                    aria-invalid={!!errors.fullName}
-                    aria-describedby={
-                      errors.fullName ? "fullName-error" : undefined
-                    }
+                    error={!!errors.name}
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? "name-error" : undefined}
                     className="pr-10"
-                    {...register("fullName")}
+                    {...register("name")}
                   />
                 </div>
-                <FieldError
-                  id="fullName-error"
-                  message={errors.fullName?.message}
-                />
+                <FieldError id="name-error" message={errors.name?.message} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mobile">شماره موبایل</Label>
+                <Label htmlFor="phone">شماره موبایل</Label>
                 <div className="relative">
                   <Smartphone
                     size={18}
                     className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-foreground/35"
                   />
                   <Input
-                    id="mobile"
+                    id="phone"
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel"
                     dir="ltr"
                     maxLength={11}
                     placeholder="09123456789"
-                    error={!!errors.mobile}
-                    aria-invalid={!!errors.mobile}
-                    aria-describedby={errors.mobile ? "mobile-error" : undefined}
+                    error={!!errors.phone}
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? "phone-error" : undefined}
                     className="pr-10 text-left tracking-wider"
-                    {...register("mobile", { setValueAs: toEnglishDigits })}
+                    {...register("phone", { setValueAs: toEnglishDigits })}
                   />
                 </div>
-                <FieldError id="mobile-error" message={errors.mobile?.message} />
+                <FieldError id="phone-error" message={errors.phone?.message} />
               </div>
 
               <div className="space-y-2">
@@ -401,7 +389,7 @@ export function RegisterForm() {
                 )}
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="flex cursor-pointer items-start gap-2.5 text-sm leading-6 text-foreground/70">
                   <input
                     type="checkbox"
@@ -429,7 +417,7 @@ export function RegisterForm() {
                   </span>
                 </label>
                 <FieldError id="terms-error" message={errors.terms?.message} />
-              </div>
+              </div> */}
 
               <Button
                 type="submit"
@@ -517,7 +505,6 @@ export function RegisterForm() {
           </Link>
         </div>
       </div>
-
     </div>
   );
 }
