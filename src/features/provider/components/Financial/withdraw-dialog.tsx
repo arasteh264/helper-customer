@@ -7,8 +7,8 @@ import { Landmark, Loader2, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 
-import { formatMoney, maskSheba, toEnglishDigits } from "../utils/format";
-import { BankAccount } from "../types/types";
+import { formatMoney, maskSheba, toEnglishDigits } from "../../utils/format";
+import { BankAccount } from "../../types/types";
 
 interface Props {
   open: boolean;

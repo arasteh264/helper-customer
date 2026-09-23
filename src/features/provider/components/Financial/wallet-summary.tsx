@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { ArrowUpRight, Clock3, Percent, TrendingUp } from "lucide-react";
-
-
-import { formatMoney, formatNumber } from "../utils/format";
-import { FinanceSummary } from "../types/types";
+import { FinanceSummary } from "../../types/types";
+import { formatMoney, formatNumber } from "@/src/utils/format";
 import { WithdrawDialog } from "./withdraw-dialog";
+
+
+
 
 
 export function WalletSummary({ finance }: { finance: FinanceSummary }) {

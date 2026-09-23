@@ -2,14 +2,12 @@
 
 import { useMemo, useState } from "react";
 
+import { formatDateTime, formatMoney } from "../../utils/format";
+import { TRANSACTION_STATUS, TRANSACTION_TYPE } from "../../utils/job-status";
 
-import { formatDateTime, formatMoney } from "../utils/format";
-import { TRANSACTION_STATUS, TRANSACTION_TYPE } from "../utils/job-status";
-
-import { Transaction, TransactionType } from "../types/types";
+import { Transaction, TransactionType } from "../../types/types";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { StatusBadge } from "@/src/components/shared/status-badge";
-
 
 type Filter = "all" | "earning" | "withdrawal" | "deductions";
 
@@ -17,7 +15,11 @@ const FILTERS: { id: Filter; label: string; types?: TransactionType[] }[] = [
   { id: "all", label: "همه" },
   { id: "earning", label: "درآمد", types: ["earning"] },
   { id: "withdrawal", label: "برداشت", types: ["withdrawal"] },
-  { id: "deductions", label: "کارمزد و بازگشت", types: ["commission", "refund"] },
+  {
+    id: "deductions",
+    label: "کارمزد و بازگشت",
+    types: ["commission", "refund"],
+  },
 ];
 
 const PAGE_SIZE = 6;
@@ -32,13 +34,20 @@ function Amount({ tx }: { tx: Transaction }) {
       : "text-foreground";
 
   return (
-    <span dir="ltr" className={`whitespace-nowrap text-sm font-semibold ${color} ${tx.status === "failed" ? "line-through" : ""}`}>
+    <span
+      dir="ltr"
+      className={`whitespace-nowrap text-sm font-semibold ${color} ${tx.status === "failed" ? "line-through" : ""}`}
+    >
       {positive ? "+" : "−"} {formatMoney(tx.amount)}
     </span>
   );
 }
 
-export function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
+export function TransactionsTable({
+  transactions,
+}: {
+  transactions: Transaction[];
+}) {
   const [filter, setFilter] = useState<Filter>("all");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -88,11 +97,21 @@ export function TransactionsTable({ transactions }: { transactions: Transaction[
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-foreground/10 text-xs text-foreground/50">
-                  <th scope="col" className="pb-3 pe-4 text-start font-medium">تاریخ</th>
-                  <th scope="col" className="pb-3 pe-4 text-start font-medium">شرح</th>
-                  <th scope="col" className="pb-3 pe-4 text-start font-medium">نوع</th>
-                  <th scope="col" className="pb-3 pe-4 text-start font-medium">وضعیت</th>
-                  <th scope="col" className="pb-3 text-end font-medium">مبلغ</th>
+                  <th scope="col" className="pb-3 pe-4 text-start font-medium">
+                    تاریخ
+                  </th>
+                  <th scope="col" className="pb-3 pe-4 text-start font-medium">
+                    شرح
+                  </th>
+                  <th scope="col" className="pb-3 pe-4 text-start font-medium">
+                    نوع
+                  </th>
+                  <th scope="col" className="pb-3 pe-4 text-start font-medium">
+                    وضعیت
+                  </th>
+                  <th scope="col" className="pb-3 text-end font-medium">
+                    مبلغ
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-foreground/[0.07]">
@@ -103,7 +122,9 @@ export function TransactionsTable({ transactions }: { transactions: Transaction[
                       <td className="whitespace-nowrap py-3.5 pe-4 text-foreground/60">
                         {formatDateTime(tx.date)}
                       </td>
-                      <td className="py-3.5 pe-4 text-foreground">{tx.description}</td>
+                      <td className="py-3.5 pe-4 text-foreground">
+                        {tx.description}
+                      </td>
                       <td className="py-3.5 pe-4 text-foreground/60">
                         {TRANSACTION_TYPE[tx.type]}
                       </td>
@@ -129,7 +150,9 @@ export function TransactionsTable({ transactions }: { transactions: Transaction[
                   className="rounded-xl border border-foreground/10 bg-background p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm leading-6 text-foreground">{tx.description}</p>
+                    <p className="text-sm leading-6 text-foreground">
+                      {tx.description}
+                    </p>
                     <Amount tx={tx} />
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-2 text-xs text-foreground/50">

@@ -4,16 +4,23 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Inbox } from "lucide-react";
 
-
-import { formatNumber } from "../utils/format";
+import { formatNumber } from "../../utils/format";
 import { JobCard, type JobAction } from "./job-card";
-import { Job, JobStatus } from "../types/types";
+import { Job, JobStatus } from "../../types/types";
 
 const TABS: { id: JobStatus; label: string; empty: string }[] = [
   { id: "new", label: "جدید", empty: "درخواست جدیدی ندارید." },
   { id: "accepted", label: "پذیرفته‌شده", empty: "کار پذیرفته‌شده‌ای ندارید." },
-  { id: "in_progress", label: "در حال انجام", empty: "کاری در حال انجام نیست." },
-  { id: "completed", label: "تکمیل‌شده", empty: "هنوز کاری را تکمیل نکرده‌اید." },
+  {
+    id: "in_progress",
+    label: "در حال انجام",
+    empty: "کاری در حال انجام نیست.",
+  },
+  {
+    id: "completed",
+    label: "تکمیل‌شده",
+    empty: "هنوز کاری را تکمیل نکرده‌اید.",
+  },
   { id: "cancelled", label: "لغوشده", empty: "کار لغوشده‌ای وجود ندارد." },
 ];
 
@@ -37,7 +44,9 @@ export function JobsBoard({ initialJobs }: { initialJobs: Job[] }) {
 
   const counts = useMemo(() => {
     const map = {} as Record<JobStatus, number>;
-    TABS.forEach((t) => (map[t.id] = jobs.filter((j) => j.status === t.id).length));
+    TABS.forEach(
+      (t) => (map[t.id] = jobs.filter((j) => j.status === t.id).length),
+    );
     return map;
   }, [jobs]);
 
@@ -46,7 +55,7 @@ export function JobsBoard({ initialJobs }: { initialJobs: Job[] }) {
       jobs
         .filter((j) => j.status === tab)
         .sort((a, b) => +new Date(a.scheduledAt) - +new Date(b.scheduledAt)),
-    [jobs, tab]
+    [jobs, tab],
   );
 
   const handleAction = (id: string, action: JobAction) => {
@@ -54,7 +63,9 @@ export function JobsBoard({ initialJobs }: { initialJobs: Job[] }) {
 
     // TODO: تغییر وضعیت را به API ارسال کنید
     setJobs((prev) =>
-      prev.map((j) => (j.id === id ? { ...j, status: NEXT_STATUS[action] } : j))
+      prev.map((j) =>
+        j.id === id ? { ...j, status: NEXT_STATUS[action] } : j,
+      ),
     );
     toast.success(SUCCESS_MESSAGE[action]);
   };

@@ -6,10 +6,8 @@ import { Copy, Loader2, Save } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 
-
-import { DaySchedule } from "../types/types";
+import { DaySchedule } from "../../types/types";
 import { SectionCard } from "@/src/components/shared/section-card";
-
 
 const timeCls =
   "h-10 w-28 rounded-lg border border-foreground/15 bg-background px-2 text-center text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:opacity-40";
@@ -28,7 +26,9 @@ export function AvailabilityEditor({ initial }: { initial: DaySchedule[] }) {
     const first = days.find((d) => d.enabled);
     if (!first) return;
     setDays((prev) =>
-      prev.map((d) => (d.enabled ? { ...d, from: first.from, to: first.to } : d))
+      prev.map((d) =>
+        d.enabled ? { ...d, from: first.from, to: first.to } : d,
+      ),
     );
     toast.success("ساعت اولین روز فعال به بقیه‌ی روزهای فعال اعمال شد");
   };
@@ -157,7 +157,11 @@ export function AvailabilityEditor({ initial }: { initial: DaySchedule[] }) {
           disabled={saving || hasError}
           className="ms-auto gap-1.5"
         >
-          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          {saving ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Save size={16} />
+          )}
           ذخیره‌ی ساعات کاری
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import { formatCompactMoney, formatMoney } from "../utils/format";
+import { formatCompactMoney, formatMoney } from "../../utils/format";
 
 interface Props {
   data: { label: string; amount: number }[];
@@ -46,12 +46,17 @@ export function EarningsChart({ data }: Props) {
         })}
       </div>
 
-      <div className="mt-3 flex gap-2 border-t border-foreground/10 pt-3 sm:gap-4" aria-hidden>
+      <div
+        className="mt-3 flex gap-2 border-t border-foreground/10 pt-3 sm:gap-4"
+        aria-hidden
+      >
         {data.map((d, i) => (
           <span
             key={d.label}
             className={`flex-1 text-center text-[11px] sm:text-xs ${
-              i === lastIndex ? "font-semibold text-foreground" : "text-foreground/50"
+              i === lastIndex
+                ? "font-semibold text-foreground"
+                : "text-foreground/50"
             }`}
           >
             {d.label}

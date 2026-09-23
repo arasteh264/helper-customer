@@ -10,21 +10,32 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 
-
 import {
   providerProfileSchema,
   type ProviderProfileValues,
-} from "../schemas/provider-profile.schema";
-import { formatMoney, toEnglishDigits } from "../utils/format";
-
+} from "../../schemas/provider-profile.schema";
+import { formatMoney, toEnglishDigits } from "../../utils/format";
 
 import { AvatarUploader } from "./avatar-uploader";
-import { Provider } from "../types/types";
+import { Provider } from "../../types/types";
 import { SectionCard } from "@/src/components/shared/section-card";
-import { ChipsInput } from "./ui/chips-input";
+import { ChipsInput } from "../ui/chips-input";
 
-const SKILL_SUGGESTIONS = ["لوله‌کشی", "رفع نشتی", "نصب شیرآلات", "تأسیسات", "رفع گرفتگی", "نصب آبگرمکن"];
-const AREA_SUGGESTIONS = ["تهران - منطقه ۱", "تهران - منطقه ۳", "تهران - منطقه ۵", "کرج", "شهریار"];
+const SKILL_SUGGESTIONS = [
+  "لوله‌کشی",
+  "رفع نشتی",
+  "نصب شیرآلات",
+  "تأسیسات",
+  "رفع گرفتگی",
+  "نصب آبگرمکن",
+];
+const AREA_SUGGESTIONS = [
+  "تهران - منطقه ۱",
+  "تهران - منطقه ۳",
+  "تهران - منطقه ۵",
+  "کرج",
+  "شهریار",
+];
 
 function Field({
   id,
@@ -127,7 +138,11 @@ export function ProfileForm({ provider }: { provider: Provider }) {
         <AvatarUploader name={provider.fullName} initialUrl={provider.avatar} />
 
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
-          <Field id="fullName" label="نام و نام خانوادگی" error={err("fullName")}>
+          <Field
+            id="fullName"
+            label="نام و نام خانوادگی"
+            error={err("fullName")}
+          >
             <Input
               id="fullName"
               autoComplete="name"
@@ -236,7 +251,11 @@ export function ProfileForm({ provider }: { provider: Provider }) {
             />
           </Field>
 
-          <Field id="serviceAreas" label="محدوده‌های خدمت‌رسانی" error={err("serviceAreas")}>
+          <Field
+            id="serviceAreas"
+            label="محدوده‌های خدمت‌رسانی"
+            error={err("serviceAreas")}
+          >
             <Controller
               control={control}
               name="serviceAreas"
@@ -265,7 +284,9 @@ export function ProfileForm({ provider }: { provider: Provider }) {
             id="startingPrice"
             label="قیمت شروع (تومان)"
             hint={
-              price > 0 ? `نمایش برای مشتری: از ${formatMoney(price)}` : undefined
+              price > 0
+                ? `نمایش برای مشتری: از ${formatMoney(price)}`
+                : undefined
             }
             error={err("startingPrice")}
           >

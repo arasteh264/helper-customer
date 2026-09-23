@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { CalendarClock, ChevronLeft, MapPin } from "lucide-react";
 
+import { formatDateTime, formatMoney } from "../../utils/format";
+import { JOB_STATUS } from "../../utils/job-status";
 
-import { formatDateTime, formatMoney } from "../utils/format";
-import { JOB_STATUS } from "../utils/job-status";
-
-import { Job } from "../types/types";
+import { Job } from "../../types/types";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { StatusBadge } from "@/src/components/shared/status-badge";
 

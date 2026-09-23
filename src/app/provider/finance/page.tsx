@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { EarningsChart } from "@/src/features/provider/components/earnings-chart";
-import { WalletSummary } from "@/src/features/provider/components/wallet-summary";
-import { TransactionsTable } from "@/src/features/provider/components/transactions-table";
-import { BankAccountCard } from "@/src/features/provider/components/bank-account-card";
+import { EarningsChart } from "@/src/features/provider/components/Financial/earnings-chart";
+
+import { TransactionsTable } from "@/src/features/provider/components/Financial/transactions-table";
+
 import { finance, transactions } from "@/src/features/provider/types/data";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { SectionCard } from "@/src/components/shared/section-card";
-
+import { WalletSummary } from "@/src/features/provider/components/Financial/wallet-summary";
+import { BankAccountCard } from "@/src/features/provider/components/Financial/bank-account-card";
 
 export const metadata: Metadata = { title: "پنل مالی | پنل متخصص" };
 

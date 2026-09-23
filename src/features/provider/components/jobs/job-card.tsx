@@ -2,11 +2,11 @@ import { CalendarClock, MapPin, Phone, Wallet } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 
-import { formatDateTime, formatMoney } from "../utils/format";
-import { JOB_STATUS } from "../utils/job-status";
 
-import { Job } from "../types/types";
 import { StatusBadge } from "@/src/components/shared/status-badge";
+import { Job } from "../../types/types";
+import { JOB_STATUS } from "../../utils/job-status";
+import { formatDateTime, formatMoney } from "@/src/utils/format";
 
 export type JobAction = "accept" | "reject" | "start" | "complete";
 

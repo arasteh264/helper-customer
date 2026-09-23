@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Camera } from "lucide-react";
+import { Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import { deleteAvatar, uploadAvatar } from "../../api/upload-avatar";
 
 const MAX_SIZE = 2 * 1024 * 1024; // ۲ مگابایت
 
@@ -14,6 +15,7 @@ export function AvatarUploader({
   initialUrl?: string;
 }) {
   const [preview, setPreview] = useState<string | undefined>(initialUrl);
+  const [loading, setLoading] = useState(false);
   const objectUrl = useRef<string | null>(null);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export function AvatarUploader({
     };
   }, []);
 
-  const onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -38,10 +40,37 @@ export function AvatarUploader({
 
     if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
     objectUrl.current = URL.createObjectURL(file);
-    setPreview(objectUrl.current);
+    const localPreview = objectUrl.current;
+    setPreview(localPreview);
 
-    // TODO: فایل را به API آپلود ارسال کنید
-    toast.success("عکس پروفایل انتخاب شد");
+    setLoading(true);
+    try {
+      debugger;
+      await uploadAvatar(file);
+      toast.success("عکس پروفایل بروزرسانی شد");
+    } catch {
+      setPreview(initialUrl);
+      toast.error("آپلود عکس با مشکل مواجه شد");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRemove = async () => {
+    setLoading(true);
+    try {
+      await deleteAvatar();
+      if (objectUrl.current) {
+        URL.revokeObjectURL(objectUrl.current);
+        objectUrl.current = null;
+      }
+      setPreview(undefined);
+      toast.success("عکس پروفایل حذف شد");
+    } catch {
+      toast.error("حذف عکس با مشکل مواجه شد");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,11 +89,18 @@ export function AvatarUploader({
           </span>
         )}
 
+        {loading && (
+          <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+            <Loader2 className="animate-spin text-white" size={22} />
+          </span>
+        )}
+
         <input
           id="avatar-input"
           type="file"
           accept="image/*"
           onChange={onSelect}
+          disabled={loading}
           className="peer sr-only"
         />
         <label
@@ -74,6 +110,17 @@ export function AvatarUploader({
           <Camera size={16} />
           <span className="sr-only">تغییر عکس پروفایل</span>
         </label>
+
+        {preview && !loading && (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute -top-1 -end-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-destructive text-white shadow transition-colors hover:bg-destructive/90"
+          >
+            <X size={12} />
+            <span className="sr-only">حذف عکس پروفایل</span>
+          </button>
+        )}
       </div>
 
       <div className="text-sm leading-6">
