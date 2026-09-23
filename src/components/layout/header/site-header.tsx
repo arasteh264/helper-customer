@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { LogOut } from "lucide-react";
 
 import { Container } from "@/src/components/shared/container";
 import { ButtonLink } from "@/src/components/shared/button-link";
@@ -79,17 +81,19 @@ export function SiteHeader({ user = null }: SiteHeaderProps) {
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">
             {user ? (
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 rounded-full border border-foreground/10 bg-card p-1 pl-4 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {user.name.charAt(0)}
-                </span>
-                <span className="max-w-[8rem] truncate text-sm font-medium text-foreground">
-                  {user.name}
-                </span>
-              </Link>
+              <>
+                <ButtonLink href="/customer" variant="outline">
+                  مشاهده پروفایل
+                </ButtonLink>
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-foreground/15 px-4 text-sm font-medium text-foreground/80 transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
+                  <LogOut size={16} />
+                  خروج
+                </button>
+              </>
             ) : (
               <>
                 <ButtonLink href="/login" variant="ghost">

@@ -17,13 +17,13 @@ export function ProfileSummaryCard({ customer }: { customer: Customer }) {
           />
         ) : (
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
-            {customer.fullName.charAt(0)}
+            {customer.name.charAt(0)}
           </span>
         )}
 
         <div>
           <h1 className="text-lg font-bold text-foreground sm:text-xl">
-            {customer.fullName}
+            {customer.name}
           </h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-foreground/55">
             عضو هلپر از {formatDate(customer.memberSince)}

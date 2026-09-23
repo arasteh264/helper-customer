@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const customerProfileSchema = z.object({
-  fullName: z
+  name: z
     .string()
     .trim()
     .min(3, "نام و نام خانوادگی را وارد کنید")

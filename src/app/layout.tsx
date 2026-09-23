@@ -4,6 +4,7 @@ import "./globals.css";
 import { QueryProvider } from "../providers/QueryProvider";
 import { SiteFooter } from "../components/layout/footer/site-footer";
 import { SiteHeader } from "../components/layout/header/site-header";
+import { Toaster } from "sonner";
 
 const vazirmatn = localFont({
   src: "../assets/fonts/Vazirmatn-RD[wght].woff2",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className={`${vazirmatn.variable}`}>
         <QueryProvider>{children}</QueryProvider>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

@@ -233,9 +233,13 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <ButtonLink href="/dashboard" size="lg" className="gap-1.5">
+                <ButtonLink
+                  href="/customer/profile"
+                  size="lg"
+                  className="gap-1.5"
+                >
                   <LayoutDashboard size={18} />
-                  پنل کاربری
+                  مشاهده پروفایل
                 </ButtonLink>
                 <button
                   type="button"
