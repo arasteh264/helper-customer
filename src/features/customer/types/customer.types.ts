@@ -1,9 +1,9 @@
 export interface Customer {
   id: string;
-  fullName: string;
+  name: string;
   phone: string;
   email: string;
-  emailVerified: boolean;
+  emailVerified?: boolean;
   avatar?: string;
   memberSince: string; // ISO
   walletBalance: number; // تومان

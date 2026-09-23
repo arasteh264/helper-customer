@@ -1,4 +1,5 @@
 export enum ApiErrorCode {
+  UNAUTHORIZED = "UNAUTHORIZED",
   INVALID_CREDENTIALS = "INVALID_CREDENTIALS",
   USER_NOT_FOUND = "USER_NOT_FOUND",
   DUPLICATE_EMAIL = "DUPLICATE_EMAIL",
@@ -23,6 +24,7 @@ export class ApiError extends Error {
 }
 
 export const API_ERROR_MESSAGES: Record<ApiErrorCode, string> = {
+  [ApiErrorCode.UNAUTHORIZED]: "نشست شما منقضی شده است؛ دوباره وارد شوید",
   [ApiErrorCode.INVALID_CREDENTIALS]: "موبایل/ایمیل یا رمز عبور اشتباه است",
   [ApiErrorCode.USER_NOT_FOUND]: "کاربری با این مشخصات یافت نشد",
   [ApiErrorCode.DUPLICATE_EMAIL]: "این ایمیل قبلاً ثبت شده است",
@@ -34,11 +36,10 @@ export const API_ERROR_MESSAGES: Record<ApiErrorCode, string> = {
   [ApiErrorCode.UNKNOWN_ERROR]: "خطای غیرمنتظره‌ای رخ داد",
 };
 
-
 function mapStatusToCode(status?: number): ApiErrorCode {
   switch (status) {
     case 401:
-      return ApiErrorCode.INVALID_CREDENTIALS;
+      return ApiErrorCode.UNAUTHORIZED;
     case 404:
       return ApiErrorCode.USER_NOT_FOUND;
     case 409:
@@ -53,11 +54,7 @@ function mapStatusToCode(status?: number): ApiErrorCode {
 export function normalizeError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
 
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "isAxiosError" in error
-  ) {
+  if (typeof error === "object" && error !== null && "isAxiosError" in error) {
     const axiosErr = error as import("axios").AxiosError<{
       code?: string;
       message?: string;
@@ -74,13 +71,18 @@ export function normalizeError(error: unknown): ApiError {
       backendCode && backendCode in ApiErrorCode
         ? backendCode
         : mapStatusToCode(axiosErr.response.status);
+    debugger;
+    const backendMessage = axiosErr.response.data?.message;
+    const message =
+      code === ApiErrorCode.UNAUTHORIZED || !backendMessage
+        ? API_ERROR_MESSAGES[code]
+        : backendMessage;
 
-    return new ApiError(
-      code,
-      axiosErr.response.data?.message ?? "Unknown error",
-      axiosErr.response.status
-    );
+    return new ApiError(code, message, axiosErr.response.status);
   }
 
-  return new ApiError(ApiErrorCode.UNKNOWN_ERROR, "Unknown error");
+  return new ApiError(
+    ApiErrorCode.UNKNOWN_ERROR,
+    API_ERROR_MESSAGES[ApiErrorCode.UNKNOWN_ERROR],
+  );
 }

@@ -309,7 +309,7 @@ export function ProfileForm({ provider }: { provider: Provider }) {
             <Input
               id="email"
               type="email"
-              dir="ltr"
+              dir="rtl"
               className="text-start"
               autoComplete="email"
               placeholder="you@example.com"
@@ -331,7 +331,7 @@ export function ProfileForm({ provider }: { provider: Provider }) {
                   id="phone"
                   value={provider.phone}
                   disabled
-                  dir="ltr"
+                  dir="rtl"
                   className="pe-28 text-start tracking-wider"
                   readOnly
                 />

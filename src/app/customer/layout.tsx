@@ -9,7 +9,7 @@ export default function CustomerLayout({ children }: { children: ReactNode }) {
     <PanelShell
       subtitle="پنل مشتری"
       nav={customerNav}
-      user={{ name: customer.fullName, subtitle: customer.phone, avatar: customer.avatar }}
+      user={{ name: customer.name, subtitle: customer.phone, avatar: customer.avatar }}
       extraLink={{ label: "درخواست خدمات جدید", href: "/request" }}
     >
       {children}

@@ -10,7 +10,7 @@ import type {
 
 export const customer: Customer = {
   id: "c-2048",
-  fullName: "نگار مرادی",
+  name: "نگار مرادی",
   phone: "09371239876",
   email: "negar.moradi@example.com",
   emailVerified: true,

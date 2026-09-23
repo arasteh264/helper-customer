@@ -10,5 +10,17 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(normalizeError(error))
+  (error) => {
+    const normalizedError = normalizeError(error);
+
+    if (
+      normalizedError.status === 401 &&
+      typeof window !== "undefined" &&
+      !window.location.pathname.startsWith("/login")
+    ) {
+      window.location.replace("/login?reason=session-expired");
+    }
+
+    return Promise.reject(normalizedError);
+  },
 );
