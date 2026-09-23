@@ -1,33 +1,48 @@
 import type { Metadata } from "next";
 import { Briefcase, Star, TrendingUp, Zap } from "lucide-react";
 
-
 import { getProfileCompletion } from "@/src/features/provider/lib/completion";
-import { defaultSchedule, finance, jobs, provider, reviews, verificationDocs } from "@/src/features/provider/types/data";
-import { formatMoney, formatNumber } from "@/src/features/provider/utils/format";
-import { AvailabilityToggle } from "@/src/features/provider/components/availability-toggle";
+import {
+  defaultSchedule,
+  finance,
+  jobs,
+  provider,
+  reviews,
+  verificationDocs,
+} from "@/src/features/provider/types/data";
+import {
+  formatMoney,
+  formatNumber,
+} from "@/src/features/provider/utils/format";
+import { AvailabilityToggle } from "@/src/features/provider/components/availability/availability-toggle";
 import { ProfileCompletionCard } from "@/src/features/provider/components/profile-completion-card";
-import { UpcomingJobsCard } from "@/src/features/provider/components/upcoming-jobs-card";
+import { UpcomingJobsCard } from "@/src/features/provider/components/jobs/upcoming-jobs-card";
 
-import { EarningsChart } from "@/src/features/provider/components/earnings-chart";
+import { EarningsChart } from "@/src/features/provider/components/Financial/earnings-chart";
 import { RecentReviewsCard } from "@/src/features/provider/components/recent-reviews-card";
 import { StatCard } from "@/src/components/shared/stat-card";
 import { SectionCard } from "@/src/components/shared/section-card";
-
-
 
 export const metadata: Metadata = { title: "نمای کلی | پنل متخصص" };
 
 export default function ProviderOverviewPage() {
   // TODO: داده‌ها را از API / دیتابیس بگیرید
-  const { percent, items } = getProfileCompletion(provider, verificationDocs, defaultSchedule);
+  const { percent, items } = getProfileCompletion(
+    provider,
+    verificationDocs,
+    defaultSchedule,
+  );
 
   const months = finance.monthly;
   const current = months[months.length - 1];
   const previous = months[months.length - 2];
-  const growth = previous ? Math.round(((current.amount - previous.amount) / previous.amount) * 100) : 0;
+  const growth = previous
+    ? Math.round(((current.amount - previous.amount) / previous.amount) * 100)
+    : 0;
 
-  const activeJobs = jobs.filter((j) => j.status === "accepted" || j.status === "in_progress").length;
+  const activeJobs = jobs.filter(
+    (j) => j.status === "accepted" || j.status === "in_progress",
+  ).length;
   const newJobs = jobs.filter((j) => j.status === "new").length;
 
   const firstName = provider.fullName.split(" ")[0];
@@ -70,7 +85,9 @@ export default function ProviderOverviewPage() {
         <StatCard
           icon={Star}
           label="امتیاز شما"
-          value={new Intl.NumberFormat("fa-IR", { minimumFractionDigits: 1 }).format(provider.rating)}
+          value={new Intl.NumberFormat("fa-IR", {
+            minimumFractionDigits: 1,
+          }).format(provider.rating)}
           hint={`از ${formatNumber(provider.reviewsCount)} نظر`}
         />
         <StatCard

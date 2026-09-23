@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { JobsBoard } from "@/src/features/provider/components/jobs-board";
+import { JobsBoard } from "@/src/features/provider/components/jobs/jobs-board";
 
 import { jobs } from "@/src/features/provider/types/data";
 import { PageHeader } from "@/src/components/shared/page-header";
