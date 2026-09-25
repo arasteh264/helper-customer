@@ -6,7 +6,7 @@ export interface Customer {
   emailVerified?: boolean;
   avatar?: string;
   memberSince: string; // ISO
-  walletBalance: number; // تومان
+  walletBalance?: number; // تومان
 }
 
 /* ───────── درخواست‌ها ───────── */

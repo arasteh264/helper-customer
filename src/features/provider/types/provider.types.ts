@@ -97,3 +97,44 @@ export interface FinanceSummary {
   monthly: { label: string; amount: number }[];
   bank: BankAccount;
 }
+// src/features/provider/types/provider.types.ts
+
+
+export interface ProviderSkill {
+  id: string;
+  name: string;
+}
+
+export interface ProviderWorkingHour {
+  dayOfWeek: number;
+  isActive: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+export interface ProviderProfile {
+  id: string;
+  bio: string | null;
+  rating: number;
+  isVerified: boolean;
+  verificationStatus: VerificationStatus;
+  verificationNote: string | null;
+  verifiedAt: string | null;
+  isAvailable: boolean;
+  avatarUrl: string | null;
+  user: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  skills: ProviderSkill[];
+  workingHours: ProviderWorkingHour[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateProviderProfileValues {
+  bio?: string;
+  isAvailable?: boolean;
+  workingHours?: ProviderWorkingHour[];
+}

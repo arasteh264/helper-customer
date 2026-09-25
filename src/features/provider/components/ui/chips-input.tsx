@@ -9,15 +9,13 @@ interface ChipsInputProps {
   onChange: (value: string[]) => void;
   placeholder?: string;
   max?: number;
-  /** پیشنهادهای سریع (با یک کلیک اضافه می‌شوند) */
   suggestions?: string[];
   invalid?: boolean;
 }
 
-/** ورودی چندتایی: با Enter یا ویرگول اضافه می‌شود، با ✕ یا Backspace حذف */
 export function ChipsInput({
   id,
-  value,
+  value = [],
   onChange,
   placeholder,
   max = 10,
@@ -26,7 +24,6 @@ export function ChipsInput({
 }: ChipsInputProps) {
   const [draft, setDraft] = useState("");
   const full = value.length >= max;
-
   const add = (raw: string) => {
     const item = raw.trim();
     if (!item || full || value.includes(item)) return;
@@ -34,7 +31,7 @@ export function ChipsInput({
     setDraft("");
   };
 
-  const remove = (item: string) => onChange(value.filter((v) => v !== item));
+ const remove = (item: string) => onChange(value.filter((v) => v !== item));
 
   const remaining = suggestions.filter((s) => !value.includes(s)).slice(0, 6);
 
