@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { deleteAvatar, uploadAvatar } from "../../api/upload-avatar";
+import { getSession } from "next-auth/react";
+
+import { providerApi } from "../../api/provider.api";
 
 const MAX_SIZE = 2 * 1024 * 1024; // ۲ مگابایت
 
@@ -45,8 +47,13 @@ export function AvatarUploader({
 
     setLoading(true);
     try {
-      debugger;
-      await uploadAvatar(file);
+      const session = await getSession();
+      if (!session?.accessToken) {
+        toast.error("جلسه کاربری شما منقضی شده است");
+        setPreview(initialUrl);
+        return;
+      }
+      await providerApi.uploadAvatar(file, session.accessToken);
       toast.success("عکس پروفایل بروزرسانی شد");
     } catch {
       setPreview(initialUrl);
@@ -59,7 +66,12 @@ export function AvatarUploader({
   const onRemove = async () => {
     setLoading(true);
     try {
-      await deleteAvatar();
+      const session = await getSession();
+      if (!session?.accessToken) {
+        toast.error("جلسه کاربری شما منقضی شده است");
+        return;
+      }
+      await providerApi.removeAvatar(session.accessToken);
       if (objectUrl.current) {
         URL.revokeObjectURL(objectUrl.current);
         objectUrl.current = null;

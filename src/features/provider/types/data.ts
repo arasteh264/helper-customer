@@ -52,13 +52,55 @@ export const verificationDocs: VerificationDoc[] = [
 ];
 
 export const defaultSchedule: DaySchedule[] = [
-  { id: "sat", label: "شنبه", enabled: true, from: "08:00", to: "18:00" },
-  { id: "sun", label: "یکشنبه", enabled: true, from: "08:00", to: "18:00" },
-  { id: "mon", label: "دوشنبه", enabled: true, from: "08:00", to: "18:00" },
-  { id: "tue", label: "سه‌شنبه", enabled: true, from: "08:00", to: "18:00" },
-  { id: "wed", label: "چهارشنبه", enabled: true, from: "08:00", to: "18:00" },
-  { id: "thu", label: "پنجشنبه", enabled: true, from: "08:00", to: "13:00" },
-  { id: "fri", label: "جمعه", enabled: false, from: "09:00", to: "13:00" },
+  {
+    id: "0",
+    label: "شنبه",
+    enabled: true,
+    from: "08:00",
+    to: "18:00",
+  },
+  {
+    id: "1",
+    label: "یکشنبه",
+    enabled: true,
+    from: "08:00",
+    to: "18:00",
+  },
+  {
+    id: "2",
+    label: "دوشنبه",
+    enabled: true,
+    from: "08:00",
+    to: "18:00",
+  },
+  {
+    id: "3",
+    label: "سه‌شنبه",
+    enabled: true,
+    from: "08:00",
+    to: "18:00",
+  },
+  {
+    id: "4",
+    label: "چهارشنبه",
+    enabled: true,
+    from: "08:00",
+    to: "18:00",
+  },
+  {
+    id: "5",
+    label: "پنجشنبه",
+    enabled: true,
+    from: "08:00",
+    to: "13:00",
+  },
+  {
+    id: "6",
+    label: "جمعه",
+    enabled: false,
+    from: "09:00",
+    to: "13:00",
+  },
 ];
 
 export const jobs: Job[] = [

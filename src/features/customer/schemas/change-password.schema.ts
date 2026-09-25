@@ -19,4 +19,9 @@ export const changePasswordSchema = z
     message: "رمز جدید باید با رمز فعلی متفاوت باشد",
   });
 
+
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};

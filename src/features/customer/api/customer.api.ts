@@ -8,24 +8,54 @@ import type {
   NotificationPrefs,
   Session,
 } from "../types/customer.types";
-
+export interface BackendUser{
+  
+  id: string,
+  name:string,
+  email: string,
+  phone:string,
+  role:string ,
+  status:string ,
+  createdAt: string,
+  avatar?:string,
+  emailVerified?:boolean,
+  walletBalance?:number ,
+}
 export const customerApi = {
-  getProfile: async (accessToken?: string) => {
-    const { data } = await apiClient<Customer>("/users/me", {
-      method: "GET",
-      headers: accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined,
-    });
-    return data;
-  },
+ getProfile: async (accessToken?: string): Promise<Customer> => {
+  const { data } = await apiClient<BackendUser>("/users/me", {
+    method: "GET",
+    headers: accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined,
+  });
+
+  return {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    avatar: data.avatar ,
+    memberSince: data.createdAt,
+    emailVerified: data.emailVerified ,
+    walletBalance: data.walletBalance ,
+  };
+},
 
   updateProfile: (values: CustomerProfileValues) =>
     apiClient("/customer/profile", { method: "PATCH", data: values }),
 
-  changePassword: (
-    values: Pick<ChangePasswordValues, "currentPassword" | "newPassword">,
-  ) => apiClient("/customer/password", { method: "PATCH", data: values }),
+changePassword: (
+  values: Pick<ChangePasswordValues, "currentPassword" | "newPassword">,
+  accessToken?: string,
+) =>
+  apiClient("/customer/password", {
+    method: "PATCH",
+    data: values,
+    headers: accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined,
+  }),
 
   deleteAccount: () => apiClient("/customer/account", { method: "DELETE" }),
 

@@ -13,6 +13,7 @@ import { SectionCard } from "@/src/components/shared/section-card";
 import { changePasswordSchema, ChangePasswordValues } from "../../schemas/change-password.schema";
 import { customerApi } from "../../api/customer.api";
 import { ApiError, ApiErrorCode } from "@/src/lib/api/error";
+import { getSession } from "next-auth/react";
 
 function PasswordField({
   id,
@@ -63,41 +64,98 @@ export function ChangePasswordForm() {
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordValues>({
     resolver: zodResolver(changePasswordSchema),
-    defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
-  const onSubmit = async ({ confirmPassword, ...payload }: ChangePasswordValues) => {
-    try {
-      await customerApi.changePassword(payload);
-      toast.success("رمز عبور شما تغییر کرد");
-      reset();
+  const onSubmit = async ({
+  confirmPassword,
+  ...payload
+}: ChangePasswordValues) => {
+  try {
+    const session = await getSession();
+
+    if (!session?.accessToken) {
+      toast.error("جلسه کاربری شما منقضی شده است");
+      return;
+    }
+
+    await customerApi.changePassword(
+      payload,
+      session.accessToken
+    );
+
+    toast.success("رمز عبور شما تغییر کرد");
+    reset();
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401) {
-          setError("currentPassword", { message: "رمز عبور فعلی اشتباه است" });
+          setError("currentPassword", {
+            message: "رمز عبور فعلی اشتباه است",
+          });
           return;
         }
+
         if (err.status === 400) {
-          toast.error(err.message || "رمز جدید معتبر نیست یا با رمز فعلی یکسان است");
+          toast.error(
+            err.message ||
+              "رمز جدید معتبر نیست یا با رمز فعلی یکسان است"
+          );
           return;
         }
       }
-      toast.error("تغییر رمز عبور انجام نشد. دوباره تلاش کنید.");
+
+      toast.error(
+        "تغییر رمز عبور انجام نشد. دوباره تلاش کنید."
+      );
     }
   };
 
   return (
-    <SectionCard title="تغییر رمز عبور" description="برای امنیت بیشتر، رمز قوی و منحصربه‌فرد انتخاب کنید.">
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="max-w-md space-y-5">
-        <PasswordField id="currentPassword" label="رمز عبور فعلی" error={errors.currentPassword?.message} register={register} />
-        <PasswordField id="newPassword" label="رمز عبور جدید" error={errors.newPassword?.message} register={register} />
-        <PasswordField id="confirmPassword" label="تکرار رمز عبور جدید" error={errors.confirmPassword?.message} register={register} />
+    <SectionCard
+      title="تغییر رمز عبور"
+      description="برای امنیت بیشتر، رمز قوی و منحصربه‌فرد انتخاب کنید."
+    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="max-w-md space-y-5"
+      >
+        <PasswordField
+          id="currentPassword"
+          label="رمز عبور فعلی"
+          error={errors.currentPassword?.message}
+          register={register}
+        />
 
-        <Button type="submit" disabled={isSubmitting} className="gap-1.5">
-          {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+        <PasswordField
+          id="newPassword"
+          label="رمز عبور جدید"
+          error={errors.newPassword?.message}
+          register={register}
+        />
+
+        <PasswordField
+          id="confirmPassword"
+          label="تکرار رمز عبور جدید"
+          error={errors.confirmPassword?.message}
+          register={register}
+        />
+
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="gap-1.5"
+        >
+          {isSubmitting && (
+            <Loader2 size={16} className="animate-spin" />
+          )}
           تغییر رمز عبور
         </Button>
       </form>
     </SectionCard>
   );
-}
+  }
