@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, Circle } from "lucide-react";
-import { CompletionItem } from "../lib/completion";
-
-
+import type { CompletionItem } from "../lib/completion";
 
 interface Props {
   percent: number;
@@ -25,8 +23,19 @@ export function ProfileCompletionCard({ percent, items }: Props) {
       <div className="flex items-center gap-4">
         {/* حلقه‌ی پیشرفت */}
         <div className="relative h-[72px] w-[72px] shrink-0">
-          <svg viewBox="0 0 72 72" className="h-full w-full -rotate-90" aria-hidden>
-            <circle cx="36" cy="36" r={RADIUS} fill="none" strokeWidth="7" className="stroke-foreground/10" />
+          <svg
+            viewBox="0 0 72 72"
+            className="h-full w-full -rotate-90"
+            aria-hidden
+          >
+            <circle
+              cx="36"
+              cy="36"
+              r={RADIUS}
+              fill="none"
+              strokeWidth="7"
+              className="stroke-foreground/10"
+            />
             <circle
               cx="36"
               cy="36"
@@ -69,7 +78,10 @@ export function ProfileCompletionCard({ percent, items }: Props) {
                 <span className="text-xs text-foreground/40">
                   +{fa.format(item.weight)}٪
                 </span>
-                <ChevronLeft size={16} className="text-foreground/30 ltr:rotate-180" />
+                <ChevronLeft
+                  size={16}
+                  className="text-foreground/30 ltr:rotate-180"
+                />
               </Link>
             </li>
           ))}

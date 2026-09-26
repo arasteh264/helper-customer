@@ -8,7 +8,7 @@ import { providerApi } from "../../api/provider.api";
 
 interface AvailabilityToggleProps {
   initial?: boolean;
-  accessToken: string;
+  accessToken?: string;
 }
 
 export function AvailabilityToggle({
@@ -24,6 +24,11 @@ export function AvailabilityToggle({
     setSaving(true);
 
     try {
+      if (!accessToken) {
+        toast.error("جلسه کاربری شما منقضی شده است");
+        return;
+      }
+
       await providerApi.updateProfile(
         {
           isAvailable: next,
@@ -41,9 +46,7 @@ export function AvailabilityToggle({
     } catch (error) {
       console.error(error);
 
-      toast.error(
-        "تغییر وضعیت انجام نشد. دوباره تلاش کنید.",
-      );
+      toast.error("تغییر وضعیت انجام نشد. دوباره تلاش کنید.");
     } finally {
       setSaving(false);
     }
@@ -55,15 +58,11 @@ export function AvailabilityToggle({
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <span
             className={`h-2.5 w-2.5 rounded-full ${
-              on
-                ? "bg-green-500"
-                : "bg-foreground/25"
+              on ? "bg-green-500" : "bg-foreground/25"
             }`}
           />
 
-          {on
-            ? "آماده‌ی دریافت کار"
-            : "در حال استراحت"}
+          {on ? "آماده‌ی دریافت کار" : "در حال استراحت"}
         </p>
 
         <p className="mt-1 text-xs leading-5 text-foreground/55">
@@ -86,9 +85,7 @@ export function AvailabilityToggle({
           "focus-visible:outline-none focus-visible:ring-2",
           "focus-visible:ring-primary focus-visible:ring-offset-2",
           "disabled:cursor-not-allowed disabled:opacity-60",
-          on
-            ? "bg-primary"
-            : "bg-foreground/20",
+          on ? "bg-primary" : "bg-foreground/20",
         ].join(" ")}
       >
         {saving ? (
@@ -100,9 +97,7 @@ export function AvailabilityToggle({
           <span
             className={[
               "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all",
-              on
-                ? "left-[1.5rem]"
-                : "left-0.5",
+              on ? "left-[1.5rem]" : "left-0.5",
             ].join(" ")}
           />
         )}
