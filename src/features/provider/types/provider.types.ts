@@ -1,4 +1,8 @@
-export type VerificationStatus = "verified" | "pending" | "rejected" | "missing";
+export type VerificationStatus =
+  | "verified"
+  | "pending"
+  | "rejected"
+  | "missing";
 
 export interface Provider {
   id: string;
@@ -23,6 +27,7 @@ export interface Provider {
 
 export interface VerificationDoc {
   id: string;
+  type?: string;
   label: string;
   description: string;
   status: VerificationStatus;
@@ -68,7 +73,11 @@ export interface Review {
   service: string;
 }
 
-export type TransactionType = "earning" | "withdrawal" | "commission" | "refund";
+export type TransactionType =
+  | "earning"
+  | "withdrawal"
+  | "commission"
+  | "refund";
 export type TransactionStatus = "completed" | "pending" | "failed";
 
 export interface Transaction {
@@ -98,7 +107,6 @@ export interface FinanceSummary {
   bank: BankAccount;
 }
 // src/features/provider/types/provider.types.ts
-
 
 export interface ProviderSkill {
   id: string;

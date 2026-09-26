@@ -1,15 +1,34 @@
-import { ProviderProfile, ProviderWorkingHour, VerificationDoc } from "../types/provider.types";
+import {
+  ProviderProfile,
+  ProviderWorkingHour,
+  VerificationDoc,
+} from "../types/provider.types";
 
-// completion.ts
+export type CompletionItem = {
+  id: string;
+  label: string;
+  weight: number;
+  done: boolean;
+  anchor: string;
+};
+
+export type CompletionProviderInput = {
+  bio?: string | null;
+  skills?: Array<string | { name?: string }>;
+  avatarUrl?: string | null;
+};
+
 export function getProfileCompletion(
-  provider: ProviderProfile,
+  provider: CompletionProviderInput,
   verificationDocs: VerificationDoc[],
   workingHours: ProviderWorkingHour[],
 ) {
   const docVerified = (type: string) =>
-    verificationDocs.some((d) => d.type === type && d.status === "APPROVED");
+    verificationDocs.some((d) => d.type === type && d.status === "verified");
 
-  const items = [
+  const skills = Array.isArray(provider.skills) ? provider.skills : [];
+
+  const items: CompletionItem[] = [
     {
       id: "bio",
       label: "نوشتن معرفی (حداقل ۵۰ کاراکتر)",
@@ -21,7 +40,7 @@ export function getProfileCompletion(
       id: "skills",
       label: "افزودن حداقل ۳ تخصص",
       weight: 10,
-      done: provider.skills.length >= 3,
+      done: skills.length >= 3,
       anchor: "skills",
     },
     {
@@ -47,10 +66,7 @@ export function getProfileCompletion(
     },
   ];
 
-  const percent = items.reduce(
-    (sum, i) => sum + (i.done ? i.weight : 0),
-    0,
-  );
+  const percent = items.reduce((sum, i) => sum + (i.done ? i.weight : 0), 0);
 
   return { percent, items };
 }

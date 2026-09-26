@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { QueryProvider } from "../providers/QueryProvider";
-import { SiteFooter } from "../components/layout/footer/site-footer";
-import { SiteHeader } from "../components/layout/header/site-header";
 import { Toaster } from "sonner";
+import { AuthSessionProvider } from "../features/provider/AuthSessionProvider";
 
 const vazirmatn = localFont({
   src: "../assets/fonts/Vazirmatn-RD[wght].woff2",
@@ -26,7 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${vazirmatn.variable} h-full antialiased`}
     >
       <body className={`${vazirmatn.variable}`}>
-        <QueryProvider>{children}</QueryProvider>
+        <AuthSessionProvider>
+          <QueryProvider>{children}</QueryProvider>
+        </AuthSessionProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

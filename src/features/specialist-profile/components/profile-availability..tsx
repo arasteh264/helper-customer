@@ -18,10 +18,20 @@ const ALL_DAYS = [
 ];
 
 export function ProfileAvailability({
+  availableDays,
   workingHours,
 }: {
-  workingHours: WorkingHour[];
+  availableDays?: string[];
+  workingHours?: WorkingHour[];
 }) {
+  const activeDays = availableDays?.length
+    ? new Set(availableDays)
+    : new Set(
+        (workingHours ?? [])
+          .filter((item) => item.isActive)
+          .map((item) => ALL_DAYS[item.dayOfWeek] ?? ""),
+      );
+
   return (
     <div className="rounded-2xl border border-foreground/10 bg-card p-5 sm:p-6">
       <h2 className="flex items-center gap-1.5 text-base font-semibold text-foreground">
@@ -31,11 +41,11 @@ export function ProfileAvailability({
 
       <ul className="mt-4 space-y-2">
         {ALL_DAYS.map((day, index) => {
-          const workingHour = workingHours.find(
-            (item) => item.dayOfWeek === index,
+          const workingHour = (workingHours ?? []).find(
+            (item) => item.dayOfWeek === index && item.isActive,
           );
 
-          const on = workingHour?.isActive ?? false;
+          const on = activeDays.has(day);
 
           return (
             <li
@@ -53,14 +63,12 @@ export function ProfileAvailability({
                 {day}
               </span>
 
-              {on ? (
+              {on && workingHour ? (
                 <span className="text-xs text-foreground/60" dir="ltr">
                   {workingHour.startTime} تا {workingHour.endTime}
                 </span>
               ) : (
-                <span className="text-xs text-foreground/35">
-                  تعطیل
-                </span>
+                <span className="text-xs text-foreground/35">تعطیل</span>
               )}
             </li>
           );

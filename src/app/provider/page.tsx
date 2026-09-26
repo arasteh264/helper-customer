@@ -62,7 +62,7 @@ export default function ProviderOverviewPage() {
           </p>
         </div>
         <div className="md:w-80">
-          <AvailabilityToggle />
+          <AvailabilityToggle accessToken={undefined} />
         </div>
       </div>
 
