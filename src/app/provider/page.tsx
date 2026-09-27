@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Briefcase, Star, TrendingUp, Zap } from "lucide-react";
+import { auth } from "@/src/auth";
+import { ApiError } from "@/src/lib/api/error";
 
 import { getProfileCompletion } from "@/src/features/provider/lib/completion";
-import {
-  defaultSchedule,
-  finance,
-  jobs,
-  provider,
-  reviews,
-  verificationDocs,
-} from "@/src/features/provider/types/data";
+import { providerApi } from "@/src/features/provider/api/provider.api";
+import { getVerificationDocuments } from "@/src/features/provider/api/documents";
+import { providerJobsApi } from "@/src/features/provider/api/jobs.api";
+import { walletApi } from "@/src/features/provider/api/wallet.api";
+import type { VerificationDoc } from "@/src/features/provider/types/types";
 import {
   formatMoney,
   formatNumber,
@@ -25,27 +26,94 @@ import { SectionCard } from "@/src/components/shared/section-card";
 
 export const metadata: Metadata = { title: "نمای کلی | پنل متخصص" };
 
-export default function ProviderOverviewPage() {
-  // TODO: داده‌ها را از API / دیتابیس بگیرید
-  const { percent, items } = getProfileCompletion(
-    provider,
-    verificationDocs,
-    defaultSchedule,
-  );
+export default async function ProviderOverviewPage() {
+  const session = await auth();
+  if (!session?.accessToken) {
+    redirect("/login?callbackUrl=%2Fprovider");
+  }
 
+  let profile;
+  let jobs;
+  let finance;
+  let verificationDocs: VerificationDoc[];
+
+  try {
+    [profile, jobs, finance, verificationDocs] = await Promise.all([
+      providerApi.getProfile(session.accessToken),
+      providerJobsApi.list(session.accessToken),
+      walletApi.getSummary(session.accessToken),
+      getVerificationDocuments(session.accessToken).then((documents) =>
+        documents.map((document) => {
+          const labels: Record<string, string> = {
+            NATIONAL_CARD: "کارت ملی",
+            BUSINESS_LICENSE: "مجوز کسب‌وکار",
+            CERTIFICATE: "مدرک مهارت",
+            COMMITMENT_LETTER: "تعهدنامه",
+            CRIMINAL_RECORD: "گواهی عدم سوءپیشینه",
+            OTHER: "مدرک دیگر",
+          };
+          return {
+            id: document.type,
+            label: labels[document.type] ?? "مدرک احراز هویت",
+            description: "مدرک احراز هویت متخصص",
+            status:
+              document.status === "APPROVED"
+                ? "verified"
+                : document.status === "REJECTED"
+                  ? "rejected"
+                  : "pending",
+            note: document.rejectionNote ?? undefined,
+            type: document.type,
+          };
+        }),
+      ),
+    ]);
+  } catch (error) {
+    const message =
+      error instanceof ApiError && error.status === 403
+        ? "حساب متخصص شما هنوز تأیید نشده است."
+        : "دریافت اطلاعات نمای کلی انجام نشد. دوباره تلاش کنید.";
+    return (
+      <div className="space-y-6">
+        <SectionCard title="نمای کلی در دسترس نیست">
+          <div className="flex flex-col items-start gap-4 text-sm text-foreground/65 sm:flex-row sm:items-center sm:justify-between">
+            <p>{message}</p>
+            <Link
+              href="/provider"
+              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 font-medium text-primary-foreground"
+            >
+              تلاش دوباره
+            </Link>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
+
+  const { percent, items } = getProfileCompletion(
+    {
+      bio: profile.bio,
+      skills: profile.skills,
+      avatarUrl: profile.avatarUrl,
+    },
+    verificationDocs,
+    profile.workingHours,
+  );
   const months = finance.monthly;
-  const current = months[months.length - 1];
-  const previous = months[months.length - 2];
-  const growth = previous
+  const current = months.at(-1) ?? { label: "این ماه", amount: 0 };
+  const previous = months.at(-2);
+  const growth = previous?.amount
     ? Math.round(((current.amount - previous.amount) / previous.amount) * 100)
     : 0;
-
   const activeJobs = jobs.filter(
-    (j) => j.status === "accepted" || j.status === "in_progress",
+    (job) => job.status === "accepted" || job.status === "in_progress",
   ).length;
-  const newJobs = jobs.filter((j) => j.status === "new").length;
-
-  const firstName = provider.fullName.split(" ")[0];
+  const newJobs = jobs.filter((job) => job.status === "new").length;
+  const decisions = jobs.filter(
+    (job) => job.status === "accepted" || job.status === "declined",
+  ).length;
+  const completedJobs = jobs.filter((job) => job.status === "completed").length;
+  const firstName = profile.user.name.split(" ")[0];
 
   return (
     <div className="space-y-6">
@@ -53,7 +121,7 @@ export default function ProviderOverviewPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            سلام {firstName}، خوش آمدید 👋
+            سلام {firstName}، خوش آمدید
           </h1>
           <p className="mt-2 text-sm leading-7 text-foreground/60">
             {newJobs > 0
@@ -62,7 +130,10 @@ export default function ProviderOverviewPage() {
           </p>
         </div>
         <div className="md:w-80">
-          <AvailabilityToggle accessToken={undefined} />
+          <AvailabilityToggle
+            initial={profile.isAvailable}
+            accessToken={session.accessToken}
+          />
         </div>
       </div>
 
@@ -80,21 +151,21 @@ export default function ProviderOverviewPage() {
           icon={Briefcase}
           label="کارهای فعال"
           value={formatNumber(activeJobs)}
-          hint={`${formatNumber(provider.completedJobs)} کار تکمیل‌شده`}
+          hint={`${formatNumber(completedJobs)} کار تکمیل‌شده`}
         />
         <StatCard
           icon={Star}
           label="امتیاز شما"
           value={new Intl.NumberFormat("fa-IR", {
             minimumFractionDigits: 1,
-          }).format(provider.rating)}
-          hint={`از ${formatNumber(provider.reviewsCount)} نظر`}
+          }).format(profile.rating)}
+          hint="میانگین امتیاز مشتریان"
         />
         <StatCard
           icon={Zap}
-          label="نرخ پاسخ‌گویی"
-          value={`${formatNumber(provider.responseRate)}٪`}
-          hint="پاسخ سریع، شانس بیشتر"
+          label="تصمیم‌های ثبت‌شده"
+          value={formatNumber(decisions)}
+          hint="درخواست‌های پذیرفته یا ردشده"
         />
       </div>
 
@@ -114,7 +185,7 @@ export default function ProviderOverviewPage() {
         </div>
       </div>
 
-      <RecentReviewsCard reviews={reviews} />
+      <RecentReviewsCard reviews={[]} />
     </div>
   );
 }

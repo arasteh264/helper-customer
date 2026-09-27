@@ -9,16 +9,20 @@ import { RequestPhotoUploader } from "./request-photo-uploader";
 export function DetailsStep({
   draft,
   onChange,
+  categoryName,
 }: {
   draft: NewRequestDraft;
   onChange: (patch: Partial<NewRequestDraft>) => void;
+  categoryName: string;
 }) {
-  const category = repairCategories.find((c) => c.id === draft.categoryId);
+  const category = repairCategories.find((c) => c.label === categoryName);
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">مشکل را برایمان توضیح دهید</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          مشکل را برایمان توضیح دهید
+        </h2>
         <p className="mt-1 text-sm text-foreground/55">
           هر چه دقیق‌تر بنویسید، پیشنهادهای دقیق‌تری از متخصصان می‌گیرید.
         </p>
@@ -28,7 +32,7 @@ export function DetailsStep({
         <div>
           <p className="mb-2 flex items-center gap-1.5 text-xs text-foreground/50">
             <Lightbulb size={14} className="text-primary" />
-            مشکل‌های رایج در «{category.label}» — با یک کلیک عنوان را پر کنید
+            مشکل‌های رایج در «{categoryName}» — با یک کلیک عنوان را پر کنید
           </p>
           <div className="flex flex-wrap gap-2">
             {category.commonIssues.map((issue) => (
@@ -51,7 +55,10 @@ export function DetailsStep({
       )}
 
       <div className="space-y-2">
-        <label htmlFor="req-title" className="text-sm font-medium text-foreground">
+        <label
+          htmlFor="req-title"
+          className="text-sm font-medium text-foreground"
+        >
           عنوان درخواست
         </label>
         <input
@@ -64,7 +71,10 @@ export function DetailsStep({
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="req-description" className="text-sm font-medium text-foreground">
+        <label
+          htmlFor="req-description"
+          className="text-sm font-medium text-foreground"
+        >
           توضیحات کامل‌تر
         </label>
         <textarea
@@ -76,11 +86,17 @@ export function DetailsStep({
           className="w-full resize-y rounded-xl border border-foreground/15 bg-background px-3.5 py-3 text-sm leading-7 outline-none transition-colors placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
         />
         <p className="text-end text-xs text-foreground/40">
-          {new Intl.NumberFormat("fa-IR").format(draft.description.length)} / ۱۰۰۰
+          {new Intl.NumberFormat("fa-IR").format(draft.description.length)} /
+          ۱۰۰۰
         </p>
       </div>
 
-      <RequestPhotoUploader photos={draft.photos} onChange={(photos) => onChange({ photos })} />
+      <RequestPhotoUploader
+        photos={draft.photos}
+        files={draft.photoFiles}
+        onChange={(photos) => onChange({ photos })}
+        onFilesChange={(photoFiles) => onChange({ photoFiles })}
+      />
     </div>
   );
 }

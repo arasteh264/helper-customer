@@ -10,9 +10,17 @@ export interface DirectorySpecialist {
   startingPrice: number;
   verified: boolean;
   image?: string;
+  available?: boolean;
+  hasServiceArea?: boolean;
+  distanceKm?: number | null;
 }
 
-export type SortOption = "recommended" | "rating" | "price_asc" | "price_desc";
+export type SortOption =
+  | "recommended"
+  | "rating"
+  | "price_asc"
+  | "price_desc"
+  | "distance";
 
 export interface SpecialistFilters {
   query: string;

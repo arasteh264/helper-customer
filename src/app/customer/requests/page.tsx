@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { redirect } from "next/navigation";
+import { auth } from "@/src/auth";
 
-import { requests } from "@/src/features/customer/api/mock-data";
+import { requestApi } from "@/src/features/request/api/request.api";
 import { RequestsList } from "@/src/features/customer/components/requests-list";
 import { PageHeader } from "@/src/components/shared/page-header";
 
 export const metadata: Metadata = { title: "درخواست‌های من | پنل مشتری" };
 
-export default function CustomerRequestsPage() {
-  // TODO: درخواست‌های مشتری را از API / دیتابیس بگیرید
+export default async function CustomerRequestsPage() {
+  const session = await auth();
+  if (!session?.accessToken) {
+    redirect("/login?callbackUrl=%2Fcustomer%2Frequests");
+  }
+  const requests = await requestApi.getMyRequests(session.accessToken);
+
   return (
     <>
       <PageHeader

@@ -2,11 +2,13 @@ import type { LucideIcon } from "lucide-react";
 
 export interface RepairCategory {
   id: string;
+  skillName?: string;
   label: string;
   description: string;
   icon: LucideIcon;
   tint: string; // کلاس کامل Tailwind برای رنگ آیکن
   commonIssues: string[];
+  providerCount?: number;
   /** بازه‌ی قیمت تقریبی به تومان، برای نمایش برآورد */
   priceRange: { min: number; max: number };
 }
@@ -19,9 +21,12 @@ export interface NewRequestDraft {
   description: string;
   /** آدرس تصاویر (در این نسخه فقط پیش‌نمایش محلی) */
   photos: string[];
+  photoFiles: File[];
   urgency: Urgency;
   scheduledAt?: string; // ISO، فقط وقتی urgency === "scheduled"
-  addressId: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
   hasBudget: boolean;
   budgetMin?: number;
   budgetMax?: number;
@@ -32,12 +37,18 @@ export const EMPTY_DRAFT: NewRequestDraft = {
   title: "",
   description: "",
   photos: [],
+  photoFiles: [],
   urgency: "this_week",
-  addressId: "",
+  address: "",
   hasBudget: false,
 };
 
-export type WizardStepId = "category" | "details" | "address" | "schedule" | "review";
+export type WizardStepId =
+  | "category"
+  | "details"
+  | "address"
+  | "schedule"
+  | "review";
 
 /* ───────── چت ───────── */
 

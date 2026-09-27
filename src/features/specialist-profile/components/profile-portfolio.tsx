@@ -3,13 +3,35 @@ import { ImageOff } from "lucide-react";
 import type { SpecialistProfile } from "../types/specialist-profile.types";
 
 export function ProfilePortfolio({ profile }: { profile: SpecialistProfile }) {
+  if (profile.portfolioImages?.length) {
+    return (
+      <div className="rounded-2xl border border-foreground/10 bg-card p-5 sm:p-6">
+        <h2 className="text-base font-semibold text-foreground">نمونه‌کارها</h2>
+        <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {profile.portfolioImages.map((image) => (
+            <li key={image}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image}
+                alt="نمونه‌کار متخصص"
+                className="aspect-square w-full rounded-xl object-cover"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   if (profile.portfolioTints.length === 0) {
     return (
       <div className="rounded-2xl border border-foreground/10 bg-card p-5 sm:p-6">
         <h2 className="text-base font-semibold text-foreground">نمونه‌کارها</h2>
         <div className="mt-4 flex flex-col items-center gap-2 rounded-xl bg-foreground/[0.03] py-10 text-center">
           <ImageOff size={22} className="text-foreground/30" />
-          <p className="text-xs text-foreground/50">هنوز نمونه‌کاری اضافه نشده است.</p>
+          <p className="text-xs text-foreground/50">
+            هنوز نمونه‌کاری اضافه نشده است.
+          </p>
         </div>
       </div>
     );

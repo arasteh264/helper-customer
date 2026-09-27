@@ -2,7 +2,6 @@ import { CalendarClock, MapPin, Phone, Wallet } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 
-
 import { StatusBadge } from "@/src/components/shared/status-badge";
 import { Job } from "../../types/types";
 import { JOB_STATUS } from "../../utils/job-status";
@@ -13,12 +12,14 @@ export type JobAction = "accept" | "reject" | "start" | "complete";
 interface JobCardProps {
   job: Job;
   onAction: (id: string, action: JobAction) => void;
+  busy?: boolean;
 }
 
-export function JobCard({ job, onAction }: JobCardProps) {
+export function JobCard({ job, onAction, busy = false }: JobCardProps) {
   const status = JOB_STATUS[job.status];
   const showPhone =
-    !!job.customerPhone && (job.status === "accepted" || job.status === "in_progress");
+    !!job.customerPhone &&
+    (job.status === "accepted" || job.status === "in_progress");
 
   return (
     <article className="rounded-2xl border border-foreground/10 bg-card p-4 sm:p-5">
@@ -87,27 +88,58 @@ export function JobCard({ job, onAction }: JobCardProps) {
               توضیح مشتری: {job.note}
             </p>
           )}
+          {job.images && job.images.length > 0 && (
+            <div className="mt-3 flex gap-2 overflow-x-auto">
+              {job.images.map((image, index) => (
+                <a key={image} href={image} target="_blank" rel="noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image}
+                    alt={`تصویر درخواست ${index + 1}`}
+                    className="h-16 w-16 rounded-lg object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
           {job.status === "new" && (
             <>
-              <Button type="button" variant="outline" onClick={() => onAction(job.id, "reject")}>
-                رد
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy}
+                onClick={() => onAction(job.id, "reject")}
+              >
+                رد درخواست
               </Button>
-              <Button type="button" onClick={() => onAction(job.id, "accept")}>
-                پذیرش کار
+              <Button
+                type="button"
+                disabled={busy}
+                onClick={() => onAction(job.id, "accept")}
+              >
+                {busy ? "در حال ثبت…" : "پذیرش کار"}
               </Button>
             </>
           )}
           {job.status === "accepted" && (
-            <Button type="button" onClick={() => onAction(job.id, "start")}>
-              شروع کار
+            <Button
+              type="button"
+              disabled={busy}
+              onClick={() => onAction(job.id, "start")}
+            >
+              {busy ? "در حال ثبت…" : "شروع کار"}
             </Button>
           )}
           {job.status === "in_progress" && (
-            <Button type="button" onClick={() => onAction(job.id, "complete")}>
-              تکمیل کار
+            <Button
+              type="button"
+              disabled={busy}
+              onClick={() => onAction(job.id, "complete")}
+            >
+              {busy ? "در حال ثبت…" : "تکمیل کار"}
             </Button>
           )}
         </div>

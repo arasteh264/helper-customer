@@ -1,56 +1,58 @@
-import { CalendarClock, Coins, MapPin, Sparkles } from "lucide-react";
+import { CalendarClock, Coins, MapPin, MapPinned } from "lucide-react";
 
-import type { Address } from "@/src/features/customer/types/customer.types";
-import { repairCategories } from "../api/mock-data";
 import type { NewRequestDraft } from "../types/request.types";
 import { URGENCY_LABEL } from "../utils/estimate";
-import { estimatePriceRange } from "../utils/estimate";
 import { formatDateTime, formatMoney } from "@/src/utils/format";
 
 export function ReviewStep({
   draft,
-  addresses,
+  categoryName,
 }: {
   draft: NewRequestDraft;
-  addresses: Address[];
+  categoryName: string;
 }) {
-  const category = repairCategories.find((c) => c.id === draft.categoryId);
-  const address = addresses.find((a) => a.id === draft.addressId);
-  const estimate = category ? estimatePriceRange(category, draft.urgency) : null;
-
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">بررسی نهایی</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          مرور و ثبت درخواست
+        </h2>
         <p className="mt-1 text-sm text-foreground/55">
-          قبل از ثبت، یک‌بار اطلاعات را مرور کنید.
+          درخواست پس از ثبت برای متخصصان همین حوزه ارسال می‌شود.
         </p>
       </div>
 
       <dl className="divide-y divide-foreground/10 rounded-2xl border border-foreground/10 bg-card px-4 sm:px-5">
         <div className="flex items-start justify-between gap-4 py-4">
-          <dt className="shrink-0 text-sm text-foreground/50">نوع کار</dt>
-          <dd className="text-sm font-medium text-foreground">{category?.label ?? "—"}</dd>
+          <dt className="shrink-0 text-sm text-foreground/50">تخصص</dt>
+          <dd className="text-end text-sm font-medium text-foreground">
+            {categoryName || "—"}
+          </dd>
         </div>
         <div className="flex items-start justify-between gap-4 py-4">
           <dt className="shrink-0 text-sm text-foreground/50">عنوان</dt>
-          <dd className="text-sm font-medium text-foreground">{draft.title || "—"}</dd>
-        </div>
-        <div className="flex items-start justify-between gap-4 py-4">
-          <dt className="flex shrink-0 items-center gap-1.5 text-sm text-foreground/50">
-            <MapPin size={15} />
-            آدرس
-          </dt>
-          <dd className="max-w-[60%] text-end text-sm font-medium text-foreground">
-            {address ? `${address.title} — ${address.fullAddress}` : "—"}
+          <dd className="text-end text-sm font-medium text-foreground">
+            {draft.title || "—"}
           </dd>
         </div>
         <div className="flex items-start justify-between gap-4 py-4">
           <dt className="flex shrink-0 items-center gap-1.5 text-sm text-foreground/50">
-            <CalendarClock size={15} />
-            زمان
+            <MapPin size={15} /> نشانی
           </dt>
-          <dd className="text-sm font-medium text-foreground">
+          <dd className="max-w-[65%] text-end text-sm font-medium leading-6 text-foreground">
+            {draft.address || "—"}
+            {draft.latitude !== undefined && draft.longitude !== undefined && (
+              <span className="mt-1 flex items-center justify-end gap-1 text-xs font-normal text-primary">
+                <MapPinned size={13} /> موقعیت دقیق هم پیوست شده است
+              </span>
+            )}
+          </dd>
+        </div>
+        <div className="flex items-start justify-between gap-4 py-4">
+          <dt className="flex shrink-0 items-center gap-1.5 text-sm text-foreground/50">
+            <CalendarClock size={15} /> زمان
+          </dt>
+          <dd className="text-end text-sm font-medium text-foreground">
             {draft.urgency === "scheduled" && draft.scheduledAt
               ? formatDateTime(draft.scheduledAt)
               : URGENCY_LABEL[draft.urgency]}
@@ -58,32 +60,22 @@ export function ReviewStep({
         </div>
         <div className="flex items-start justify-between gap-4 py-4">
           <dt className="flex shrink-0 items-center gap-1.5 text-sm text-foreground/50">
-            <Coins size={15} />
-            بودجه
+            <Coins size={15} /> بودجه
           </dt>
-          <dd className="text-sm font-medium text-foreground">
-            {draft.hasBudget && draft.budgetMin && draft.budgetMax
+          <dd className="text-end text-sm font-medium text-foreground">
+            {draft.hasBudget &&
+            draft.budgetMin !== undefined &&
+            draft.budgetMax !== undefined
               ? `${formatMoney(draft.budgetMin)} تا ${formatMoney(draft.budgetMax)}`
-              : "پیشنهاد متخصصان"}
+              : "دریافت قیمت از متخصصان"}
           </dd>
         </div>
       </dl>
 
-      {estimate && (
-        <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/[0.05] p-4">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <Sparkles size={17} />
-          </span>
-          <div>
-            <p className="text-sm font-medium text-foreground">
-              برآورد قیمت این نوع کار: {formatMoney(estimate.min)} تا {formatMoney(estimate.max)}
-            </p>
-            <p className="mt-1 text-xs leading-5 text-foreground/55">
-              این فقط یک برآورد کلی است؛ قیمت نهایی را متخصص بعد از بررسی کار اعلام می‌کند.
-            </p>
-          </div>
-        </div>
-      )}
+      <div className="rounded-xl border border-primary/15 bg-primary/[0.04] p-4 text-sm leading-6 text-foreground/65">
+        پس از پذیرش درخواست توسط یک متخصص تأییدشده، اطلاعات تماس و وضعیت هماهنگی
+        در صفحه‌ی پیگیری نمایش داده می‌شود.
+      </div>
     </div>
   );
 }

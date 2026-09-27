@@ -29,6 +29,8 @@ export interface Specialist {
   verified: boolean;
   /** اختیاری: مسیر عکس پروفایل. اگر نباشد، حرف اول نام نمایش داده می‌شود */
   image?: string;
+  available?: boolean;
+  distanceKm?: number | null;
 }
 
 export interface Testimonial {

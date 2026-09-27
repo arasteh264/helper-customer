@@ -85,7 +85,7 @@ export function VerificationSection({
               ? {
                   ...doc,
                   status: normalizeVerificationStatus(match.status),
-                  note: match.note,
+                  note: match.rejectionNote ?? undefined,
                 }
               : doc;
           }),

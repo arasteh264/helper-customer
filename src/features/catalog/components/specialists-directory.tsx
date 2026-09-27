@@ -1,32 +1,111 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Star, X } from "lucide-react";
-
+import {
+  Loader2,
+  MapPin,
+  Search,
+  SlidersHorizontal,
+  Star,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
 
 import { SpecialistCard } from "@/src/features/home/components/specialist-card";
-import { CITIES, directorySpecialists } from "../api/mock-data";
-import { DEFAULT_FILTERS, type SortOption, type SpecialistFilters } from "../types/catalog.types";
+import type { DirectorySpecialist } from "../types/catalog.types";
+import {
+  DEFAULT_FILTERS,
+  type SortOption,
+  type SpecialistFilters,
+} from "../types/catalog.types";
 import { filterSpecialists } from "../utils/filter-specialists";
 import { formatNumber } from "@/src/utils/format";
-import { categories } from "../../home/api/data";
+import { publicProvidersApi, type PublicProvider } from "../api/providers.api";
 
 const SORTS: { id: SortOption; label: string }[] = [
   { id: "recommended", label: "پیشنهادی" },
   { id: "rating", label: "بیشترین امتیاز" },
   { id: "price_asc", label: "ارزان‌ترین" },
   { id: "price_desc", label: "گران‌ترین" },
+  { id: "distance", label: "نزدیک‌ترین" },
 ];
 
 const RATING_OPTIONS = [0, 4, 4.5];
 
-export function SpecialistsDirectory() {
+function toDirectoryProvider(provider: PublicProvider): DirectorySpecialist {
+  const field =
+    provider.skills.map((skill) => skill.name).join("، ") || "متخصص خدمات";
+  return {
+    id: provider.id,
+    name: provider.name,
+    field,
+    categoryId: provider.skills[0]?.name ?? "سایر",
+    city: provider.hasServiceArea
+      ? "محدوده فعالیت ثبت‌شده"
+      : "محدوده فعالیت ثبت‌نشده",
+    rating: provider.rating,
+    reviews: 0,
+    jobs: 0,
+    startingPrice: 0,
+    verified: provider.verified,
+    image: provider.avatarUrl ?? undefined,
+    available: provider.available,
+    hasServiceArea: provider.hasServiceArea,
+    distanceKm: provider.distanceKm,
+  };
+}
+
+export function SpecialistsDirectory({
+  specialists: initialSpecialists,
+}: {
+  specialists: DirectorySpecialist[];
+}) {
+  const [specialists, setSpecialists] = useState(initialSpecialists);
   const [filters, setFilters] = useState<SpecialistFilters>(DEFAULT_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [locating, setLocating] = useState(false);
 
-  const update = (patch: Partial<SpecialistFilters>) => setFilters((f) => ({ ...f, ...patch }));
+  const update = (patch: Partial<SpecialistFilters>) =>
+    setFilters((f) => ({ ...f, ...patch }));
 
-  const results = useMemo(() => filterSpecialists(directorySpecialists, filters), [filters]);
+  const categoryNames = [
+    ...new Set(specialists.map((specialist) => specialist.categoryId)),
+  ];
+  const areaNames = [
+    ...new Set(specialists.map((specialist) => specialist.city)),
+  ];
+  const results = useMemo(
+    () => filterSpecialists(specialists, filters),
+    [filters, specialists],
+  );
+
+  const findNearby = () => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const providers = await publicProvidersApi.list({
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+          });
+          setSpecialists(providers.map(toDirectoryProvider));
+          update({ sort: "distance" });
+        } catch {
+          toast.error("دریافت متخصصان نزدیک انجام نشد. دوباره تلاش کنید.");
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => {
+        toast.error(
+          "دسترسی موقعیت مکانی داده نشد؛ می‌توانید همه متخصصان را جستجو کنید.",
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 12000 },
+    );
+  };
 
   const activeCount = [
     filters.categoryId,
@@ -39,7 +118,9 @@ export function SpecialistsDirectory() {
     <div className="space-y-6">
       {/* دسته‌بندی */}
       <div>
-        <p className="mb-2.5 text-xs font-semibold text-foreground/50">دسته‌بندی</p>
+        <p className="mb-2.5 text-xs font-semibold text-foreground/50">
+          دسته‌بندی
+        </p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -53,19 +134,24 @@ export function SpecialistsDirectory() {
           >
             همه
           </button>
-          {categories.map((c) => (
+          {categoryNames.map((categoryName) => (
             <button
-              key={c.id}
+              key={categoryName}
               type="button"
-              onClick={() => update({ categoryId: filters.categoryId === c.id ? null : c.id })}
+              onClick={() =>
+                update({
+                  categoryId:
+                    filters.categoryId === categoryName ? null : categoryName,
+                })
+              }
               className={[
                 "rounded-full border px-3 py-1.5 text-xs transition-colors",
-                filters.categoryId === c.id
+                filters.categoryId === categoryName
                   ? "border-primary bg-primary/10 font-medium text-primary"
                   : "border-foreground/15 text-foreground/65 hover:border-primary/40",
               ].join(" ")}
             >
-              {c.label}
+              {categoryName}
             </button>
           ))}
         </div>
@@ -73,7 +159,9 @@ export function SpecialistsDirectory() {
 
       {/* شهر */}
       <div>
-        <p className="mb-2.5 text-xs font-semibold text-foreground/50">شهر</p>
+        <p className="mb-2.5 text-xs font-semibold text-foreground/50">
+          محدوده‌ی فعالیت
+        </p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -87,11 +175,13 @@ export function SpecialistsDirectory() {
           >
             همه‌جا
           </button>
-          {CITIES.map((city) => (
+          {areaNames.map((city) => (
             <button
               key={city}
               type="button"
-              onClick={() => update({ city: filters.city === city ? null : city })}
+              onClick={() =>
+                update({ city: filters.city === city ? null : city })
+              }
               className={[
                 "rounded-full border px-3 py-1.5 text-xs transition-colors",
                 filters.city === city
@@ -107,7 +197,9 @@ export function SpecialistsDirectory() {
 
       {/* حداقل امتیاز */}
       <div>
-        <p className="mb-2.5 text-xs font-semibold text-foreground/50">حداقل امتیاز</p>
+        <p className="mb-2.5 text-xs font-semibold text-foreground/50">
+          حداقل امتیاز
+        </p>
         <div className="flex flex-wrap gap-2">
           {RATING_OPTIONS.map((r) => (
             <button
@@ -172,7 +264,10 @@ export function SpecialistsDirectory() {
         {/* نوار جستجو و مرتب‌سازی */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search size={17} className="pointer-events-none absolute end-3.5 top-1/2 -translate-y-1/2 text-foreground/35" />
+            <Search
+              size={17}
+              className="pointer-events-none absolute end-3.5 top-1/2 -translate-y-1/2 text-foreground/35"
+            />
             <input
               type="search"
               value={filters.query}
@@ -207,6 +302,22 @@ export function SpecialistsDirectory() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={findNearby}
+            disabled={locating}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-primary/25 px-3.5 text-sm font-medium text-primary transition-colors hover:bg-primary/[0.05] disabled:opacity-60"
+          >
+            {locating ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <MapPin size={16} />
+            )}
+            متخصصان نزدیک من
+          </button>
         </div>
 
         <p className="mt-4 text-sm text-foreground/55">

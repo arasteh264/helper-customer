@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Inbox } from "lucide-react";
+import { ApiError } from "@/src/lib/api/error";
+import { providerJobsApi } from "../../api/jobs.api";
 
 import { formatNumber } from "../../utils/format";
 import { JobCard, type JobAction } from "./job-card";
@@ -10,6 +12,11 @@ import { Job, JobStatus } from "../../types/types";
 
 const TABS: { id: JobStatus; label: string; empty: string }[] = [
   { id: "new", label: "جدید", empty: "درخواست جدیدی ندارید." },
+  {
+    id: "declined",
+    label: "ردشده توسط من",
+    empty: "درخواستی را رد نکرده‌اید.",
+  },
   { id: "accepted", label: "پذیرفته‌شده", empty: "کار پذیرفته‌شده‌ای ندارید." },
   {
     id: "in_progress",
@@ -26,7 +33,7 @@ const TABS: { id: JobStatus; label: string; empty: string }[] = [
 
 const NEXT_STATUS: Record<JobAction, JobStatus> = {
   accept: "accepted",
-  reject: "cancelled",
+  reject: "declined",
   start: "in_progress",
   complete: "completed",
 };
@@ -35,12 +42,19 @@ const SUCCESS_MESSAGE: Record<JobAction, string> = {
   accept: "کار پذیرفته شد",
   reject: "درخواست رد شد",
   start: "کار شروع شد",
-  complete: "کار تکمیل شد و درآمد به کیف پول اضافه می‌شود",
+  complete: "کار تکمیل شد",
 };
 
-export function JobsBoard({ initialJobs }: { initialJobs: Job[] }) {
+export function JobsBoard({
+  initialJobs,
+  accessToken,
+}: {
+  initialJobs: Job[];
+  accessToken: string;
+}) {
   const [jobs, setJobs] = useState(initialJobs);
   const [tab, setTab] = useState<JobStatus>("new");
+  const [pendingJobId, setPendingJobId] = useState<string | null>(null);
 
   const counts = useMemo(() => {
     const map = {} as Record<JobStatus, number>;
@@ -58,16 +72,30 @@ export function JobsBoard({ initialJobs }: { initialJobs: Job[] }) {
     [jobs, tab],
   );
 
-  const handleAction = (id: string, action: JobAction) => {
+  const handleAction = async (id: string, action: JobAction) => {
     if (action === "reject" && !window.confirm("این درخواست رد شود؟")) return;
 
-    // TODO: تغییر وضعیت را به API ارسال کنید
-    setJobs((prev) =>
-      prev.map((j) =>
-        j.id === id ? { ...j, status: NEXT_STATUS[action] } : j,
-      ),
-    );
-    toast.success(SUCCESS_MESSAGE[action]);
+    setPendingJobId(id);
+    try {
+      await providerJobsApi[action === "reject" ? "decline" : action](
+        id,
+        accessToken,
+      );
+      setJobs((prev) =>
+        prev.map((job) =>
+          job.id === id ? { ...job, status: NEXT_STATUS[action] } : job,
+        ),
+      );
+      toast.success(SUCCESS_MESSAGE[action]);
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError
+          ? error.message
+          : "ثبت تغییر انجام نشد؛ دوباره تلاش کنید.",
+      );
+    } finally {
+      setPendingJobId(null);
+    }
   };
 
   const active = TABS.find((t) => t.id === tab)!;
@@ -129,7 +157,11 @@ export function JobsBoard({ initialJobs }: { initialJobs: Job[] }) {
           <ul className="space-y-4">
             {visible.map((job) => (
               <li key={job.id}>
-                <JobCard job={job} onAction={handleAction} />
+                <JobCard
+                  job={job}
+                  onAction={handleAction}
+                  busy={pendingJobId === job.id}
+                />
               </li>
             ))}
           </ul>

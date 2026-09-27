@@ -37,7 +37,9 @@ export function RequestProgress({ status }: { status: RequestStatus }) {
               </span>
               <span
                 className={`w-16 text-center text-[11px] leading-4 sm:w-20 ${
-                  done || isCurrent ? "font-medium text-foreground" : "text-foreground/40"
+                  done || isCurrent
+                    ? "font-medium text-foreground"
+                    : "text-foreground/40"
                 }`}
               >
                 {label}

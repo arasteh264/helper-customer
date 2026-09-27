@@ -3,7 +3,11 @@ import { z } from "zod";
 export const newRequestSchema = z
   .object({
     categoryId: z.string().min(1, "یک دسته انتخاب کنید"),
-    title: z.string().trim().min(5, "عنوان را کامل‌تر بنویسید").max(80, "حداکثر ۸۰ کاراکتر"),
+    title: z
+      .string()
+      .trim()
+      .min(5, "عنوان را کامل‌تر بنویسید")
+      .max(80, "حداکثر ۸۰ کاراکتر"),
     description: z
       .string()
       .trim()
@@ -12,7 +16,9 @@ export const newRequestSchema = z
     photos: z.array(z.string()).max(6, "حداکثر ۶ عکس"),
     urgency: z.enum(["asap", "this_week", "scheduled"]),
     scheduledAt: z.string().optional(),
-    addressId: z.string().min(1, "یک آدرس انتخاب کنید"),
+    address: z.string().trim().min(8, "آدرس را دقیق‌تر وارد کنید").max(500),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
     hasBudget: z.boolean(),
     budgetMin: z.number().optional(),
     budgetMax: z.number().optional(),
@@ -21,11 +27,17 @@ export const newRequestSchema = z
     path: ["scheduledAt"],
     message: "زمان مدنظر خود را انتخاب کنید",
   })
+  .refine((d) => (d.latitude === undefined) === (d.longitude === undefined), {
+    path: ["latitude"],
+    message: "موقعیت مکانی کامل دریافت نشد",
+  })
   .refine(
     (d) =>
       !d.hasBudget ||
-      (d.budgetMin !== undefined && d.budgetMax !== undefined && d.budgetMin <= d.budgetMax),
-    { path: ["budgetMax"], message: "بازه‌ی بودجه را درست وارد کنید" }
+      (d.budgetMin !== undefined &&
+        d.budgetMax !== undefined &&
+        d.budgetMin <= d.budgetMax),
+    { path: ["budgetMax"], message: "بازه‌ی بودجه را درست وارد کنید" },
   );
 
 export type NewRequestValues = z.infer<typeof newRequestSchema>;

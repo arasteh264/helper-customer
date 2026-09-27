@@ -8,16 +8,27 @@ import type {
   RequestStatus,
 } from "../types/customer.types";
 
-export const REQUEST_STATUS: Record<RequestStatus, { label: string; tone: BadgeTone }> = {
+export const REQUEST_STATUS: Record<
+  RequestStatus,
+  { label: string; tone: BadgeTone }
+> = {
   awaiting_offers: { label: "منتظر پیشنهاد", tone: "info" },
-  offers_received: { label: "پیشنهاد دریافت شد", tone: "warning" },
+  offers_received: {
+    label: "متخصص پذیرفت؛ در انتظار هماهنگی",
+    tone: "warning",
+  },
   in_progress: { label: "در حال انجام", tone: "warning" },
   completed: { label: "تکمیل‌شده", tone: "success" },
   cancelled: { label: "لغوشده", tone: "neutral" },
 };
 
 /** مراحل نمایش‌داده‌شده در نوار پیشرفت هر درخواست */
-export const REQUEST_STEPS = ["ثبت درخواست", "دریافت پیشنهاد", "انجام کار", "تکمیل"];
+export const REQUEST_STEPS = [
+  "ثبت درخواست",
+  "دریافت پیشنهاد",
+  "انجام کار",
+  "تکمیل",
+];
 
 /** شماره‌ی مرحله‌ی فعلی (۰ تا ۳) */
 export function getRequestStep(status: RequestStatus): number {
@@ -47,7 +58,10 @@ export const PAYMENT_TYPE: Record<PaymentType, string> = {
   refund: "بازگشت وجه",
 };
 
-export const PAYMENT_STATUS: Record<PaymentStatus, { label: string; tone: BadgeTone }> = {
+export const PAYMENT_STATUS: Record<
+  PaymentStatus,
+  { label: string; tone: BadgeTone }
+> = {
   completed: { label: "موفق", tone: "success" },
   pending: { label: "در انتظار", tone: "warning" },
   failed: { label: "ناموفق", tone: "danger" },
@@ -58,13 +72,32 @@ export const NOTIFICATION_TOPICS: {
   label: string;
   description: string;
 }[] = [
-  { id: "requestUpdates", label: "وضعیت درخواست‌ها", description: "پذیرش، شروع و تکمیل کار" },
-  { id: "newOffers", label: "پیشنهادهای جدید", description: "وقتی متخصصی برای درخواست شما پیشنهاد می‌دهد" },
-  { id: "paymentAlerts", label: "پرداخت و کیف پول", description: "رسید پرداخت، شارژ و بازگشت وجه" },
-  { id: "promotions", label: "تخفیف‌ها و اخبار", description: "کدهای تخفیف و پیشنهادهای ویژه" },
+  {
+    id: "requestUpdates",
+    label: "وضعیت درخواست‌ها",
+    description: "پذیرش، شروع و تکمیل کار",
+  },
+  {
+    id: "newOffers",
+    label: "پیشنهادهای جدید",
+    description: "وقتی متخصصی برای درخواست شما پیشنهاد می‌دهد",
+  },
+  {
+    id: "paymentAlerts",
+    label: "پرداخت و کیف پول",
+    description: "رسید پرداخت، شارژ و بازگشت وجه",
+  },
+  {
+    id: "promotions",
+    label: "تخفیف‌ها و اخبار",
+    description: "کدهای تخفیف و پیشنهادهای ویژه",
+  },
 ];
 
-export const NOTIFICATION_CHANNELS: { id: NotificationChannel; label: string }[] = [
+export const NOTIFICATION_CHANNELS: {
+  id: NotificationChannel;
+  label: string;
+}[] = [
   { id: "sms", label: "پیامک" },
   { id: "email", label: "ایمیل" },
 ];

@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-import type { Address } from "@/src/features/customer/types/customer.types";
+import type { ServiceCategory } from "../api/request.api";
 import { useNewRequest } from "../hooks/use-new-request";
 import { WizardStepIndicator } from "./wizard-step-indicator";
 import { CategoryStep } from "./category-step";
@@ -12,11 +12,35 @@ import { ScheduleStep } from "./schedule-step";
 import { ReviewStep } from "./review-step";
 import { SuccessScreen } from "./success-screen";
 
-export function RequestWizard({ initialAddresses }: { initialAddresses: Address[] }) {
-  const wizard = useNewRequest();
+export function RequestWizard({
+  categories,
+  accessToken,
+  preferredProviderId,
+  initialCategoryName,
+}: {
+  categories: ServiceCategory[];
+  accessToken: string;
+  preferredProviderId?: string;
+  initialCategoryName?: string;
+}) {
+  const wizard = useNewRequest(accessToken, {
+    preferredProviderId,
+    initialCategoryName,
+  });
+  const categoryName =
+    categories.find((category) => category.name === wizard.draft.categoryId)
+      ?.name ?? wizard.draft.categoryId;
 
   if (wizard.result) {
-    return <SuccessScreen code={wizard.result.code} requestId={wizard.result.id} />;
+    return (
+      <SuccessScreen
+        code={wizard.result.code}
+        requestId={wizard.result.id}
+        accessToken={accessToken}
+        matches={wizard.result.matches}
+        initiallyInvitedProviderId={wizard.result.preferredProviderId}
+      />
+    );
   }
 
   return (
@@ -31,19 +55,25 @@ export function RequestWizard({ initialAddresses }: { initialAddresses: Address[
         {wizard.step === "category" && (
           <CategoryStep
             value={wizard.draft.categoryId}
+            categories={categories}
             onChange={(categoryId) => wizard.update({ categoryId })}
           />
         )}
 
         {wizard.step === "details" && (
-          <DetailsStep draft={wizard.draft} onChange={wizard.update} />
+          <DetailsStep
+            draft={wizard.draft}
+            onChange={wizard.update}
+            categoryName={categoryName}
+          />
         )}
 
         {wizard.step === "address" && (
           <AddressStep
-            initialAddresses={initialAddresses}
-            value={wizard.draft.addressId}
-            onChange={(addressId) => wizard.update({ addressId })}
+            value={wizard.draft.address}
+            latitude={wizard.draft.latitude}
+            longitude={wizard.draft.longitude}
+            onChange={wizard.update}
           />
         )}
 
@@ -52,7 +82,7 @@ export function RequestWizard({ initialAddresses }: { initialAddresses: Address[
         )}
 
         {wizard.step === "review" && (
-          <ReviewStep draft={wizard.draft} addresses={initialAddresses} />
+          <ReviewStep draft={wizard.draft} categoryName={categoryName} />
         )}
       </div>
 
@@ -75,7 +105,9 @@ export function RequestWizard({ initialAddresses }: { initialAddresses: Address[
             disabled={wizard.submitting}
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {wizard.submitting && <Loader2 size={16} className="animate-spin" />}
+            {wizard.submitting && (
+              <Loader2 size={16} className="animate-spin" />
+            )}
             ثبت نهایی درخواست
           </button>
         ) : (

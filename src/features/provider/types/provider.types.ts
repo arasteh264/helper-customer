@@ -130,6 +130,8 @@ export interface ProviderProfile {
   verifiedAt: string | null;
   isAvailable: boolean;
   avatarUrl: string | null;
+  serviceAreaLatitude: number | null;
+  serviceAreaLongitude: number | null;
   user: {
     name: string;
     email: string;
@@ -144,5 +146,7 @@ export interface ProviderProfile {
 export interface UpdateProviderProfileValues {
   bio?: string;
   isAvailable?: boolean;
+  serviceAreaLatitude?: number | null;
+  serviceAreaLongitude?: number | null;
   workingHours?: ProviderWorkingHour[];
 }
