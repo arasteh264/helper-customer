@@ -6,18 +6,36 @@ import { FinanceSummary } from "../../types/types";
 import { formatMoney, formatNumber } from "@/src/utils/format";
 import { WithdrawDialog } from "./withdraw-dialog";
 
-
-
-
-
-export function WalletSummary({ finance }: { finance: FinanceSummary }) {
+export function WalletSummary({
+  finance,
+  accessToken,
+}: {
+  finance: FinanceSummary;
+  accessToken: string;
+}) {
   const [open, setOpen] = useState(false);
-  const canWithdraw = finance.withdrawable >= finance.minWithdrawal;
+  const canWithdraw =
+    finance.withdrawable >= finance.minWithdrawal && finance.bank !== null;
 
   const mini = [
-    { icon: Clock3, label: "در انتظار تسویه", value: formatMoney(finance.pending), hint: "بعد از تأیید مشتری آزاد می‌شود" },
-    { icon: TrendingUp, label: "کل درآمد", value: formatMoney(finance.totalEarned), hint: "از ابتدای همکاری" },
-    { icon: Percent, label: "کارمزد پلتفرم", value: `${formatNumber(finance.commissionRate)}٪`, hint: "از هر کار کسر می‌شود" },
+    {
+      icon: Clock3,
+      label: "در انتظار تسویه",
+      value: formatMoney(finance.pending),
+      hint: "درخواست‌های برداشت در صف پرداخت",
+    },
+    {
+      icon: TrendingUp,
+      label: "کل درآمد",
+      value: formatMoney(finance.totalEarned),
+      hint: "از ابتدای همکاری",
+    },
+    {
+      icon: Percent,
+      label: "کارمزد پلتفرم",
+      value: `${formatNumber(finance.commissionRate)}٪`,
+      hint: "از هر کار کسر می‌شود",
+    },
   ];
 
   return (
@@ -30,7 +48,9 @@ export function WalletSummary({ finance }: { finance: FinanceSummary }) {
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm text-primary-foreground/80">موجودی قابل برداشت</p>
+              <p className="text-sm text-primary-foreground/80">
+                موجودی قابل برداشت
+              </p>
               <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
                 {formatMoney(finance.withdrawable)}
               </p>
@@ -56,7 +76,9 @@ export function WalletSummary({ finance }: { finance: FinanceSummary }) {
               </span>
               <div className="min-w-0">
                 <dt className="text-xs text-foreground/55">{label}</dt>
-                <dd className="mt-0.5 text-base font-semibold text-foreground">{value}</dd>
+                <dd className="mt-0.5 text-base font-semibold text-foreground">
+                  {value}
+                </dd>
                 <p className="mt-0.5 text-[11px] text-foreground/45">{hint}</p>
               </div>
             </div>
@@ -64,13 +86,16 @@ export function WalletSummary({ finance }: { finance: FinanceSummary }) {
         </dl>
       </div>
 
-      <WithdrawDialog
-        open={open}
-        onClose={() => setOpen(false)}
-        withdrawable={finance.withdrawable}
-        min={finance.minWithdrawal}
-        bank={finance.bank}
-      />
+      {finance.bank && (
+        <WithdrawDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          withdrawable={finance.withdrawable}
+          min={finance.minWithdrawal}
+          bank={finance.bank}
+          accessToken={accessToken}
+        />
+      )}
     </>
   );
 }

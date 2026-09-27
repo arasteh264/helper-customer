@@ -1,4 +1,8 @@
-export type VerificationStatus = "verified" | "pending" | "rejected" | "missing";
+export type VerificationStatus =
+  | "verified"
+  | "pending"
+  | "rejected"
+  | "missing";
 
 export interface Provider {
   id: string;
@@ -43,7 +47,8 @@ export type JobStatus =
   | "accepted"
   | "in_progress"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "declined";
 
 export interface Job {
   id: string;
@@ -57,6 +62,7 @@ export interface Job {
   price: number; // تومان
   status: JobStatus;
   note?: string;
+  images?: string[];
 }
 
 export interface Review {
@@ -68,7 +74,11 @@ export interface Review {
   service: string;
 }
 
-export type TransactionType = "earning" | "withdrawal" | "commission" | "refund";
+export type TransactionType =
+  | "earning"
+  | "withdrawal"
+  | "commission"
+  | "refund";
 export type TransactionStatus = "completed" | "pending" | "failed";
 
 export interface Transaction {
@@ -95,5 +105,5 @@ export interface FinanceSummary {
   commissionRate: number; // درصد
   minWithdrawal: number;
   monthly: { label: string; amount: number }[];
-  bank: BankAccount;
+  bank: BankAccount | null;
 }

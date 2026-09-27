@@ -9,6 +9,8 @@ import { Label } from "@/src/components/ui/label";
 
 import { formatMoney, maskSheba, toEnglishDigits } from "../../utils/format";
 import { BankAccount } from "../../types/types";
+import { walletApi } from "../../api/wallet.api";
+import { useRouter } from "next/navigation";
 
 interface Props {
   open: boolean;
@@ -16,9 +18,18 @@ interface Props {
   withdrawable: number;
   min: number;
   bank: BankAccount;
+  accessToken: string;
 }
 
-export function WithdrawDialog({ open, onClose, withdrawable, min, bank }: Props) {
+export function WithdrawDialog({
+  open,
+  onClose,
+  withdrawable,
+  min,
+  bank,
+  accessToken,
+}: Props) {
+  const router = useRouter();
   const ref = useRef<HTMLDialogElement>(null);
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -51,15 +62,10 @@ export function WithdrawDialog({ open, onClose, withdrawable, min, bank }: Props
     if (!canSubmit) return;
     setSubmitting(true);
     try {
-      // TODO: آدرس API خودتان را جایگزین کنید
-      const res = await fetch("/api/provider/withdrawals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: value }),
-      });
-      if (!res.ok) throw new Error();
+      await walletApi.requestWithdrawal(accessToken, value);
       toast.success("درخواست برداشت ثبت شد");
       onClose();
+      router.refresh();
     } catch {
       toast.error("ثبت درخواست انجام نشد. دوباره تلاش کنید.");
     } finally {
@@ -108,7 +114,9 @@ export function WithdrawDialog({ open, onClose, withdrawable, min, bank }: Props
             autoComplete="off"
             placeholder="مثلاً 2000000"
             value={amount}
-            onChange={(e) => setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))}
+            onChange={(e) =>
+              setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))
+            }
             aria-invalid={!!error}
             aria-describedby="withdraw-hint"
             className={`h-12 w-full rounded-xl border bg-background px-4 text-start text-base outline-none transition-colors focus:ring-4 ${
@@ -121,7 +129,8 @@ export function WithdrawDialog({ open, onClose, withdrawable, min, bank }: Props
             id="withdraw-hint"
             className={`text-xs ${error ? "text-destructive" : "text-foreground/50"}`}
           >
-            {error ?? (value > 0 ? formatMoney(value) : `حداقل ${formatMoney(min)}`)}
+            {error ??
+              (value > 0 ? formatMoney(value) : `حداقل ${formatMoney(min)}`)}
           </p>
 
           <div className="flex flex-wrap gap-2 pt-1">
@@ -150,18 +159,27 @@ export function WithdrawDialog({ open, onClose, withdrawable, min, bank }: Props
             <p className="font-medium">
               {bank.bankName} · {bank.holder}
             </p>
-            <p dir="ltr" className="truncate text-start text-xs text-foreground/55">
+            <p
+              dir="ltr"
+              className="truncate text-start text-xs text-foreground/55"
+            >
               {maskSheba(bank.sheba)}
             </p>
           </div>
         </div>
 
         <p className="mt-4 text-xs leading-6 text-foreground/50">
-          مبلغ در بازه‌ی ۲۴ ساعت کاری به حساب بالا واریز می‌شود. کارمزد برداشت ندارد.
+          مبلغ در بازه‌ی ۲۴ ساعت کاری به حساب بالا واریز می‌شود. کارمزد برداشت
+          ندارد.
         </p>
 
         <div className="mt-6 flex gap-3">
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1"
+          >
             انصراف
           </Button>
           <Button type="submit" disabled={!canSubmit} className="flex-1 gap-2">

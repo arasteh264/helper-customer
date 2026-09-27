@@ -2,9 +2,9 @@ import { apiClient } from "@/src/lib/api/client";
 
 export interface VerificationDocResponse {
   type: string;
-  status: "verified" | "pending" | "rejected";
-  note?: string;
-  url?: string;
+  status: "APPROVED" | "PENDING" | "REJECTED";
+  rejectionNote: string | null;
+  url: string;
 }
 
 const authHeaders = (accessToken?: string) =>

@@ -33,6 +33,9 @@ export interface ServiceRequest {
   category: string;
   description: string;
   addressLabel: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  images?: string[];
   createdAt: string; // ISO
   scheduledAt?: string; // ISO
   status: RequestStatus;

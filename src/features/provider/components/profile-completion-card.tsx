@@ -21,7 +21,6 @@ export function ProfileCompletionCard({ percent, items }: Props) {
       className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-card to-card p-5 sm:p-6"
     >
       <div className="flex items-center gap-4">
-        {/* حلقه‌ی پیشرفت */}
         <div className="relative h-[72px] w-[72px] shrink-0">
           <svg
             viewBox="0 0 72 72"

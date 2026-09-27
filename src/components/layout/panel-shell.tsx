@@ -11,18 +11,14 @@ export interface PanelNavItem {
   label: string;
   href: string;
   icon: IconKey;
-  /** فقط وقتی مسیر دقیقاً برابر باشد فعال شود (برای صفحه‌ی «نمای کلی») */
   exact?: boolean;
-  /** در نوار پایین موبایل نمایش داده شود (حداکثر ۵ مورد) */
   mobile?: boolean;
 }
 
 interface PanelShellProps {
-  /** مثلاً «پنل مشتری» */
   subtitle: string;
   nav: PanelNavItem[];
   user: { name: string; subtitle?: string; avatar?: string };
-  /** لینک اختیاری بالای کارت کاربر، مثلاً «مشاهده‌ی پروفایل عمومی» */
   extraLink?: { label: string; href: string };
   children: ReactNode;
 }

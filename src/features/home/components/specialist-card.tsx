@@ -22,6 +22,8 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
     startingPrice,
     verified,
     image,
+    available,
+    distanceKm,
   } = specialist;
 
   return (
@@ -49,6 +51,11 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
             تأییدشده
           </span>
         )}
+        {available && (
+          <span className="absolute bottom-3 right-3 rounded-full bg-green-700/90 px-2.5 py-1 text-[11px] font-medium text-white">
+            آماده‌ی پذیرش کار
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">
@@ -63,21 +70,27 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
               ({fa.format(reviews)})
             </span>
           </span>
-          <span>{fa.format(jobs)} پروژه</span>
+          {jobs > 0 && <span>{fa.format(jobs)} پروژه</span>}
           <span className="flex items-center gap-1">
             <MapPin size={13} />
-            {city}
+            {distanceKm != null ? `${fa.format(distanceKm)} کیلومتر` : city}
           </span>
         </div>
 
         <div className="mt-4 flex items-end justify-between border-t border-foreground/5 pt-4">
           <div>
-            <p className="text-[11px] text-foreground/50">شروع قیمت</p>
+            <p className="text-[11px] text-foreground/50">هزینه</p>
             <p className="text-sm font-semibold text-foreground">
-              {fa.format(startingPrice)}{" "}
-              <span className="text-xs font-normal text-foreground/60">
-                تومان
-              </span>
+              {startingPrice > 0 ? (
+                <>
+                  {fa.format(startingPrice)}{" "}
+                  <span className="text-xs font-normal text-foreground/60">
+                    تومان به بالا
+                  </span>
+                </>
+              ) : (
+                "پس از بررسی درخواست"
+              )}
             </p>
           </div>
 

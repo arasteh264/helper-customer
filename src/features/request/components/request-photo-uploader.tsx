@@ -10,10 +10,14 @@ const MAX_ITEMS = 6;
 
 export function RequestPhotoUploader({
   photos,
+  files,
   onChange,
+  onFilesChange,
 }: {
   photos: string[];
+  files: File[];
   onChange: (photos: string[]) => void;
+  onFilesChange: (files: File[]) => void;
 }) {
   const localUrls = useRef(new Set<string>());
 
@@ -35,6 +39,7 @@ export function RequestPhotoUploader({
     }
 
     const next: string[] = [];
+    const nextFiles: File[] = [];
     for (const file of files.slice(0, room)) {
       const error = validateFile(file, FILE_RULES.avatar);
       if (error) {
@@ -44,37 +49,48 @@ export function RequestPhotoUploader({
       const url = URL.createObjectURL(file);
       localUrls.current.add(url);
       next.push(url);
+      nextFiles.push(file);
     }
 
     if (next.length > 0) {
-      // TODO: فایل‌ها را با requestApi.uploadPhoto آپلود کنید و آدرس واقعی را جایگزین کنید
       onChange([...photos, ...next]);
+      onFilesChange([...files, ...nextFiles]);
     }
   };
 
-  const remove = (url: string) => {
+  const remove = (url: string, index: number) => {
     if (localUrls.current.has(url)) {
       URL.revokeObjectURL(url);
       localUrls.current.delete(url);
     }
     onChange(photos.filter((p) => p !== url));
+    onFilesChange(files.filter((_, fileIndex) => fileIndex !== index));
   };
 
   return (
     <div>
       <p className="mb-2 text-sm font-medium text-foreground">
         عکس از محل مشکل{" "}
-        <span className="text-xs font-normal text-foreground/45">(اختیاری، اما کمک زیادی می‌کند)</span>
+        <span className="text-xs font-normal text-foreground/45">
+          (اختیاری، اما کمک زیادی می‌کند)
+        </span>
       </p>
 
       <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
         {photos.map((url, i) => (
-          <li key={url} className="group relative aspect-square overflow-hidden rounded-xl border border-foreground/10 bg-foreground/[0.04]">
+          <li
+            key={url}
+            className="group relative aspect-square overflow-hidden rounded-xl border border-foreground/10 bg-foreground/[0.04]"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt={`عکس ${i + 1}`} className="h-full w-full object-cover" />
+            <img
+              src={url}
+              alt={`عکس ${i + 1}`}
+              className="h-full w-full object-cover"
+            />
             <button
               type="button"
-              onClick={() => remove(url)}
+              onClick={() => remove(url, i)}
               aria-label={`حذف عکس ${i + 1}`}
               className="absolute end-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-100 transition-opacity hover:bg-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
             >

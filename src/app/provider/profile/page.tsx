@@ -8,6 +8,7 @@ import { AvailabilityEditor } from "@/src/features/provider/components/availabil
 import { ProfileCompletionCard } from "@/src/features/provider/components/profile-completion-card";
 import { VerificationSection } from "@/src/features/provider/components/basicInformation/verification-section";
 import { ProfileForm } from "@/src/features/provider/components/basicInformation/profile-form";
+import { ServiceAreaEditor } from "@/src/features/provider/components/basicInformation/service-area-editor";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { SkillsSection } from "@/src/features/provider/components/basicInformation/skills-section";
 import { buildAvailabilityDays } from "@/src/features/provider/lib/availability";
@@ -55,6 +56,10 @@ export default async function ProviderProfilePage() {
       />
       <ProfileCompletionCard percent={percent} items={items} />
       <ProfileForm provider={provider} />
+      <ServiceAreaEditor
+        initialLatitude={provider.serviceAreaLatitude}
+        initialLongitude={provider.serviceAreaLongitude}
+      />
       <SkillsSection initial={provider.skills} />
       <VerificationSection docs={docs} />
       <PortfolioUploader initial={[]} />
