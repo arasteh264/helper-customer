@@ -1,4 +1,3 @@
-// داده‌ی نمونه. در پروژه‌ی واقعی از API / دیتابیس گرفته شود.
 import type { DirectorySpecialist } from "../types/catalog.types";
 
 export const directorySpecialists: DirectorySpecialist[] = [

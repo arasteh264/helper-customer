@@ -152,6 +152,7 @@ export const steps: Step[] = [
 export const specialists: Specialist[] = [
   {
     id: "ali-rezaei",
+    categoryId: "plumbing",
     name: "علی رضایی",
     field: "لوله‌کش ساختمان",
     rating: 4.9,
@@ -163,6 +164,7 @@ export const specialists: Specialist[] = [
   },
   {
     id: "sara-ahmadi",
+    categoryId: "painting",
     name: "سارا احمدی",
     field: "نقاش و دکوراتور",
     rating: 4.7,
@@ -174,6 +176,7 @@ export const specialists: Specialist[] = [
   },
   {
     id: "maryam-hosseini",
+    categoryId: "legal",
     name: "مریم حسینی",
     field: "وکیل پایه یک دادگستری",
     rating: 4.9,
@@ -185,6 +188,7 @@ export const specialists: Specialist[] = [
   },
   {
     id: "nima-sadeghi",
+    categoryId: "tech",
     name: "نیما صادقی",
     field: "طراح UI/UX",
     rating: 4.8,
@@ -196,6 +200,7 @@ export const specialists: Specialist[] = [
   },
   {
     id: "pariya-mousavi",
+    categoryId: "education",
     name: "پریا موسوی",
     field: "مدرس خصوصی ریاضی",
     rating: 5,
@@ -207,6 +212,7 @@ export const specialists: Specialist[] = [
   },
   {
     id: "amir-karimi",
+    categoryId: "repairs",
     name: "امیر کریمی",
     field: "نجار و مبلمان سفارشی",
     rating: 4.8,

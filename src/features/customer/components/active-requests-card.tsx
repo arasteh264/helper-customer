@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarClock, ChevronLeft, MapPin } from "lucide-react";
+import { CalendarClock, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 
 import type { ServiceRequest } from "../types/customer.types";
 import { REQUEST_STATUS } from "../utils/status-maps";
@@ -23,7 +23,7 @@ export function ActiveRequestsCard({ requests }: { requests: ServiceRequest[] })
           className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
           همه‌ی درخواست‌ها
-          <ChevronLeft size={16} className="rtl:rotate-180" />
+          <ChevronRight size={16} className="rtl:rotate-180" />
         </Link>
       }
     >

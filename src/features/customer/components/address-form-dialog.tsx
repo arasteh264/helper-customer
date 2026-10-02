@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Navigation } from "lucide-react";
 
 import { Modal } from "@/src/components/shared/modal";
 import { Switch } from "@/src/components/shared/switch";
@@ -12,6 +15,12 @@ import { Label } from "@/src/components/ui/label";
 import { addressSchema, type AddressValues } from "../schemas/address.schema";
 import type { Address, AddressType } from "../types/customer.types";
 import { toEnglishDigits } from "@/src/utils/format";
+
+// Leaflet به window نیاز دارد → فقط سمت کلاینت
+const AddressMap = dynamic(() => import("../../request/components/addressmap"), {
+  ssr: false,
+  loading: () => <div className="h-72 animate-pulse rounded-xl bg-foreground/[0.06]" />,
+});
 
 const TYPES: { id: AddressType; label: string }[] = [
   { id: "home", label: "منزل" },
@@ -30,6 +39,8 @@ const DEFAULTS: AddressValues = {
   unit: "",
   postalCode: "",
   isDefault: false,
+  latitude: undefined,
+  longitude: undefined,
 };
 
 interface Props {
@@ -52,13 +63,39 @@ export function AddressFormDialog({ open, onClose, onSubmit, initial, isPending 
     resolver: zodResolver(addressSchema),
     defaultValues: DEFAULTS,
   });
+  const [locating, setLocating] = useState(false);
 
-  // هر بار که دیالوگ باز می‌شود، فرم را با مقدار درست پر کن
   useEffect(() => {
     if (open) reset(initial ?? DEFAULTS);
   }, [open, initial, reset]);
 
   const type = watch("type");
+  const latitude = watch("latitude");
+  const longitude = watch("longitude");
+
+  const setCoords = (lat: number, lng: number) => {
+    setValue("latitude", lat, { shouldDirty: true });
+    setValue("longitude", lng, { shouldDirty: true });
+  };
+
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("مرورگر شما از موقعیت مکانی پشتیبانی نمی‌کند");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setCoords(coords.latitude, coords.longitude);
+        setLocating(false);
+      },
+      () => {
+        toast.error("دریافت موقعیت ممکن نشد؛ نقشه را حرکت دهید.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 12000 },
+    );
+  };
 
   const submit = async (values: AddressValues) => {
     await onSubmit(values);
@@ -153,6 +190,39 @@ export function AddressFormDialog({ open, onClose, onSubmit, initial, isPending 
             />
             {errors.postalCode && (
               <p className="text-xs text-destructive">{errors.postalCode.message}</p>
+            )}
+          </div>
+
+          {/* ---------- نقشه ---------- */}
+          <div className="sm:col-span-2 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Label>موقعیت روی نقشه (اختیاری)</Label>
+              <button
+                type="button"
+                onClick={useCurrentLocation}
+                disabled={locating}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
+              >
+                <Navigation size={14} />
+                {locating ? "در حال دریافت…" : "موقعیت فعلی من"}
+              </button>
+            </div>
+            <p className="text-xs text-foreground/50">
+              نقشه را حرکت دهید تا پین روی محل دقیق قرار بگیرد.
+            </p>
+            {/* با open و key، هر بار دیالوگ باز شود نقشه از نو و با مختصات درست ساخته می‌شود */}
+            {open && (
+              <AddressMap
+                key={initial?.id ?? "new"}
+                latitude={latitude}
+                longitude={longitude}
+                onMove={setCoords}
+              />
+            )}
+            {latitude !== undefined && longitude !== undefined && (
+              <p className="text-xs text-foreground/45" dir="ltr">
+                {latitude.toFixed(5)}, {longitude.toFixed(5)}
+              </p>
             )}
           </div>
 

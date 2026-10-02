@@ -1,12 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Loader2, MapPin, Navigation, Save } from "lucide-react";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { Button } from "@/src/components/ui/button";
 import { providerApi } from "../../api/provider.api";
+
+// Leaflet به window نیاز دارد → فقط سمت کلاینت
+const ServiceAreaMap = dynamic(() => import("./service-area-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-72 animate-pulse rounded-xl bg-foreground/[0.06]" />
+  ),
+});
 
 export function ServiceAreaEditor({
   initialLatitude,
@@ -15,14 +24,19 @@ export function ServiceAreaEditor({
   initialLatitude: number | null;
   initialLongitude: number | null;
 }) {
-  const [latitude, setLatitude] = useState(
-    initialLatitude === null ? "" : String(initialLatitude),
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    initialLatitude !== null && initialLongitude !== null
+      ? { lat: initialLatitude, lng: initialLongitude }
+      : null,
   );
-  const [longitude, setLongitude] = useState(
-    initialLongitude === null ? "" : String(initialLongitude),
-  );
+  const [dirty, setDirty] = useState(false);
   const [locating, setLocating] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const move = (lat: number, lng: number) => {
+    setCoords({ lat, lng });
+    setDirty(true);
+  };
 
   const locate = () => {
     if (!navigator.geolocation) {
@@ -31,13 +45,12 @@ export function ServiceAreaEditor({
     }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setLatitude(coords.latitude.toFixed(6));
-        setLongitude(coords.longitude.toFixed(6));
+      ({ coords: c }) => {
+        move(c.latitude, c.longitude);
         setLocating(false);
       },
       () => {
-        toast.error("دریافت موقعیت انجام نشد. مجوز مکان‌یابی را بررسی کنید.");
+        toast.error("دریافت موقعیت انجام نشد. نقشه را حرکت دهید.");
         setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 12000 },
@@ -45,33 +58,22 @@ export function ServiceAreaEditor({
   };
 
   const save = async () => {
-    const latitudeValue = Number(latitude);
-    const longitudeValue = Number(longitude);
-    if (
-      !latitude.trim() ||
-      !longitude.trim() ||
-      !Number.isFinite(latitudeValue) ||
-      !Number.isFinite(longitudeValue) ||
-      latitudeValue < -90 ||
-      latitudeValue > 90 ||
-      longitudeValue < -180 ||
-      longitudeValue > 180
-    ) {
-      toast.error("موقعیت مکانی معتبر وارد کنید");
+    if (!coords) {
+      toast.error("ابتدا موقعیت خود را روی نقشه مشخص کنید");
       return;
     }
-
     setSaving(true);
     try {
       const session = await getSession();
       if (!session?.accessToken) throw new Error("نشست شما منقضی شده است");
       await providerApi.updateProfile(
         {
-          serviceAreaLatitude: latitudeValue,
-          serviceAreaLongitude: longitudeValue,
+          serviceAreaLatitude: Number(coords.lat.toFixed(6)),
+          serviceAreaLongitude: Number(coords.lng.toFixed(6)),
         },
         session.accessToken,
       );
+      setDirty(false);
       toast.success("محدوده‌ی فعالیت ذخیره شد");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "ذخیره انجام نشد");
@@ -86,66 +88,57 @@ export function ServiceAreaEditor({
       title="محدوده‌ی فعالیت"
       description="موقعیت تقریبی فعالیت شما برای پیشنهاد نزدیک‌ترین متخصص به مشتری استفاده می‌شود؛ نشانی دقیق عمومی نیست."
     >
-      <div className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-        <label className="space-y-2 text-sm font-medium text-foreground">
-          عرض جغرافیایی
-          <input
-            inputMode="decimal"
-            dir="ltr"
-            value={latitude}
-            onChange={(event) => setLatitude(event.target.value)}
-            placeholder="35.7219"
-            className="h-11 w-full rounded-lg border border-foreground/15 bg-background px-3 text-start text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-          />
-        </label>
-        <label className="space-y-2 text-sm font-medium text-foreground">
-          طول جغرافیایی
-          <input
-            inputMode="decimal"
-            dir="ltr"
-            value={longitude}
-            onChange={(event) => setLongitude(event.target.value)}
-            placeholder="51.3347"
-            className="h-11 w-full rounded-lg border border-foreground/15 bg-background px-3 text-start text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-          />
-        </label>
-        <div className="flex gap-2">
+      <p className="mb-2 text-xs text-foreground/50">
+        روی نقشه کلیک کنید یا پین را بکشید تا مرکز محدوده‌ی کارتان مشخص شود.
+      </p>
+
+      <ServiceAreaMap
+        latitude={coords?.lat}
+        longitude={coords?.lng}
+        onMove={move}
+      />
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={locate}
             disabled={locating}
-            aria-label="ثبت موقعیت فعلی"
+            className="gap-2"
           >
             {locating ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (
               <Navigation size={16} />
             )}
+            موقعیت فعلی من
           </Button>
-          <Button
-            type="button"
-            onClick={save}
-            disabled={saving}
-            className="gap-2"
-          >
-            {saving ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Save size={16} />
-            )}
-            ذخیره
-          </Button>
+          {coords && (
+            <span
+              className="flex items-center gap-1.5 text-xs text-foreground/50"
+              dir="ltr"
+            >
+              <MapPin size={13} />
+              {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+            </span>
+          )}
         </div>
-      </div>
-      {latitude && longitude && (
-        <p
-          className="mt-3 flex items-center gap-1.5 text-xs text-foreground/50"
-          dir="ltr"
+
+        <Button
+          type="button"
+          onClick={save}
+          disabled={saving || !dirty}
+          className="gap-2"
         >
-          <MapPin size={13} /> {latitude}, {longitude}
-        </p>
-      )}
+          {saving ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Save size={16} />
+          )}
+          ذخیره
+        </Button>
+      </div>
     </SectionCard>
   );
 }
