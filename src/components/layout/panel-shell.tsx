@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { ExternalLink, LogOut, type LucideIcon } from "lucide-react";
-import { IconKey, ICONS } from "@/src/features/provider/lib/icons";
+import { ExternalLink, LogOut } from "lucide-react";
+import { ICONS, type IconKey } from "@/src/features/provider/lib/icons";
 
 export interface PanelNavItem {
   label: string;
@@ -13,12 +13,20 @@ export interface PanelNavItem {
   icon: IconKey;
   exact?: boolean;
   mobile?: boolean;
+  /** عدد واقعی (مثلاً درخواست‌های فعال)؛ صفر یا undefined = نمایش داده نمی‌شود */
+  badge?: number;
+}
+
+export interface PanelUser {
+  name?: string | null;
+  subtitle?: string | null;
+  avatar?: string | null;
 }
 
 interface PanelShellProps {
   subtitle: string;
   nav: PanelNavItem[];
-  user: { name: string; subtitle?: string; avatar?: string };
+  user?: PanelUser;
   extraLink?: { label: string; href: string };
   children: ReactNode;
 }
@@ -29,7 +37,9 @@ function isActive(pathname: string, item: PanelNavItem) {
     : pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function Avatar({ name, src, size = 40 }: { name: string; src?: string; size?: number }) {
+const formatBadge = (n: number) => (n > 99 ? "99+" : String(n));
+
+function Avatar({ name, src, size = 40 }: { name: string; src?: string | null; size?: number }) {
   return src ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -43,7 +53,7 @@ function Avatar({ name, src, size = 40 }: { name: string; src?: string; size?: n
       className="flex shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary"
       style={{ width: size, height: size }}
     >
-      {name.charAt(0)}
+      {name.trim().charAt(0) || "؟"}
     </span>
   );
 }
@@ -51,6 +61,11 @@ function Avatar({ name, src, size = 40 }: { name: string; src?: string; size?: n
 export function PanelShell({ subtitle, nav, user, extraLink, children }: PanelShellProps) {
   const pathname = usePathname();
   const mobileNav = nav.filter((i) => i.mobile).slice(0, 5);
+
+  // اگر داده‌ی کاربر نرسید، پنل نمی‌شکند
+  const name = user?.name?.trim() || "کاربر";
+  const userSubtitle = user?.subtitle || undefined;
+  const avatar = user?.avatar || undefined;
 
   return (
     <div className="min-h-screen bg-foreground/[0.025] lg:grid lg:grid-cols-[17rem_1fr]">
@@ -86,6 +101,16 @@ export function PanelShell({ subtitle, nav, user, extraLink, children }: PanelSh
               >
                 <Icon size={19} />
                 {item.label}
+                {!!item.badge && item.badge > 0 && (
+                  <span
+                    className={[
+                      "ms-auto min-w-5 rounded-full px-1.5 py-0.5 text-center text-[11px] font-semibold leading-4",
+                      active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-primary/10 text-primary",
+                    ].join(" ")}
+                  >
+                    {formatBadge(item.badge)}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -103,11 +128,11 @@ export function PanelShell({ subtitle, nav, user, extraLink, children }: PanelSh
           )}
 
           <div className="flex items-center gap-3 rounded-xl bg-foreground/[0.04] p-3">
-            <Avatar name={user.name} src={user.avatar} />
+            <Avatar name={name} src={avatar} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
-              {user.subtitle && (
-                <p className="truncate text-xs text-foreground/50">{user.subtitle}</p>
+              <p className="truncate text-sm font-semibold text-foreground">{name}</p>
+              {userSubtitle && (
+                <p className="truncate text-xs text-foreground/50">{userSubtitle}</p>
               )}
             </div>
             <button
@@ -141,7 +166,7 @@ export function PanelShell({ subtitle, nav, user, extraLink, children }: PanelSh
                 <ExternalLink size={18} />
               </Link>
             )}
-            <Avatar name={user.name} src={user.avatar} size={34} />
+            <Avatar name={name} src={avatar} size={34} />
           </div>
         </header>
 
@@ -175,11 +200,16 @@ export function PanelShell({ subtitle, nav, user, extraLink, children }: PanelSh
                   ].join(" ")}
                 >
                   <span
-                    className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+                    className={`relative flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
                       active ? "bg-primary/10" : ""
                     }`}
                   >
                     <Icon size={20} />
+                    {!!item.badge && item.badge > 0 && (
+                      <span className="absolute -top-0.5 end-1.5 min-w-4 rounded-full bg-primary px-1 text-center text-[10px] font-semibold leading-4 text-primary-foreground">
+                        {formatBadge(item.badge)}
+                      </span>
+                    )}
                   </span>
                   {item.label}
                 </Link>

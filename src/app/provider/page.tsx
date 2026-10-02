@@ -169,7 +169,6 @@ export default async function ProviderOverviewPage() {
         />
       </div>
 
-      {/* کارها + نمودار */}
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <UpcomingJobsCard jobs={jobs} />

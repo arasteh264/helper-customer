@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { MapPin, Navigation, Check } from "lucide-react";
+
+const AddressMap = dynamic(() => import("./addressmap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-72 animate-pulse rounded-xl bg-foreground/[0.06]" />
+  ),
+});
 
 export function AddressStep({
   value,
@@ -20,6 +28,7 @@ export function AddressStep({
   }) => void;
 }) {
   const [locating, setLocating] = useState(false);
+  const hasLocation = latitude !== undefined && longitude !== undefined;
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -30,11 +39,11 @@ export function AddressStep({
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         onChange({ latitude: coords.latitude, longitude: coords.longitude });
-        toast.success("موقعیت ثبت شد؛ نشانی دقیق را هم وارد کنید.");
+        toast.success("موقعیت ثبت شد؛ در صورت نیاز پین را روی نقشه اصلاح کنید.");
         setLocating(false);
       },
       () => {
-        toast.error("دریافت موقعیت ممکن نشد؛ نشانی را دستی وارد کنید.");
+        toast.error("دریافت موقعیت ممکن نشد؛ نقشه را حرکت دهید.");
         setLocating(false);
       },
       { enableHighAccuracy: true, timeout: 12000 },
@@ -72,6 +81,18 @@ export function AddressStep({
         />
       </div>
 
+      <p className="mt-5 text-sm font-medium text-foreground">
+        موقعیت روی نقشه
+      </p>
+      <p className="mt-1 mb-2 text-xs text-foreground/50">
+        نقشه را حرکت دهید تا پین روی محل دقیق قرار بگیرد.
+      </p>
+      <AddressMap
+        latitude={latitude}
+        longitude={longitude}
+        onMove={(lat, lng) => onChange({ latitude: lat, longitude: lng })}
+      />
+
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -79,26 +100,21 @@ export function AddressStep({
           disabled={locating}
           className="inline-flex h-11 items-center gap-2 rounded-xl border border-primary/30 bg-primary/[0.05] px-4 text-sm font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
         >
-          {latitude !== undefined && longitude !== undefined ? (
-            <Check size={17} />
-          ) : (
-            <Navigation size={17} />
-          )}
+          {hasLocation ? <Check size={17} /> : <Navigation size={17} />}
           {locating
             ? "در حال دریافت موقعیت…"
-            : latitude !== undefined
-              ? "موقعیت ثبت شد"
+            : hasLocation
+              ? "ثبت مجدد موقعیت فعلی"
               : "ثبت موقعیت فعلی"}
         </button>
-        {latitude !== undefined && longitude !== undefined && (
+        {hasLocation && (
           <span className="text-xs text-foreground/45" dir="ltr">
-            {latitude.toFixed(5)}, {longitude.toFixed(5)}
+            {latitude!.toFixed(5)}, {longitude!.toFixed(5)}
           </span>
         )}
       </div>
       <p className="mt-3 text-xs leading-5 text-foreground/45">
-        استفاده از موقعیت فعلی اختیاری است؛ برای پیدا شدن محل، نشانی کامل را
-        وارد کنید.
+        انتخاب موقعیت روی نقشه اختیاری است؛ ولی نشانی کامل را حتماً وارد کنید.
       </p>
     </div>
   );

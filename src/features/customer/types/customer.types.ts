@@ -1,3 +1,5 @@
+
+
 export interface Customer {
   id: string;
   name: string;
@@ -5,15 +7,18 @@ export interface Customer {
   email: string;
   emailVerified?: boolean;
   avatar?: string;
-  memberSince: string; // ISO
-  walletBalance?: number; // تومان
+  memberSince: string; 
+  walletBalance?: number; 
+  activeRequests?:number;
+  completedJobs?:number;
+  addressesCount?:number;
+  recentActiveRequests?:ServiceRequest[]
 }
 
-/* ───────── درخواست‌ها ───────── */
 
 export type RequestStatus =
-  | "awaiting_offers" // ثبت شده، منتظر پیشنهاد متخصصان
-  | "offers_received" // پیشنهاد آمده، منتظر انتخاب مشتری
+  | "awaiting_offers" 
+  | "offers_received" 
   | "in_progress"
   | "completed"
   | "cancelled";
@@ -28,26 +33,24 @@ export interface RequestSpecialist {
 
 export interface ServiceRequest {
   id: string;
-  code: string; // مثل R-2048
+  code: string;
   title: string;
   category: string;
   description: string;
   addressLabel: string;
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: number;
+  longitude?: number;
   images?: string[];
-  createdAt: string; // ISO
-  scheduledAt?: string; // ISO
+  createdAt: string; 
+  scheduledAt?: string; 
   status: RequestStatus;
   offersCount: number;
   budget?: { min: number; max: number };
-  /** قیمت نهایی توافق‌شده */
   price?: number;
   specialist?: RequestSpecialist;
   reviewed: boolean;
 }
 
-/* ───────── آدرس‌ها ───────── */
 
 export type AddressType = "home" | "work" | "other";
 
@@ -78,22 +81,19 @@ export interface FavoriteSpecialist {
   image?: string;
 }
 
-/* ───────── کیف پول ───────── */
 
 export type PaymentType = "topup" | "payment" | "refund";
 export type PaymentStatus = "completed" | "pending" | "failed";
 
 export interface WalletPayment {
   id: string;
-  date: string; // ISO
+  date: string; 
   description: string;
   type: PaymentType;
-  /** مثبت = افزایش موجودی، منفی = کاهش */
   amount: number;
   status: PaymentStatus;
 }
 
-/* ───────── تنظیمات ───────── */
 
 export type NotificationTopic =
   | "requestUpdates"
@@ -112,6 +112,6 @@ export interface Session {
   id: string;
   device: string;
   location: string;
-  lastActive: string; // ISO
+  lastActive: string; 
   current: boolean;
 }

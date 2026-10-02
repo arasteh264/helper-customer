@@ -3,10 +3,8 @@ import type { LucideIcon } from "lucide-react";
 export interface Category {
   id: string;
   label: string;
-  /** تعداد متخصصان، به‌صورت عدد (نمایش فارسی در کامپوننت انجام می‌شود) */
   count: number;
   icon: LucideIcon;
-  /** کلاس‌های کامل Tailwind برای رنگ آیکن */
   tint: string;
   href: string;
 }
@@ -27,10 +25,10 @@ export interface Specialist {
   city: string;
   startingPrice: number;
   verified: boolean;
-  /** اختیاری: مسیر عکس پروفایل. اگر نباشد، حرف اول نام نمایش داده می‌شود */
   image?: string;
   available?: boolean;
   distanceKm?: number | null;
+  categoryId?:string
 }
 
 export interface Testimonial {
@@ -46,3 +44,9 @@ export interface Feature {
   title: string;
   description: string;
 }
+export type CategoryDetail = {
+  intro: string;
+  sections: { title: string; body: string }[];
+  faqs: { q: string; a: string }[];
+  startingPrice: number;
+};

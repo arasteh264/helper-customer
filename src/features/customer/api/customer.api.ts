@@ -6,56 +6,79 @@ import type { ReviewValues } from "../schemas/review.schema";
 import type {
   Customer,
   NotificationPrefs,
+  ServiceRequest, 
   Session,
 } from "../types/customer.types";
-export interface BackendUser{
-  
-  id: string,
-  name:string,
-  email: string,
-  phone:string,
-  role:string ,
-  status:string ,
-  createdAt: string,
-  avatar?:string,
-  emailVerified?:boolean,
-  walletBalance?:number ,
-}
-export const customerApi = {
- getProfile: async (accessToken?: string): Promise<Customer> => {
-  const { data } = await apiClient<BackendUser>("/users/me", {
-    method: "GET",
-    headers: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined,
-  });
 
-  return {
-    id: data.id,
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
-    avatar: data.avatar ,
-    memberSince: data.createdAt,
-    emailVerified: data.emailVerified ,
-    walletBalance: data.walletBalance ,
-  };
-},
+export interface BackendUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  status: string;
+  createdAt: string;
+  avatar?: string;
+  emailVerified?: boolean;
+  walletBalance?: number;
+}
+
+
+export interface BackendCustomerProfile {
+  id: string;
+  userId: string;
+  name: string;
+  memberSince: string;
+  walletBalance: number;
+  activeRequests: number;
+  completedJobs: number;
+  addressesCount: number;
+  recentActiveRequests: ServiceRequest[];
+}
+
+const authHeaders = (accessToken?: string) =>
+  accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
+
+export const customerApi = {
+  getProfile: async (accessToken?: string): Promise<Customer> => {
+    const headers = authHeaders(accessToken);
+
+    const [{ data: user }, { data: profile }] = await Promise.all([
+      apiClient<BackendUser>("/users/me", { method: "GET", headers }),
+      apiClient<BackendCustomerProfile>("/customer/profile", {
+        method: "GET",
+        headers,
+      }),
+    ]);
+
+    return {
+      id: user.id, 
+      name: profile.name || user.name,
+      email: user.email,
+      phone: user.phone,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+      memberSince: profile.memberSince ?? user.createdAt,
+      walletBalance: profile.walletBalance ?? user.walletBalance ?? 0,
+      activeRequests: profile.activeRequests,
+      completedJobs: profile.completedJobs,
+      addressesCount: profile.addressesCount,
+      recentActiveRequests: profile.recentActiveRequests ?? [],
+    };
+  },
 
   updateProfile: (values: CustomerProfileValues) =>
     apiClient("/customer/profile", { method: "PATCH", data: values }),
 
-changePassword: (
-  values: Pick<ChangePasswordValues, "currentPassword" | "newPassword">,
-  accessToken?: string,
-) =>
-  apiClient("/customer/password", {
-    method: "PATCH",
-    data: values,
-    headers: accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined,
-  }),
+  changePassword: (
+    values: Pick<ChangePasswordValues, "currentPassword" | "newPassword">,
+    accessToken?: string,
+  ) =>
+    apiClient("/customer/password", {
+      method: "PATCH",
+      data: values,
+      headers: authHeaders(accessToken),
+    }),
 
   deleteAccount: () => apiClient("/customer/account", { method: "DELETE" }),
 
@@ -102,12 +125,7 @@ changePassword: (
   // getNotificationPrefs: async (accessToken?: string) => {
   //   const { data } = await apiClient<NotificationPrefs>(
   //     "/api/customer/notifications",
-  //     {
-  //       method: "GET",
-  //       headers: accessToken
-  //         ? { Authorization: `Bearer ${accessToken}` }
-  //         : undefined,
-  //     },
+  //     { method: "GET", headers: authHeaders(accessToken) },
   //   );
   //   return data;
   // },
@@ -118,9 +136,7 @@ changePassword: (
   // getSessions: async (accessToken?: string) => {
   //   const { data } = await apiClient<Session[]>("/api/customer/sessions", {
   //     method: "GET",
-  //     headers: accessToken
-  //       ? { Authorization: `Bearer ${accessToken}` }
-  //       : undefined,
+  //     headers: authHeaders(accessToken),
   //   });
   //   return data;
   // },

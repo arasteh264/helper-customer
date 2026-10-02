@@ -195,7 +195,6 @@ export function SpecialistsDirectory({
         </div>
       </div>
 
-      {/* حداقل امتیاز */}
       <div>
         <p className="mb-2.5 text-xs font-semibold text-foreground/50">
           حداقل امتیاز
