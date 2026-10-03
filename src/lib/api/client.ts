@@ -13,9 +13,15 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const normalizedError = normalizeError(error);
+    const hasBearerToken =
+      axios.isAxiosError(error) &&
+      Boolean(
+        axios.AxiosHeaders.from(error.config?.headers).get("Authorization"),
+      );
 
     if (
       normalizedError.status === 401 &&
+      hasBearerToken &&
       typeof window !== "undefined" &&
       !window.location.pathname.startsWith("/login")
     ) {

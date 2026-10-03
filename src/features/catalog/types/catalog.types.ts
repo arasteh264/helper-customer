@@ -9,23 +9,18 @@ export interface DirectorySpecialist {
   jobs: number;
   startingPrice: number;
   verified: boolean;
+  categoryIds?: string[];
   image?: string;
   available?: boolean;
   hasServiceArea?: boolean;
   distanceKm?: number | null;
 }
 
-export type SortOption =
-  | "recommended"
-  | "rating"
-  | "price_asc"
-  | "price_desc"
-  | "distance";
+export type SortOption = "recommended" | "rating" | "distance";
 
 export interface SpecialistFilters {
   query: string;
   categoryId: string | null;
-  city: string | null;
   minRating: number;
   verifiedOnly: boolean;
   sort: SortOption;
@@ -34,7 +29,6 @@ export interface SpecialistFilters {
 export const DEFAULT_FILTERS: SpecialistFilters = {
   query: "",
   categoryId: null,
-  city: null,
   minRating: 0,
   verifiedOnly: false,
   sort: "recommended",

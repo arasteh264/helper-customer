@@ -6,8 +6,8 @@ import type { ReviewValues } from "../schemas/review.schema";
 import type {
   Customer,
   NotificationPrefs,
-  ServiceRequest, 
-  Session,
+  ServiceRequest,
+  WalletPayment,
 } from "../types/customer.types";
 
 export interface BackendUser {
@@ -23,7 +23,6 @@ export interface BackendUser {
   walletBalance?: number;
 }
 
-
 export interface BackendCustomerProfile {
   id: string;
   userId: string;
@@ -34,6 +33,12 @@ export interface BackendCustomerProfile {
   completedJobs: number;
   addressesCount: number;
   recentActiveRequests: ServiceRequest[];
+}
+
+export interface CustomerWalletSummary {
+  balance: number;
+  totalSpent: number;
+  transactions: WalletPayment[];
 }
 
 const authHeaders = (accessToken?: string) =>
@@ -52,7 +57,7 @@ export const customerApi = {
     ]);
 
     return {
-      id: user.id, 
+      id: user.id,
       name: profile.name || user.name,
       email: user.email,
       phone: user.phone,
@@ -65,6 +70,17 @@ export const customerApi = {
       addressesCount: profile.addressesCount,
       recentActiveRequests: profile.recentActiveRequests ?? [],
     };
+  },
+
+  getWallet: async (accessToken: string): Promise<CustomerWalletSummary> => {
+    const { data } = await apiClient<CustomerWalletSummary>(
+      "/customer/wallet",
+      {
+        method: "GET",
+        headers: authHeaders(accessToken),
+      },
+    );
+    return data;
   },
 
   updateProfile: (values: CustomerProfileValues) =>
@@ -116,11 +132,15 @@ export const customerApi = {
   removeFavorite: (specialistId: string) =>
     apiClient(`/api/customer/favorites/${specialistId}`, { method: "DELETE" }),
 
-  topUpWallet: (amount: number) =>
-    apiClient<{ paymentUrl: string }>("/api/customer/wallet/topup", {
-      method: "POST",
-      data: { amount },
-    }),
+  topUpWallet: (amountToman: number, accessToken: string) =>
+    apiClient<{ paymentUrl: string; topupId: string }>(
+      "/customer/wallet/topup",
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+        data: { amountToman },
+      },
+    ),
 
   // getNotificationPrefs: async (accessToken?: string) => {
   //   const { data } = await apiClient<NotificationPrefs>(

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { CalendarClock, MapPin, Phone, Wallet } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
@@ -5,18 +6,38 @@ import { Button } from "@/src/components/ui/button";
 import { StatusBadge } from "@/src/components/shared/status-badge";
 import { Job } from "../../types/types";
 import { JOB_STATUS } from "../../utils/job-status";
-import { formatDateTime, formatMoney } from "@/src/utils/format";
+import {
+  formatDateTime,
+  formatMoney,
+  toEnglishDigits,
+} from "@/src/utils/format";
 
 export type JobAction = "accept" | "reject" | "start" | "complete";
 
 interface JobCardProps {
   job: Job;
-  onAction: (id: string, action: JobAction) => void;
+  onAction: (
+    id: string,
+    action: JobAction,
+    proposedPriceToman?: number,
+  ) => void;
   busy?: boolean;
 }
 
 export function JobCard({ job, onAction, busy = false }: JobCardProps) {
+  const [priceInput, setPriceInput] = useState("");
+  const proposedPriceToman = Number(
+    toEnglishDigits(priceInput).replace(/\D/g, ""),
+  );
   const status = JOB_STATUS[job.status];
+  const paymentStatusLabel = job.paymentStatus
+    ? {
+        PENDING: "در انتظار پرداخت",
+        PAID: "پرداخت‌شده",
+        FAILED: "پرداخت ناموفق",
+        REFUNDED: "بازپرداخت‌شده",
+      }[job.paymentStatus]
+    : null;
   const showPhone =
     !!job.customerPhone &&
     (job.status === "accepted" || job.status === "in_progress");
@@ -88,6 +109,16 @@ export function JobCard({ job, onAction, busy = false }: JobCardProps) {
               توضیح مشتری: {job.note}
             </p>
           )}
+          {job.paymentStatus && (
+            <p className="mt-2 text-xs text-foreground/60">
+              وضعیت پرداخت: {paymentStatusLabel}
+            </p>
+          )}
+          {job.customerConfirmedAt || job.customerConfirmed ? (
+            <p className="mt-1 text-xs font-medium text-green-700">
+              انجام کار توسط مشتری تأیید شده است.
+            </p>
+          ) : null}
           {job.images && job.images.length > 0 && (
             <div className="mt-3 flex gap-2 overflow-x-auto">
               {job.images.map((image, index) => (
@@ -106,7 +137,22 @@ export function JobCard({ job, onAction, busy = false }: JobCardProps) {
 
         <div className="flex items-center gap-2">
           {job.status === "new" && (
-            <>
+            <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
+              <label className="grid gap-1 text-xs text-foreground/60">
+                مبلغ قطعی (تومان)
+                <input
+                  inputMode="numeric"
+                  dir="ltr"
+                  value={priceInput}
+                  onChange={(event) =>
+                    setPriceInput(
+                      toEnglishDigits(event.target.value).replace(/\D/g, ""),
+                    )
+                  }
+                  className="h-10 w-full min-w-36 rounded-lg border border-foreground/15 bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                  aria-label="مبلغ پیشنهادی قطعی به تومان"
+                />
+              </label>
               <Button
                 type="button"
                 variant="outline"
@@ -117,12 +163,12 @@ export function JobCard({ job, onAction, busy = false }: JobCardProps) {
               </Button>
               <Button
                 type="button"
-                disabled={busy}
-                onClick={() => onAction(job.id, "accept")}
+                disabled={busy || proposedPriceToman <= 0}
+                onClick={() => onAction(job.id, "accept", proposedPriceToman)}
               >
-                {busy ? "در حال ثبت…" : "پذیرش کار"}
+                {busy ? "در حال ثبت…" : "ثبت قیمت و پذیرش"}
               </Button>
-            </>
+            </div>
           )}
           {job.status === "accepted" && (
             <Button

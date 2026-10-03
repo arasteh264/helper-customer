@@ -7,7 +7,11 @@ export const addressSchema = z.object({
     .min(2, "یک عنوان برای آدرس بنویسید (مثلاً: منزل)")
     .max(30, "حداکثر ۳۰ کاراکتر"),
   type: z.enum(["home", "work", "other"]),
-  receiverName: z.string().trim().min(3, "نام تحویل‌گیرنده را وارد کنید").max(60),
+  receiverName: z
+    .string()
+    .trim()
+    .min(3, "نام تحویل‌گیرنده را وارد کنید")
+    .max(60),
   receiverPhone: z
     .string()
     .regex(/^09\d{9}$/, "شماره موبایل را صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)"),
@@ -20,6 +24,8 @@ export const addressSchema = z.object({
   plaque: z.string().trim().min(1, "پلاک را وارد کنید").max(10),
   unit: z.string().trim().max(10, "حداکثر ۱۰ کاراکتر"),
   postalCode: z.string().regex(/^\d{10}$/, "کد پستی باید ۱۰ رقم باشد"),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   isDefault: z.boolean(),
 });
 

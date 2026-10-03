@@ -10,7 +10,12 @@ export default function ProviderLayout({ children }: { children: ReactNode }) {
     <PanelShell
       subtitle="پنل ارائه‌دهنده"
       nav={providerNav}
-      user={{ name: provider.fullName, subtitle: provider.headline, avatar: provider.avatar }}
+      notificationRole="PROVIDER"
+      user={{
+        name: provider.fullName,
+        subtitle: provider.headline,
+        avatar: provider.avatar,
+      }}
     >
       {children}
     </PanelShell>

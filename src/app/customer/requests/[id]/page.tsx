@@ -10,26 +10,44 @@ import { StatusBadge } from "@/src/components/shared/status-badge";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { formatDateTime, formatMoney } from "@/src/utils/format";
+import { RequestPaymentActions } from "@/src/features/customer/components/request-payment-actions";
+import type { ServiceRequestPayment } from "@/src/features/request/api/request.api";
+import { RequestChat } from "@/src/features/request/components/request-chat";
 
 export const metadata: Metadata = { title: "پیگیری درخواست | پنل مشتری" };
 
 export default async function CustomerRequestDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await auth();
   if (!session?.accessToken) {
     redirect("/login?callbackUrl=%2Fcustomer%2Frequests");
   }
-  const { id } = await params;
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   let request;
   try {
     request = await requestApi.getMyRequest(id, session.accessToken);
   } catch {
     notFound();
   }
+  let payment: ServiceRequestPayment | null = null;
+  if (request.status === "awaiting_payment" || Object.keys(query).length > 0) {
+    try {
+      payment = await requestApi.getPaymentStatus(id, session.accessToken);
+    } catch {
+      payment = null;
+    }
+  }
   const status = REQUEST_STATUS[request.status];
+  const amountToman =
+    request.priceToman ??
+    request.finalPriceToman ??
+    request.proposedPriceToman ??
+    request.price;
 
   return (
     <div className="space-y-6">
@@ -59,12 +77,27 @@ export default async function CustomerRequestDetailPage({
         <RequestProgress status={request.status} />
       </SectionCard>
 
+      <RequestPaymentActions
+        requestId={id}
+        requestStatus={request.status}
+        amountToman={amountToman}
+        initialPayment={payment}
+        accessToken={session.accessToken}
+      />
+
+      <RequestChat
+        requestId={id}
+        accessToken={session.accessToken}
+        currentUserId={session.user.id}
+        currentUserRole="CUSTOMER"
+      />
+
       {request.specialist ? (
         <SectionCard
           title="هماهنگی با متخصص"
           description="متخصص درخواست شما را پذیرفته است؛ برای هماهنگی زمان و جزئیات تماس بگیرید."
         >
-          <div className="flex flex-col gap-4 rounded-xl border border-primary/15 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 rounded-xl border border-primary/15 bg-primary/4 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <UserRound size={20} />
@@ -131,7 +164,9 @@ export default async function CustomerRequestDetailPage({
             <dd className="mt-1 text-sm text-foreground">
               {request.budget
                 ? `${formatMoney(request.budget.min)} تا ${formatMoney(request.budget.max)}`
-                : "دریافت قیمت از متخصص"}
+                : amountToman != null
+                  ? formatMoney(amountToman)
+                  : "دریافت قیمت از متخصص"}
             </dd>
           </div>
         </dl>

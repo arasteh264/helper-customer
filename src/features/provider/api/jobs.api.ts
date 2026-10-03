@@ -14,10 +14,11 @@ export const providerJobsApi = {
     return data;
   },
 
-  accept(requestId: string, accessToken: string) {
+  accept(requestId: string, proposedPriceToman: number, accessToken: string) {
     return apiClient(`/providers/jobs/${requestId}/accept`, {
       method: "POST",
       headers: authHeaders(accessToken),
+      data: { proposedPriceToman },
     });
   },
 

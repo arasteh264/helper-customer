@@ -3,15 +3,14 @@
 import { customerApi } from "../api/customer.api";
 import { useMutation } from "./use-mutation";
 
-
 /** شروع فرایند شارژ کیف پول: کاربر را به درگاه بانکی می‌فرستد */
-export function useWalletTopup() {
+export function useWalletTopup(accessToken: string) {
   const { run, isPending } = useMutation(
     async (amount: number) => {
-      // const { paymentUrl } = await customerApi.topUpWallet(amount);
-      // window.location.href = paymentUrl;
+      const { data } = await customerApi.topUpWallet(amount, accessToken);
+      window.location.assign(data.paymentUrl);
     },
-    { error: "اتصال به درگاه پرداخت انجام نشد. دوباره تلاش کنید." }
+    { error: "اتصال به درگاه پرداخت انجام نشد. دوباره تلاش کنید." },
   );
 
   return { topUp: run, isPending };

@@ -7,6 +7,8 @@ import { EarningsChart } from "@/src/features/provider/components/Financial/earn
 import { TransactionsTable } from "@/src/features/provider/components/Financial/transactions-table";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { SectionCard } from "@/src/components/shared/section-card";
+import { StatusBadge } from "@/src/components/shared/status-badge";
+import { formatDateTime, formatMoney } from "@/src/utils/format";
 import { WalletSummary } from "@/src/features/provider/components/Financial/wallet-summary";
 import { BankAccountCard } from "@/src/features/provider/components/Financial/bank-account-card";
 import { walletApi } from "@/src/features/provider/api/wallet.api";
@@ -26,17 +28,22 @@ export default async function ProviderFinancePage() {
 
   let finance: FinanceSummary;
   let transactions: Transaction[];
+  let payouts: Awaited<ReturnType<typeof walletApi.getPayouts>>;
   let bank: BankAccount | null = null;
 
   try {
-    const [summary, transactionResult, bankResult] = await Promise.all([
-      walletApi.getSummary(session.accessToken),
-      walletApi.getTransactions(session.accessToken),
-      walletApi.getBankAccount(session.accessToken).catch((error: unknown) => {
-        if (error instanceof ApiError && error.status === 404) return null;
-        throw error;
-      }),
-    ]);
+    const [summary, transactionResult, payoutResult, bankResult] =
+      await Promise.all([
+        walletApi.getSummary(session.accessToken),
+        walletApi.getTransactions(session.accessToken),
+        walletApi.getPayouts(session.accessToken),
+        walletApi
+          .getBankAccount(session.accessToken)
+          .catch((error: unknown) => {
+            if (error instanceof ApiError && error.status === 404) return null;
+            throw error;
+          }),
+      ]);
 
     bank = bankResult
       ? {
@@ -46,10 +53,29 @@ export default async function ProviderFinancePage() {
           verified: false,
         }
       : null;
+    payouts = payoutResult;
     finance = {
       withdrawable: summary.balance,
       pending: summary.pendingPayouts,
       totalEarned: summary.totalEarned,
+      grossEarnings:
+        summary.grossIncomeToman ??
+        summary.grossEarningsToman ??
+        summary.grossIncome ??
+        summary.grossEarnings ??
+        null,
+      netEarnings:
+        summary.netIncomeToman ??
+        summary.netEarningsToman ??
+        summary.netIncome ??
+        summary.netEarnings ??
+        null,
+      commissionAmount:
+        summary.commissionToman ??
+        summary.totalCommissionToman ??
+        summary.commission ??
+        summary.commissionAmount ??
+        null,
       commissionRate: summary.commissionRate,
       minWithdrawal: summary.minWithdrawal,
       monthly: summary.monthly,
@@ -125,6 +151,47 @@ export default async function ProviderFinancePage() {
           <BankAccountCard bank={bank} />
         </div>
       </div>
+
+      <SectionCard
+        title="تاریخچه‌ی برداشت‌ها"
+        description="وضعیت درخواست‌های برداشت از پاسخ backend"
+      >
+        {payouts.length === 0 ? (
+          <p className="rounded-xl bg-foreground/[0.03] px-4 py-8 text-center text-sm text-foreground/55">
+            درخواست برداشتی ثبت نشده است.
+          </p>
+        ) : (
+          <ul className="divide-y divide-foreground/10">
+            {payouts.map((payout) => {
+              const state = {
+                PENDING: { label: "در انتظار بررسی", tone: "warning" as const },
+                PAID: { label: "پرداخت‌شده", tone: "success" as const },
+                REJECTED: { label: "ردشده", tone: "danger" as const },
+                CANCELLED: { label: "لغوشده", tone: "neutral" as const },
+              }[payout.status];
+
+              return (
+                <li
+                  key={payout.id}
+                  className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {payout.amountToman != null || payout.amount != null
+                        ? formatMoney(payout.amountToman ?? payout.amount!)
+                        : "مبلغ نامشخص"}
+                    </p>
+                    <p className="mt-1 text-xs text-foreground/50">
+                      {formatDateTime(payout.createdAt)}
+                    </p>
+                  </div>
+                  <StatusBadge tone={state.tone}>{state.label}</StatusBadge>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SectionCard>
 
       <TransactionsTable transactions={transactions} />
     </div>

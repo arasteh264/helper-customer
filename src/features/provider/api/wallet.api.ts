@@ -7,6 +7,18 @@ export interface WalletDashboardResponse {
   totalWithdrawn: number;
   pendingPayouts: number;
   commissionRate: number;
+  grossIncomeToman?: number;
+  netIncomeToman?: number;
+  commissionToman?: number;
+  grossIncome?: number;
+  netIncome?: number;
+  commission?: number;
+  grossEarningsToman?: number;
+  netEarningsToman?: number;
+  totalCommissionToman?: number;
+  grossEarnings?: number;
+  netEarnings?: number;
+  commissionAmount?: number;
   minWithdrawal: number;
   monthly: { label: string; amount: number }[];
 }
@@ -30,6 +42,15 @@ export interface ProviderBankAccountResponse {
   sheba: string;
   bankName: string | null;
   updatedAt: string;
+}
+
+export interface ProviderPayoutResponse {
+  id: string;
+  amountToman?: number;
+  amount?: number;
+  status: "PENDING" | "PAID" | "REJECTED" | "CANCELLED";
+  createdAt: string;
+  paidAt?: string | null;
 }
 
 const headers = (accessToken: string) => ({
@@ -79,6 +100,22 @@ export const walletApi = {
     }
 
     return { items: allItems, total: firstPage.total };
+  },
+
+  async getPayouts(accessToken: string) {
+    const { data } = await apiClient<
+      | ProviderPayoutResponse[]
+      | { items: ProviderPayoutResponse[] }
+      | { data: ProviderPayoutResponse[] }
+    >("/providers/wallet/payouts", {
+      method: "GET",
+      headers: headers(accessToken),
+    });
+    return Array.isArray(data)
+      ? data
+      : "items" in data
+        ? data.items
+        : data.data;
   },
 
   async getBankAccount(accessToken: string) {

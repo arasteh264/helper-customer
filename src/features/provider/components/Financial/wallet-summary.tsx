@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, Clock3, Percent, TrendingUp } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock3,
+  Percent,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { FinanceSummary } from "../../types/types";
 import { formatMoney, formatNumber } from "@/src/utils/format";
 import { WithdrawDialog } from "./withdraw-dialog";
@@ -19,22 +25,35 @@ export function WalletSummary({
 
   const mini = [
     {
+      icon: TrendingUp,
+      label: "درآمد ناخالص",
+      value:
+        finance.grossEarnings == null
+          ? "—"
+          : formatMoney(finance.grossEarnings),
+      hint: "پیش از کسر کمیسیون",
+    },
+    {
+      icon: Percent,
+      label: "کمیسیون",
+      value:
+        finance.commissionAmount == null
+          ? "—"
+          : formatMoney(finance.commissionAmount),
+      hint: `${formatNumber(finance.commissionRate)}٪ نرخ کمیسیون`,
+    },
+    {
+      icon: TrendingDown,
+      label: "درآمد خالص",
+      value:
+        finance.netEarnings == null ? "—" : formatMoney(finance.netEarnings),
+      hint: "پس از کسر کمیسیون",
+    },
+    {
       icon: Clock3,
       label: "در انتظار تسویه",
       value: formatMoney(finance.pending),
       hint: "درخواست‌های برداشت در صف پرداخت",
-    },
-    {
-      icon: TrendingUp,
-      label: "کل درآمد",
-      value: formatMoney(finance.totalEarned),
-      hint: "از ابتدای همکاری",
-    },
-    {
-      icon: Percent,
-      label: "کارمزد پلتفرم",
-      value: `${formatNumber(finance.commissionRate)}٪`,
-      hint: "از هر کار کسر می‌شود",
     },
   ];
 
@@ -68,7 +87,7 @@ export function WalletSummary({
           </div>
         </div>
 
-        <dl className="grid divide-y divide-foreground/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0 rtl:sm:divide-x-reverse">
+        <dl className="grid divide-y divide-foreground/10 sm:grid-cols-2 sm:divide-x sm:divide-y-0 rtl:sm:divide-x-reverse xl:grid-cols-4">
           {mini.map(({ icon: Icon, label, value, hint }) => (
             <div key={label} className="flex items-start gap-3 p-5">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">

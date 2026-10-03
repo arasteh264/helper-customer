@@ -66,9 +66,11 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
           <span className="flex items-center gap-1 font-medium text-foreground">
             <Star size={14} className="fill-amber-500 text-amber-500" />
             {faRating.format(rating)}
-            <span className="font-normal text-foreground/50">
-              ({fa.format(reviews)})
-            </span>
+            {reviews > 0 && (
+              <span className="font-normal text-foreground/50">
+                ({fa.format(reviews)})
+              </span>
+            )}
           </span>
           {jobs > 0 && <span>{fa.format(jobs)} پروژه</span>}
           <span className="flex items-center gap-1">

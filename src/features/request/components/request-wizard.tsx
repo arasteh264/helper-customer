@@ -1,11 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
-import type { ServiceCategory } from "../api/request.api";
 import { useNewRequest } from "../hooks/use-new-request";
 import { WizardStepIndicator } from "./wizard-step-indicator";
-import { CategoryStep } from "./category-step";
+import { SpecialtyStep } from "./specialty-step";
 import { DetailsStep } from "./details-step";
 import { AddressStep } from "./address-step";
 import { ScheduleStep } from "./schedule-step";
@@ -13,23 +13,17 @@ import { ReviewStep } from "./review-step";
 import { SuccessScreen } from "./success-screen";
 
 export function RequestWizard({
-  categories,
   accessToken,
   preferredProviderId,
-  initialCategoryName,
 }: {
-  categories: ServiceCategory[];
   accessToken: string;
   preferredProviderId?: string;
-  initialCategoryName?: string;
 }) {
+  const [selectedSpecialtyName, setSelectedSpecialtyName] = useState("");
   const wizard = useNewRequest(accessToken, {
     preferredProviderId,
-    initialCategoryName,
   });
-  const categoryName =
-    categories.find((category) => category.name === wizard.draft.categoryId)
-      ?.name ?? wizard.draft.categoryId;
+  const categoryName = selectedSpecialtyName || wizard.draft.categoryId;
 
   if (wizard.result) {
     return (
@@ -53,10 +47,13 @@ export function RequestWizard({
 
       <div className="mt-8 rounded-2xl border border-foreground/10 bg-card p-5 sm:p-8">
         {wizard.step === "category" && (
-          <CategoryStep
+          <SpecialtyStep
             value={wizard.draft.categoryId}
-            categories={categories}
-            onChange={(categoryId) => wizard.update({ categoryId })}
+            accessToken={accessToken}
+            onChange={(categoryId, name) => {
+              setSelectedSpecialtyName(name);
+              wizard.update({ categoryId });
+            }}
           />
         )}
 

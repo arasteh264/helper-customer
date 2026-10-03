@@ -113,6 +113,23 @@ export interface ProviderSkill {
   name: string;
 }
 
+export interface ProviderSpecialty {
+  id: string;
+  name: string;
+  slug?: string;
+  icon?: string | null;
+  groupId?: string;
+  groupName?: string;
+  activeProvidersCount?: number;
+}
+
+export interface ProviderSpecialtyGroup {
+  id: string;
+  name: string;
+  slug?: string;
+  icon?: string | null;
+}
+
 export interface ProviderWorkingHour {
   dayOfWeek: number;
   isActive: boolean;
@@ -138,6 +155,7 @@ export interface ProviderProfile {
     phone: string;
   };
   skills: ProviderSkill[];
+  specialties?: ProviderSpecialty[];
   workingHours: ProviderWorkingHour[];
   createdAt: string;
   updatedAt: string;

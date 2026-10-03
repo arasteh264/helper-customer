@@ -1,5 +1,10 @@
 import { apiClient } from "@/src/lib/api/client";
-import type { NewRequestDraft } from "../types/request.types";
+import type {
+  NewRequestDraft,
+  RequestChatHistoryResponse,
+  RequestChatMessage,
+} from "../types/request.types";
+import type { Specialty, SpecialtyGroup } from "../types/specialty.types";
 import type { ServiceRequest } from "@/src/features/customer/types/customer.types";
 
 export interface ServiceCategory {
@@ -16,6 +21,19 @@ export interface ProviderMatch {
   avatarUrl: string | null;
   skills: string[];
   distanceKm: number | null;
+}
+
+export type ServiceRequestPaymentStatus =
+  | "PENDING"
+  | "PAID"
+  | "FAILED"
+  | "REFUNDED";
+
+export interface ServiceRequestPayment {
+  status: ServiceRequestPaymentStatus;
+  amountToman?: number;
+  amount?: number;
+  paidAt?: string | null;
 }
 
 const authHeaders = (accessToken: string) => ({
@@ -45,12 +63,80 @@ export const requestApi = {
     return data;
   },
 
-  async getCategories(accessToken: string) {
-    const { data } = await apiClient<ServiceCategory[]>(
-      "/service-requests/categories",
-      { method: "GET", headers: authHeaders(accessToken) },
+  async getPaymentStatus(requestId: string, accessToken: string) {
+    const { data } = await apiClient<
+      ServiceRequestPayment | { data: ServiceRequestPayment }
+    >(`/payments/service-requests/${requestId}`, {
+      method: "GET",
+      headers: authHeaders(accessToken),
+    });
+    return "data" in data ? data.data : data;
+  },
+
+  async checkout(requestId: string, accessToken: string) {
+    const { data } = await apiClient<
+      { paymentUrl: string } | { data: { paymentUrl: string } }
+    >(`/payments/service-requests/${requestId}/checkout`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
+    return "data" in data ? data.data : data;
+  },
+
+  confirmCompletion(requestId: string, accessToken: string) {
+    return apiClient(
+      `/payments/service-requests/${requestId}/confirm-completion`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+      },
     );
-    return data;
+  },
+
+  dispute(requestId: string, accessToken: string) {
+    return apiClient(`/payments/service-requests/${requestId}/dispute`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
+  },
+
+  async getCategories(accessToken?: string) {
+    const { data } = await apiClient<
+      ServiceCategory[] | { data?: ServiceCategory[] }
+    >("/service-requests/categories", {
+      method: "GET",
+      headers: accessToken ? authHeaders(accessToken) : undefined,
+    });
+    return Array.isArray(data) ? data : (data.data ?? []);
+  },
+
+  async getSpecialtyGroups(accessToken?: string): Promise<SpecialtyGroup[]> {
+    const { data } = await apiClient<{ data?: SpecialtyGroup[] }>(
+      "/specialties/groups",
+      {
+        method: "GET",
+        headers: accessToken ? authHeaders(accessToken) : undefined,
+      },
+    );
+    return data.data ?? [];
+  },
+
+  async getSpecialtyGroupSpecialties(
+    groupId: string,
+    accessToken?: string,
+  ): Promise<Specialty[]> {
+    const { data } = await apiClient<{ data?: Specialty[] }>(
+      `/specialties/groups/${groupId}/specialties`,
+      {
+        method: "GET",
+        headers: accessToken ? authHeaders(accessToken) : undefined,
+      },
+    );
+    return data.data ?? [];
+  },
+
+  async getGroupedSpecialties(): Promise<SpecialtyGroup[]> {
+    return this.getSpecialtyGroups();
   },
 
   async getMatches(requestId: string, accessToken: string) {
@@ -80,7 +166,7 @@ export const requestApi = {
       data: {
         title: draft.title,
         description: draft.description,
-        skillName: draft.categoryId,
+        specialtyId: draft.categoryId,
         address: draft.address,
         latitude: draft.latitude,
         longitude: draft.longitude,
@@ -109,6 +195,40 @@ export const requestApi = {
         method: "POST",
         data: form,
         headers: { ...authHeaders(accessToken), "Content-Type": undefined },
+      },
+    );
+    return data;
+  },
+
+  async getChatMessages(
+    requestId: string,
+    accessToken: string,
+    signal?: AbortSignal,
+  ) {
+    const { data } = await apiClient<RequestChatHistoryResponse>(
+      `/service-requests/${requestId}/chat/messages`,
+      {
+        method: "GET",
+        headers: authHeaders(accessToken),
+        signal,
+      },
+    );
+    return data;
+  },
+
+  async sendChatMessage(
+    requestId: string,
+    body: string,
+    accessToken: string,
+    signal?: AbortSignal,
+  ): Promise<RequestChatMessage> {
+    const { data } = await apiClient<RequestChatMessage>(
+      `/service-requests/${requestId}/chat/messages`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+        data: { body },
+        signal,
       },
     );
     return data;

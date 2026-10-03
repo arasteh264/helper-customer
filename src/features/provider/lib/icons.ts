@@ -19,6 +19,8 @@ import {
   HeartPulse,
   Car,
   Droplets,
+  MessagesSquare,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -42,6 +44,8 @@ export const ICONS = {
   heartPulse: HeartPulse,
   car: Car,
   droplets: Droplets,
+  messagesSquare: MessagesSquare,
+  bell: Bell,
 } as const satisfies Record<string, LucideIcon>;
 
 export type IconKey = keyof typeof ICONS;

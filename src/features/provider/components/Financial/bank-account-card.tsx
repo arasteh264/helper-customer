@@ -41,7 +41,8 @@ export function BankAccountCard({ bank }: { bank: BankAccount | null }) {
 
       <p className="mt-4 flex items-start gap-2 text-xs leading-6 text-foreground/50">
         <LifeBuoy size={16} className="mt-0.5 shrink-0" />
-        برای امنیت بیشتر، تغییر شماره‌ی شبا فقط توسط مدیر سامانه انجام می‌شود.
+        API فعلی فقط امکان مشاهده‌ی حساب را دارد؛ برای ثبت یا ویرایش حساب بانکی
+        باید endpoint Provider از backend ارائه شود.
       </p>
     </SectionCard>
   );

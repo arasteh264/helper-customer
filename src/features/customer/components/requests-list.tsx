@@ -11,11 +11,23 @@ import { StatusBadge } from "@/src/components/shared/status-badge";
 
 type Tab = "active" | "completed" | "cancelled";
 
-const TABS: { id: Tab; label: string; statuses: RequestStatus[]; empty: string }[] = [
+const TABS: {
+  id: Tab;
+  label: string;
+  statuses: RequestStatus[];
+  empty: string;
+}[] = [
   {
     id: "active",
     label: "فعال",
-    statuses: ["awaiting_offers", "offers_received", "in_progress"],
+    statuses: [
+      "awaiting_offers",
+      "offers_received",
+      "awaiting_payment",
+      "in_progress",
+      "awaiting_confirmation",
+      "disputed",
+    ],
     empty: "درخواست فعالی ندارید.",
   },
   {
@@ -96,7 +108,12 @@ export function RequestsList({
         })}
       </div>
 
-      <div id="requests-panel" role="tabpanel" aria-labelledby={`req-tab-${tab}`} className="mt-5">
+      <div
+        id="requests-panel"
+        role="tabpanel"
+        aria-labelledby={`req-tab-${tab}`}
+        className="mt-5"
+      >
         {visible.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-foreground/15 bg-card px-6 py-14 text-center">
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-foreground/[0.05] text-foreground/40">
@@ -121,7 +138,9 @@ export function RequestsList({
                           {r.title}
                         </h3>
                       </div>
-                      <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                      <StatusBadge tone={status.tone}>
+                        {status.label}
+                      </StatusBadge>
                     </div>
 
                     <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-foreground/55">
@@ -142,9 +161,14 @@ export function RequestsList({
                             {r.specialist.name.charAt(0)}
                           </span>
                           <div className="text-xs">
-                            <p className="font-medium text-foreground">{r.specialist.name}</p>
+                            <p className="font-medium text-foreground">
+                              {r.specialist.name}
+                            </p>
                             <p className="flex items-center gap-1 text-foreground/50">
-                              <Star size={11} className="fill-amber-500 text-amber-500" />
+                              <Star
+                                size={11}
+                                className="fill-amber-500 text-amber-500"
+                              />
                               {r.specialist.rating}
                             </p>
                           </div>
@@ -154,12 +178,22 @@ export function RequestsList({
                           {formatNumber(r.offersCount)} پیشنهاد در انتظار بررسی
                         </p>
                       ) : (
-                        <p className="text-xs text-foreground/45">هنوز متخصصی انتخاب نشده</p>
+                        <p className="text-xs text-foreground/45">
+                          هنوز متخصصی انتخاب نشده
+                        </p>
                       )}
 
-                      {r.price !== undefined && (
+                      {(r.priceToman ??
+                        r.finalPriceToman ??
+                        r.proposedPriceToman ??
+                        r.price) !== undefined && (
                         <p className="text-sm font-semibold text-foreground">
-                          {formatMoney(r.price)}
+                          {formatMoney(
+                            r.priceToman ??
+                              r.finalPriceToman ??
+                              r.proposedPriceToman ??
+                              r.price!,
+                          )}
                         </p>
                       )}
                     </div>

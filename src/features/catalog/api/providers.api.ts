@@ -11,6 +11,13 @@ export interface PublicProvider {
   distanceKm?: number | null;
   avatarUrl: string | null;
   skills: { id: string; name: string }[];
+  specialties?: {
+    id: string;
+    name: string;
+    slug?: string;
+    groupId: string;
+    groupName: string;
+  }[];
   workingHours: {
     dayOfWeek: number;
     isActive: boolean;

@@ -40,12 +40,11 @@ function isStepComplete(step: WizardStepId, draft: NewRequestDraft) {
 
 export function useNewRequest(
   accessToken: string,
-  options: { initialCategoryName?: string; preferredProviderId?: string } = {},
+  options: { preferredProviderId?: string } = {},
 ) {
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<NewRequestDraft>(() => ({
     ...EMPTY_DRAFT,
-    categoryId: options.initialCategoryName ?? "",
   }));
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{
