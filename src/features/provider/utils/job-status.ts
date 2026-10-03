@@ -10,7 +10,10 @@ export const JOB_STATUS: Record<JobStatus, { label: string; tone: BadgeTone }> =
   {
     new: { label: "درخواست جدید", tone: "info" },
     accepted: { label: "پذیرفته‌شده", tone: "warning" },
+    awaiting_payment: { label: "در انتظار پرداخت مشتری", tone: "warning" },
     in_progress: { label: "در حال انجام", tone: "warning" },
+    awaiting_confirmation: { label: "در انتظار تأیید مشتری", tone: "warning" },
+    disputed: { label: "مورد اختلاف", tone: "danger" },
     completed: { label: "تکمیل‌شده", tone: "success" },
     cancelled: { label: "لغوشده", tone: "neutral" },
     declined: { label: "ردشده توسط شما", tone: "danger" },

@@ -8,9 +8,15 @@ import { formatMoney, toEnglishDigits } from "@/src/utils/format";
 
 const QUICK_AMOUNTS = [200000, 500000, 1000000];
 
-export function WalletBalanceCard({ balance }: { balance: number }) {
+export function WalletBalanceCard({
+  balance,
+  accessToken,
+}: {
+  balance: number;
+  accessToken: string;
+}) {
   const [amount, setAmount] = useState("");
-  const { topUp, isPending } = useWalletTopup();
+  const { topUp, isPending } = useWalletTopup(accessToken);
 
   const value = Number(amount || 0);
   const canSubmit = value >= 10000;
@@ -63,7 +69,9 @@ export function WalletBalanceCard({ balance }: { balance: number }) {
             dir="ltr"
             placeholder="مبلغ دلخواه (تومان)"
             value={amount}
-            onChange={(e) => setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))}
+            onChange={(e) =>
+              setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))
+            }
             className="h-12 flex-1 rounded-xl border border-foreground/15 bg-background px-4 text-start text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
           />
           <button
@@ -72,7 +80,11 @@ export function WalletBalanceCard({ balance }: { balance: number }) {
             disabled={!canSubmit || isPending}
             className="inline-flex h-12 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+            {isPending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Plus size={16} />
+            )}
             شارژ
           </button>
         </div>

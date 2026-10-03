@@ -2,7 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Inbox } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  CircleAlert,
+  CircleCheck,
+  Inbox,
+  Loader2,
+  RefreshCw,
+  Search,
+  X,
+} from "lucide-react";
 import { ApiError } from "@/src/lib/api/error";
 import { providerJobsApi } from "../../api/jobs.api";
 
@@ -10,36 +19,53 @@ import { formatNumber } from "../../utils/format";
 import { JobCard, type JobAction } from "./job-card";
 import { Job, JobStatus } from "../../types/types";
 
-const TABS: { id: JobStatus; label: string; empty: string }[] = [
-  { id: "new", label: "جدید", empty: "درخواست جدیدی ندارید." },
+type JobFilter = "new" | "active" | "attention" | "completed" | "archive";
+
+const TABS: {
+  id: JobFilter;
+  label: string;
+  statuses: JobStatus[];
+  empty: string;
+}[] = [
   {
-    id: "declined",
-    label: "ردشده توسط من",
-    empty: "درخواستی را رد نکرده‌اید.",
+    id: "new",
+    label: "درخواست‌های جدید",
+    statuses: ["new"],
+    empty: "درخواست جدیدی ندارید.",
   },
-  { id: "accepted", label: "پذیرفته‌شده", empty: "کار پذیرفته‌شده‌ای ندارید." },
   {
-    id: "in_progress",
-    label: "در حال انجام",
-    empty: "کاری در حال انجام نیست.",
+    id: "active",
+    label: "کارهای جاری",
+    statuses: [
+      "accepted",
+      "awaiting_payment",
+      "in_progress",
+      "awaiting_confirmation",
+    ],
+    empty: "کار جاری‌ای برای پیگیری ندارید.",
+  },
+  {
+    id: "attention",
+    label: "نیازمند پیگیری",
+    statuses: ["disputed"],
+    empty: "موردی برای پیگیری فوری ندارید.",
   },
   {
     id: "completed",
     label: "تکمیل‌شده",
+    statuses: ["completed"],
     empty: "هنوز کاری را تکمیل نکرده‌اید.",
   },
-  { id: "cancelled", label: "لغوشده", empty: "کار لغوشده‌ای وجود ندارد." },
+  {
+    id: "archive",
+    label: "بایگانی",
+    statuses: ["declined", "cancelled"],
+    empty: "درخواستی در بایگانی ندارید.",
+  },
 ];
 
-const NEXT_STATUS: Record<JobAction, JobStatus> = {
-  accept: "accepted",
-  reject: "declined",
-  start: "in_progress",
-  complete: "completed",
-};
-
 const SUCCESS_MESSAGE: Record<JobAction, string> = {
-  accept: "کار پذیرفته شد",
+  accept: "قیمت ثبت و کار پذیرفته شد",
   reject: "درخواست رد شد",
   start: "کار شروع شد",
   complete: "کار تکمیل شد",
@@ -53,39 +79,85 @@ export function JobsBoard({
   accessToken: string;
 }) {
   const [jobs, setJobs] = useState(initialJobs);
-  const [tab, setTab] = useState<JobStatus>("new");
+  const [tab, setTab] = useState<JobFilter>("new");
+  const [query, setQuery] = useState("");
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const counts = useMemo(() => {
-    const map = {} as Record<JobStatus, number>;
-    TABS.forEach(
-      (t) => (map[t.id] = jobs.filter((j) => j.status === t.id).length),
-    );
+    const map = {} as Record<JobFilter, number>;
+    TABS.forEach((item) => {
+      map[item.id] = jobs.filter((job) =>
+        item.statuses.includes(job.status),
+      ).length;
+    });
     return map;
   }, [jobs]);
+
+  const overview = useMemo(
+    () => ({
+      new: jobs.filter((job) => job.status === "new").length,
+      active: jobs.filter((job) =>
+        [
+          "accepted",
+          "awaiting_payment",
+          "in_progress",
+          "awaiting_confirmation",
+        ].includes(job.status),
+      ).length,
+      attention: jobs.filter((job) => job.status === "disputed").length,
+      completed: jobs.filter((job) => job.status === "completed").length,
+    }),
+    [jobs],
+  );
 
   const visible = useMemo(
     () =>
       jobs
-        .filter((j) => j.status === tab)
+        .filter((job) =>
+          TABS.find((item) => item.id === tab)?.statuses.includes(job.status),
+        )
+        .filter((job) =>
+          query.trim()
+            ? `${job.title} ${job.service} ${job.customerName}`
+                .toLocaleLowerCase("fa-IR")
+                .includes(query.trim().toLocaleLowerCase("fa-IR"))
+            : true,
+        )
         .sort((a, b) => +new Date(a.scheduledAt) - +new Date(b.scheduledAt)),
-    [jobs, tab],
+    [jobs, query, tab],
   );
 
-  const handleAction = async (id: string, action: JobAction) => {
+  const refreshJobs = async () => {
+    setRefreshing(true);
+    try {
+      setJobs(await providerJobsApi.list(accessToken));
+    } catch {
+      toast.error("به‌روزرسانی درخواست‌ها انجام نشد.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleAction = async (
+    id: string,
+    action: JobAction,
+    proposedPriceToman?: number,
+  ) => {
     if (action === "reject" && !window.confirm("این درخواست رد شود؟")) return;
 
     setPendingJobId(id);
     try {
-      await providerJobsApi[action === "reject" ? "decline" : action](
-        id,
-        accessToken,
-      );
-      setJobs((prev) =>
-        prev.map((job) =>
-          job.id === id ? { ...job, status: NEXT_STATUS[action] } : job,
-        ),
-      );
+      if (action === "accept") {
+        if (!proposedPriceToman) return;
+        await providerJobsApi.accept(id, proposedPriceToman, accessToken);
+      } else if (action === "reject") {
+        await providerJobsApi.decline(id, accessToken);
+      } else {
+        await providerJobsApi[action](id, accessToken);
+      }
+      const refreshedJobs = await providerJobsApi.list(accessToken);
+      setJobs(refreshedJobs);
       toast.success(SUCCESS_MESSAGE[action]);
     } catch (error) {
       toast.error(
@@ -98,15 +170,74 @@ export function JobsBoard({
     }
   };
 
-  const active = TABS.find((t) => t.id === tab)!;
+  const active = TABS.find((item) => item.id === tab)!;
 
   return (
-    <div>
-      {/* تب‌ها */}
+    <div className="space-y-6">
+      <section
+        aria-label="خلاصه‌ی کارها"
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+      >
+        <div className="rounded-xl border border-foreground/10 bg-card p-4">
+          <p className="text-xs text-foreground/55">درخواست جدید</p>
+          <p className="mt-2 flex items-center gap-2 text-2xl font-bold text-foreground">
+            <BriefcaseBusiness size={19} className="text-primary" />
+            {formatNumber(overview.new)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-foreground/10 bg-card p-4">
+          <p className="text-xs text-foreground/55">کار جاری</p>
+          <p className="mt-2 flex items-center gap-2 text-2xl font-bold text-foreground">
+            <Loader2 size={19} className="text-sky-600" />
+            {formatNumber(overview.active)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-foreground/10 bg-card p-4">
+          <p className="text-xs text-foreground/55">نیازمند پیگیری</p>
+          <p className="mt-2 flex items-center gap-2 text-2xl font-bold text-foreground">
+            <CircleAlert size={19} className="text-amber-600" />
+            {formatNumber(overview.attention)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-foreground/10 bg-card p-4">
+          <p className="text-xs text-foreground/55">تکمیل‌شده</p>
+          <p className="mt-2 flex items-center gap-2 text-2xl font-bold text-foreground">
+            <CircleCheck size={19} className="text-emerald-600" />
+            {formatNumber(overview.completed)}
+          </p>
+        </div>
+      </section>
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <label className="relative min-w-0 flex-1">
+          <span className="sr-only">جست‌وجوی درخواست‌ها</span>
+          <Search
+            size={17}
+            className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-foreground/35"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="جست‌وجو در عنوان، خدمت یا نام مشتری"
+            className="h-11 w-full rounded-lg border border-foreground/15 bg-card pe-10 ps-4 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => void refreshJobs()}
+          disabled={refreshing}
+          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-foreground/15 px-4 text-sm font-medium text-foreground/70 transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-60"
+        >
+          <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
+          به‌روزرسانی
+        </button>
+      </div>
+
       <div
         role="tablist"
         aria-label="وضعیت کارها"
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+        className="flex gap-2 overflow-x-auto border-b border-foreground/10 scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {TABS.map((t) => {
           const selected = t.id === tab;
@@ -120,17 +251,15 @@ export function JobsBoard({
               aria-controls="jobs-panel"
               onClick={() => setTab(t.id)}
               className={[
-                "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                "flex shrink-0 items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 selected
-                  ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "border-foreground/10 bg-card text-foreground/70 hover:border-primary/40 hover:text-primary",
+                  ? "border-primary text-primary"
+                  : "border-transparent text-foreground/60 hover:text-foreground",
               ].join(" ")}
             >
               {t.label}
               <span
-                className={`min-w-5 rounded-full px-1.5 text-xs ${
-                  selected ? "bg-white/20" : "bg-foreground/[0.06]"
-                }`}
+                className={`min-w-5 rounded-full px-1.5 text-xs ${selected ? "bg-primary/10 text-primary" : "bg-foreground/6 text-foreground/60"}`}
               >
                 {formatNumber(counts[t.id])}
               </span>
@@ -139,22 +268,35 @@ export function JobsBoard({
         })}
       </div>
 
-      {/* لیست */}
       <div
         id="jobs-panel"
         role="tabpanel"
         aria-labelledby={`tab-${tab}`}
-        className="mt-5"
+        className="pt-1"
       >
         {visible.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-foreground/15 bg-card px-6 py-14 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-foreground/[0.05] text-foreground/40">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-foreground/15 bg-card px-6 py-14 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-foreground/5 text-foreground/40">
               <Inbox size={26} />
             </span>
-            <p className="text-sm text-foreground/60">{active.empty}</p>
+            <p className="text-sm text-foreground/60">
+              {query.trim()
+                ? "نتیجه‌ای با این جست‌وجو پیدا نشد."
+                : active.empty}
+            </p>
+            {query.trim() && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+              >
+                <X size={14} />
+                پاک‌کردن جست‌وجو
+              </button>
+            )}
           </div>
         ) : (
-          <ul className="space-y-4">
+          <ul className="grid gap-4 xl:grid-cols-2">
             {visible.map((job) => (
               <li key={job.id}>
                 <JobCard

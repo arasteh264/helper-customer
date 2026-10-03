@@ -1,5 +1,3 @@
-
-
 export interface Customer {
   id: string;
   name: string;
@@ -7,20 +5,22 @@ export interface Customer {
   email: string;
   emailVerified?: boolean;
   avatar?: string;
-  memberSince: string; 
-  walletBalance?: number; 
-  activeRequests?:number;
-  completedJobs?:number;
-  addressesCount?:number;
-  recentActiveRequests?:ServiceRequest[]
+  memberSince: string;
+  walletBalance?: number;
+  activeRequests?: number;
+  completedJobs?: number;
+  addressesCount?: number;
+  recentActiveRequests?: ServiceRequest[];
 }
 
-
 export type RequestStatus =
-  | "awaiting_offers" 
-  | "offers_received" 
+  | "awaiting_offers"
+  | "awaiting_payment"
+  | "offers_received"
   | "in_progress"
+  | "awaiting_confirmation"
   | "completed"
+  | "disputed"
   | "cancelled";
 
 export interface RequestSpecialist {
@@ -41,16 +41,18 @@ export interface ServiceRequest {
   latitude?: number;
   longitude?: number;
   images?: string[];
-  createdAt: string; 
-  scheduledAt?: string; 
+  createdAt: string;
+  scheduledAt?: string;
   status: RequestStatus;
   offersCount: number;
   budget?: { min: number; max: number };
   price?: number;
+  priceToman?: number;
+  proposedPriceToman?: number;
+  finalPriceToman?: number;
   specialist?: RequestSpecialist;
   reviewed: boolean;
 }
-
 
 export type AddressType = "home" | "work" | "other";
 
@@ -81,19 +83,17 @@ export interface FavoriteSpecialist {
   image?: string;
 }
 
-
 export type PaymentType = "topup" | "payment" | "refund";
 export type PaymentStatus = "completed" | "pending" | "failed";
 
 export interface WalletPayment {
   id: string;
-  date: string; 
+  date: string;
   description: string;
   type: PaymentType;
   amount: number;
   status: PaymentStatus;
 }
-
 
 export type NotificationTopic =
   | "requestUpdates"
@@ -112,6 +112,6 @@ export interface Session {
   id: string;
   device: string;
   location: string;
-  lastActive: string; 
+  lastActive: string;
   current: boolean;
 }

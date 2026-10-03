@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/src/auth";
 
 import { RequestWizard } from "@/src/features/request/components/request-wizard";
-import {
-  requestApi,
-  type ServiceCategory,
-} from "@/src/features/request/api/request.api";
 import { Container } from "@/src/components/shared/container";
 import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 
@@ -16,7 +11,7 @@ export const metadata: Metadata = { title: "ثبت درخواست تعمیرات
 export default async function NewRequestPage({
   searchParams,
 }: {
-  searchParams: Promise<{ specialistId?: string; skillName?: string }>;
+  searchParams: Promise<{ specialistId?: string }>;
 }) {
   const query = await searchParams;
   const session = await auth();
@@ -24,25 +19,14 @@ export default async function NewRequestPage({
     redirect("/login?callbackUrl=%2Frequest");
   }
 
-  let categories: ServiceCategory[];
   let preferredProviderId: string | undefined;
-  let initialCategoryName: string | undefined;
-  try {
-    categories = await requestApi.getCategories(session.accessToken);
-    if (query.specialistId) {
+  if (query.specialistId) {
+    try {
       const provider = await publicProvidersApi.getById(query.specialistId);
       preferredProviderId = provider.id;
-      const providerSkills = provider.skills.map((skill) => skill.name);
-      categories = categories.filter((category) =>
-        providerSkills.includes(category.name),
-      );
-      initialCategoryName =
-        (query.skillName && providerSkills.includes(query.skillName)
-          ? query.skillName
-          : providerSkills[0]) ?? undefined;
+    } catch {
+      preferredProviderId = query.specialistId;
     }
-  } catch {
-    categories = [];
   }
 
   return (
@@ -58,26 +42,10 @@ export default async function NewRequestPage({
           </p>
         </div>
 
-        {categories.length === 0 ? (
-          <div className="mx-auto max-w-2xl rounded-2xl border border-foreground/10 bg-card p-6 text-center">
-            <p className="text-sm leading-6 text-foreground/65">
-              فعلاً متخصص تأییدشده‌ای برای ثبت درخواست در دسترس نیست.
-            </p>
-            <Link
-              href="/specialists"
-              className="mt-4 inline-flex text-sm font-medium text-primary hover:underline"
-            >
-              دیدن متخصصان
-            </Link>
-          </div>
-        ) : (
-          <RequestWizard
-            categories={categories}
-            accessToken={session.accessToken}
-            preferredProviderId={preferredProviderId}
-            initialCategoryName={initialCategoryName}
-          />
-        )}
+        <RequestWizard
+          accessToken={session.accessToken}
+          preferredProviderId={preferredProviderId}
+        />
       </Container>
     </div>
   );

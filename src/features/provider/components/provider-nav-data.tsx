@@ -8,7 +8,7 @@ export const providerNav: PanelNavItem[] = [
     exact: true,
     mobile: true,
   },
-    {
+  {
     label: "پروفایل",
     href: "/provider/profile",
     icon: "user",
@@ -21,9 +21,22 @@ export const providerNav: PanelNavItem[] = [
     mobile: true,
   },
   {
+    label: "گفتگوها",
+    href: "/provider/chats",
+    icon: "messagesSquare",
+    mobile: true,
+  },
+  {
     label: "کیف پول",
     href: "/provider/finance",
     icon: "wallet",
     mobile: true,
+  },
+  {
+    label: "اعلان‌ها",
+    href: "/provider/notifications",
+    icon: "bell",
+    badgeSource: "notifications",
+    mobile: false,
   },
 ];

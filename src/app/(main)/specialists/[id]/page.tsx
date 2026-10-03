@@ -34,7 +34,12 @@ export default async function SpecialistProfilePage({
     notFound();
   }
 
-  const skills = provider.skills.map((skill) => skill.name);
+  const specialtyNames =
+    provider.specialties?.map((specialty) => specialty.name) ?? [];
+  const skills =
+    specialtyNames.length > 0
+      ? specialtyNames
+      : provider.skills.map((skill) => skill.name);
   const profile: SpecialistProfile = {
     id: provider.id,
     name: provider.name,

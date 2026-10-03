@@ -20,45 +20,23 @@ import {
 } from "../types/catalog.types";
 import { filterSpecialists } from "../utils/filter-specialists";
 import { formatNumber } from "@/src/utils/format";
-import { publicProvidersApi, type PublicProvider } from "../api/providers.api";
+import { publicProvidersApi } from "../api/providers.api";
+import { mapPublicProvider } from "../utils/map-public-provider";
 
 const SORTS: { id: SortOption; label: string }[] = [
   { id: "recommended", label: "پیشنهادی" },
   { id: "rating", label: "بیشترین امتیاز" },
-  { id: "price_asc", label: "ارزان‌ترین" },
-  { id: "price_desc", label: "گران‌ترین" },
   { id: "distance", label: "نزدیک‌ترین" },
 ];
 
 const RATING_OPTIONS = [0, 4, 4.5];
 
-function toDirectoryProvider(provider: PublicProvider): DirectorySpecialist {
-  const field =
-    provider.skills.map((skill) => skill.name).join("، ") || "متخصص خدمات";
-  return {
-    id: provider.id,
-    name: provider.name,
-    field,
-    categoryId: provider.skills[0]?.name ?? "سایر",
-    city: provider.hasServiceArea
-      ? "محدوده فعالیت ثبت‌شده"
-      : "محدوده فعالیت ثبت‌نشده",
-    rating: provider.rating,
-    reviews: 0,
-    jobs: 0,
-    startingPrice: 0,
-    verified: provider.verified,
-    image: provider.avatarUrl ?? undefined,
-    available: provider.available,
-    hasServiceArea: provider.hasServiceArea,
-    distanceKm: provider.distanceKm,
-  };
-}
-
 export function SpecialistsDirectory({
   specialists: initialSpecialists,
+  categories,
 }: {
   specialists: DirectorySpecialist[];
+  categories: { id: string; label: string }[];
 }) {
   const [specialists, setSpecialists] = useState(initialSpecialists);
   const [filters, setFilters] = useState<SpecialistFilters>(DEFAULT_FILTERS);
@@ -68,12 +46,6 @@ export function SpecialistsDirectory({
   const update = (patch: Partial<SpecialistFilters>) =>
     setFilters((f) => ({ ...f, ...patch }));
 
-  const categoryNames = [
-    ...new Set(specialists.map((specialist) => specialist.categoryId)),
-  ];
-  const areaNames = [
-    ...new Set(specialists.map((specialist) => specialist.city)),
-  ];
   const results = useMemo(
     () => filterSpecialists(specialists, filters),
     [filters, specialists],
@@ -89,7 +61,7 @@ export function SpecialistsDirectory({
             latitude: coords.latitude,
             longitude: coords.longitude,
           });
-          setSpecialists(providers.map(toDirectoryProvider));
+          setSpecialists(providers.map(mapPublicProvider));
           update({ sort: "distance" });
         } catch {
           toast.error("دریافت متخصصان نزدیک انجام نشد. دوباره تلاش کنید.");
@@ -109,7 +81,6 @@ export function SpecialistsDirectory({
 
   const activeCount = [
     filters.categoryId,
-    filters.city,
     filters.minRating > 0,
     filters.verifiedOnly,
   ].filter(Boolean).length;
@@ -134,62 +105,23 @@ export function SpecialistsDirectory({
           >
             همه
           </button>
-          {categoryNames.map((categoryName) => (
+          {categories.map(({ id, label }) => (
             <button
-              key={categoryName}
+              key={id}
               type="button"
               onClick={() =>
                 update({
-                  categoryId:
-                    filters.categoryId === categoryName ? null : categoryName,
+                  categoryId: filters.categoryId === id ? null : id,
                 })
               }
               className={[
                 "rounded-full border px-3 py-1.5 text-xs transition-colors",
-                filters.categoryId === categoryName
+                filters.categoryId === id
                   ? "border-primary bg-primary/10 font-medium text-primary"
                   : "border-foreground/15 text-foreground/65 hover:border-primary/40",
               ].join(" ")}
             >
-              {categoryName}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* شهر */}
-      <div>
-        <p className="mb-2.5 text-xs font-semibold text-foreground/50">
-          محدوده‌ی فعالیت
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => update({ city: null })}
-            className={[
-              "rounded-full border px-3 py-1.5 text-xs transition-colors",
-              !filters.city
-                ? "border-primary bg-primary/10 font-medium text-primary"
-                : "border-foreground/15 text-foreground/65 hover:border-primary/40",
-            ].join(" ")}
-          >
-            همه‌جا
-          </button>
-          {areaNames.map((city) => (
-            <button
-              key={city}
-              type="button"
-              onClick={() =>
-                update({ city: filters.city === city ? null : city })
-              }
-              className={[
-                "rounded-full border px-3 py-1.5 text-xs transition-colors",
-                filters.city === city
-                  ? "border-primary bg-primary/10 font-medium text-primary"
-                  : "border-foreground/15 text-foreground/65 hover:border-primary/40",
-              ].join(" ")}
-            >
-              {city}
+              {label}
             </button>
           ))}
         </div>

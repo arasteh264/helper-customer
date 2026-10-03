@@ -10,6 +10,8 @@ import { VerificationSection } from "@/src/features/provider/components/basicInf
 import { ProfileForm } from "@/src/features/provider/components/basicInformation/profile-form";
 import { ServiceAreaEditor } from "@/src/features/provider/components/basicInformation/service-area-editor";
 import { PageHeader } from "@/src/components/shared/page-header";
+import { NotificationPreferencesPanel } from "@/src/features/notifications/components/notification-preferences-panel";
+import { notificationPreferencesApi } from "@/src/features/notifications/api/notification-preferences.api";
 import { SkillsSection } from "@/src/features/provider/components/basicInformation/skills-section";
 import { buildAvailabilityDays } from "@/src/features/provider/lib/availability";
 import { PortfolioUploader } from "@/src/features/provider/components/Portfolio/portfolio-uploader";
@@ -21,7 +23,10 @@ export default async function ProviderProfilePage() {
   const session = await auth();
   if (!session?.accessToken) redirect("/login");
 
-  const provider = await providerApi.getProfile(session.accessToken);
+  const [provider, notificationPreferences] = await Promise.all([
+    providerApi.getProfile(session.accessToken),
+    notificationPreferencesApi.get(session.accessToken).catch(() => null),
+  ]);
   const days = buildAvailabilityDays(provider.workingHours);
   const { percent, items } = getProfileCompletion(
     provider,
@@ -60,10 +65,18 @@ export default async function ProviderProfilePage() {
         initialLatitude={provider.serviceAreaLatitude}
         initialLongitude={provider.serviceAreaLongitude}
       />
-      <SkillsSection initial={provider.skills} />
+      <SkillsSection
+        initial={provider.specialties ?? []}
+        accessToken={session.accessToken}
+      />
       <VerificationSection docs={docs} />
       <PortfolioUploader initial={[]} />
       <AvailabilityEditor initial={days} accessToken={session.accessToken} />
+      <NotificationPreferencesPanel
+        role="PROVIDER"
+        accessToken={session.accessToken}
+        initial={notificationPreferences}
+      />
     </div>
   );
 }

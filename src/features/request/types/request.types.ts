@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react";
 
 export interface RepairCategory {
   id: string;
-  skillName?: string;
   label: string;
   description: string;
   icon: LucideIcon;
@@ -66,4 +65,31 @@ export interface ChatParticipant {
   name: string;
   role: string;
   online: boolean;
+}
+
+export type RequestChatStatus =
+  | "ACTIVE"
+  | "CLOSED"
+  | "BLOCKED"
+  | "ARCHIVED"
+  | "PENDING"
+  | string;
+
+export interface RequestChatSender {
+  id: string;
+  name: string;
+  avatarUrl?: string | null;
+}
+
+export interface RequestChatMessage {
+  id: string;
+  body: string;
+  createdAt: string;
+  sender: RequestChatSender;
+}
+
+export interface RequestChatHistoryResponse {
+  conversationId: string;
+  status: RequestChatStatus;
+  messages: RequestChatMessage[];
 }

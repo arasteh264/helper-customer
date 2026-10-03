@@ -4,7 +4,6 @@ import type { SpecialistProfile } from "../types/specialist-profile.types";
 
 export function BookingPanel({ profile }: { profile: SpecialistProfile }) {
   const params = new URLSearchParams({ specialistId: profile.id });
-  if (profile.skills[0]) params.set("skillName", profile.skills[0]);
   const requestHref = `/request?${params.toString()}`;
 
   return (

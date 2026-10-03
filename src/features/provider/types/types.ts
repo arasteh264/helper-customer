@@ -45,7 +45,10 @@ export interface DaySchedule {
 export type JobStatus =
   | "new"
   | "accepted"
+  | "awaiting_payment"
   | "in_progress"
+  | "awaiting_confirmation"
+  | "disputed"
   | "completed"
   | "cancelled"
   | "declined";
@@ -60,6 +63,10 @@ export interface Job {
   address: string;
   scheduledAt: string; // ISO
   price: number; // تومان
+  proposedPriceToman?: number;
+  paymentStatus?: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+  customerConfirmed?: boolean;
+  customerConfirmedAt?: string | null;
   status: JobStatus;
   note?: string;
   images?: string[];
@@ -102,6 +109,9 @@ export interface FinanceSummary {
   withdrawable: number;
   pending: number;
   totalEarned: number;
+  grossEarnings?: number | null;
+  netEarnings?: number | null;
+  commissionAmount?: number | null;
   commissionRate: number; // درصد
   minWithdrawal: number;
   monthly: { label: string; amount: number }[];

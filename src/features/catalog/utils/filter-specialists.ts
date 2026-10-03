@@ -12,8 +12,14 @@ export function filterSpecialists(
   const filtered = list.filter((s) => {
     if (query && !`${s.name} ${s.field}`.toLowerCase().includes(query))
       return false;
-    if (filters.categoryId && s.categoryId !== filters.categoryId) return false;
-    if (filters.city && s.city !== filters.city) return false;
+    if (
+      filters.categoryId &&
+      !(s.categoryIds?.length ? s.categoryIds : [s.categoryId]).includes(
+        filters.categoryId,
+      )
+    ) {
+      return false;
+    }
     if (s.rating < filters.minRating) return false;
     if (filters.verifiedOnly && !s.verified) return false;
     return true;
@@ -22,10 +28,6 @@ export function filterSpecialists(
   switch (filters.sort) {
     case "rating":
       return [...filtered].sort((a, b) => b.rating - a.rating);
-    case "price_asc":
-      return [...filtered].sort((a, b) => a.startingPrice - b.startingPrice);
-    case "price_desc":
-      return [...filtered].sort((a, b) => b.startingPrice - a.startingPrice);
     case "distance":
       return [...filtered].sort((a, b) => {
         if (a.distanceKm == null)

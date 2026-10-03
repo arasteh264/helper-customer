@@ -4,6 +4,8 @@ import { Container } from "@/src/components/shared/container";
 import { SpecialistsDirectory } from "@/src/features/catalog/components/specialists-directory";
 import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 import type { DirectorySpecialist } from "@/src/features/catalog/types/catalog.types";
+import { mapPublicProvider } from "@/src/features/catalog/utils/map-public-provider";
+import { requestApi } from "@/src/features/request/api/request.api";
 
 export const metadata: Metadata = {
   title: "متخصصان هلپر | جستجو و فیلتر",
@@ -13,28 +15,20 @@ export const metadata: Metadata = {
 
 export default async function SpecialistsPage() {
   let specialists: DirectorySpecialist[] = [];
-  try {
-    const providers = await publicProvidersApi.list();
-    specialists = providers.map((provider) => ({
-      id: provider.id,
-      name: provider.name,
-      field:
-        provider.skills.map((skill) => skill.name).join("، ") || "متخصص خدمات",
-      categoryId: provider.skills[0]?.name ?? "سایر",
-      city: provider.hasServiceArea
-        ? "محدوده فعالیت ثبت‌شده"
-        : "محدوده فعالیت ثبت‌نشده",
-      rating: provider.rating,
-      reviews: 0,
-      jobs: 0,
-      startingPrice: 0,
-      verified: provider.verified,
-      image: provider.avatarUrl ?? undefined,
-      available: provider.available,
-      hasServiceArea: provider.hasServiceArea,
+  let categories: { id: string; label: string }[] = [];
+  const [providersResult, groupsResult] = await Promise.allSettled([
+    publicProvidersApi.list(),
+    requestApi.getSpecialtyGroups(),
+  ]);
+
+  if (providersResult.status === "fulfilled") {
+    specialists = providersResult.value.map(mapPublicProvider);
+  }
+  if (groupsResult.status === "fulfilled") {
+    categories = groupsResult.value.map(({ id, name }) => ({
+      id,
+      label: name,
     }));
-  } catch {
-    specialists = [];
   }
 
   return (
@@ -49,7 +43,10 @@ export default async function SpecialistsPage() {
           </p>
         </div>
 
-        <SpecialistsDirectory specialists={specialists} />
+        <SpecialistsDirectory
+          specialists={specialists}
+          categories={categories}
+        />
       </Container>
     </div>
   );
