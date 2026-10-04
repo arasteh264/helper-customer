@@ -30,10 +30,12 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { OtpInput, toEnglishDigits } from "./OtpInput";
-import { isAxiosError } from "axios";
 import { register as registerUser } from "@/src/features/auth/api/register";
+import { ApiErrorCode, normalizeError } from "@/src/lib/api/error";
+import { requestOtp } from "../api/request-otp";
+import { verifyRegistration } from "../api/verify-registration";
 const OTP_LENGTH = 6;
-const RESEND_SECONDS = 120;
+const RESEND_SECONDS = 90;
 
 const toPersianDigits = (value: string | number) =>
   String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
@@ -84,6 +86,7 @@ export function RegisterForm() {
 
   const [otp, setOtp] = useState("");
   const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
 
   const {
@@ -129,13 +132,22 @@ export function RegisterForm() {
       setStep("verify");
       toast.success("کد تأیید به شماره شما پیامک شد");
     } catch (err) {
-      if (isAxiosError(err) && err.response?.status === 409) {
-        setError("phone", {
-          message: "با این شماره قبلاً ثبت‌نام شده است. وارد شوید.",
-        });
-        return;
+      const apiError = normalizeError(err);
+
+      switch (apiError.code) {
+        case ApiErrorCode.DUPLICATE_PHONE:
+          setError("phone", {
+            message: "با این شماره قبلاً ثبت‌نام شده است. وارد شوید.",
+          });
+          break;
+        case ApiErrorCode.DUPLICATE_EMAIL:
+          setError("email", {
+            message: "این ایمیل قبلاً ثبت شده است.",
+          });
+          break;
+        default:
+          setServerError(apiError.message);
       }
-      setServerError("ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.");
     }
   };
 
@@ -147,17 +159,7 @@ export function RegisterForm() {
     const { phone, password } = getValues();
 
     try {
-      const res = await fetch("/api/auth/register/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code }),
-      });
-
-      if (!res.ok) {
-        setServerError("کد وارد شده اشتباه یا منقضی شده است");
-        setOtp("");
-        return;
-      }
+      await verifyRegistration(phone, code);
 
       const result = await signIn("credentials", {
         identifier: phone,
@@ -167,29 +169,28 @@ export function RegisterForm() {
 
       toast.success("حساب شما ساخته شد. خوش آمدید!");
       router.push(result?.error ? "/login" : "/");
-    } catch {
-      setServerError("خطایی رخ داد. لطفاً دوباره تلاش کنید.");
+    } catch (err) {
+      console.log("verify error:", err);
+      setServerError(normalizeError(err).message);
       setOtp("");
     } finally {
       setVerifying(false);
     }
   };
-
   const resendCode = async () => {
-    if (secondsLeft > 0 || verifying) return;
+    if (secondsLeft > 0 || verifying || resending) return;
     setServerError(null);
+    setResending(true);
+
     try {
-      const res = await fetch("/api/auth/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: getValues("phone") }),
-      });
-      if (!res.ok) throw new Error();
+      await requestOtp(getValues("phone"));
       setOtp("");
       setSecondsLeft(RESEND_SECONDS);
       toast.success("کد جدید ارسال شد");
-    } catch {
-      setServerError("ارسال کد با مشکل مواجه شد. لطفاً دوباره تلاش کنید.");
+    } catch (err) {
+      setServerError(normalizeError(err).message);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -447,7 +448,7 @@ export function RegisterForm() {
                 }}
                 onComplete={verifyCode}
                 length={OTP_LENGTH}
-                disabled={verifying}
+                disabled={verifying || resending}
                 error={!!serverError}
                 autoFocus
               />
@@ -466,7 +467,7 @@ export function RegisterForm() {
                 <button
                   type="button"
                   onClick={backToDetails}
-                  disabled={verifying}
+                  disabled={verifying || resending}
                   className="flex items-center gap-1.5 rounded text-foreground/60 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <Pencil size={14} />
@@ -484,10 +485,17 @@ export function RegisterForm() {
                   <button
                     type="button"
                     onClick={resendCode}
-                    disabled={verifying}
-                    className="rounded font-medium text-primary transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    disabled={verifying || resending}
+                    className="flex items-center gap-1.5 rounded font-medium text-primary transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
                   >
-                    ارسال مجدد کد
+                    {resending ? (
+                      <>
+                        <Loader2 className="animate-spin" size={14} />
+                        در حال ارسال…
+                      </>
+                    ) : (
+                      "ارسال مجدد کد"
+                    )}
                   </button>
                 )}
               </div>

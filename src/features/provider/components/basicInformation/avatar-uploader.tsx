@@ -5,7 +5,7 @@ import { Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { getSession } from "next-auth/react";
 
-import { providerApi } from "../../api/provider.api";
+import { avatarApi } from "../../api/avatar.api";
 
 const MAX_SIZE = 2 * 1024 * 1024; // ۲ مگابایت
 
@@ -42,8 +42,7 @@ export function AvatarUploader({
 
     if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
     objectUrl.current = URL.createObjectURL(file);
-    const localPreview = objectUrl.current;
-    setPreview(localPreview);
+    setPreview(objectUrl.current);
 
     setLoading(true);
     try {
@@ -53,7 +52,7 @@ export function AvatarUploader({
         setPreview(initialUrl);
         return;
       }
-      await providerApi.uploadAvatar(file, session.accessToken);
+      await avatarApi.upload(file, session.accessToken);
       toast.success("عکس پروفایل بروزرسانی شد");
     } catch {
       setPreview(initialUrl);
@@ -71,7 +70,7 @@ export function AvatarUploader({
         toast.error("جلسه کاربری شما منقضی شده است");
         return;
       }
-      await providerApi.removeAvatar(session.accessToken);
+      await avatarApi.remove(session.accessToken);
       if (objectUrl.current) {
         URL.revokeObjectURL(objectUrl.current);
         objectUrl.current = null;
@@ -86,10 +85,9 @@ export function AvatarUploader({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div id="avatar" className="flex shrink-0 items-center gap-4 scroll-mt-24">
       <div className="relative">
         {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={preview}
             alt="عکس پروفایل"

@@ -11,6 +11,15 @@ const authHeaders = (accessToken?: string) =>
   accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
 
 export const providerApi = {
+  createProfile: async (bio?: string, accessToken?: string) => {
+    const { data } = await apiClient<ProviderProfile>("/providers/profile", {
+      method: "POST",
+      data: { bio: bio?.trim() ? bio.trim() : undefined },
+      headers: authHeaders(accessToken),
+    });
+    return data;
+  },
+
   getProfile: async (accessToken?: string) => {
     const { data } = await apiClient<ProviderProfile>("/providers/profile", {
       method: "GET",

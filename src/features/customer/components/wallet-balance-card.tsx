@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Loader2, Plus, Wallet } from "lucide-react";
 
 import { useWalletTopup } from "../hooks/use-wallet-topup";
-import { formatMoney, toEnglishDigits } from "@/src/utils/format";
+import { formatMoney, formatWithCommas, toEnglishDigits } from "@/src/utils/format";
 
 const QUICK_AMOUNTS = [200000, 500000, 1000000];
 
@@ -68,7 +68,7 @@ export function WalletBalanceCard({
             inputMode="numeric"
             dir="ltr"
             placeholder="مبلغ دلخواه (تومان)"
-            value={amount}
+            value={formatWithCommas(amount)}
             onChange={(e) =>
               setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))
             }

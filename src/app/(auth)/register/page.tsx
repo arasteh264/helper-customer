@@ -1,13 +1,16 @@
 import { RegisterForm } from "@/src/features/auth/components/RegisterForm";
 import { SpecialistRegisterForm } from "@/src/features/auth/components/specialist-register-form";
 
-export default function RegisterPage({
+export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: { role?: string };
+  searchParams: Promise<{ role?: string }>;
 }) {
-  if (searchParams.role === "specialist") {
+  const { role } = await searchParams;
+
+  if (role === "specialist") {
     return <SpecialistRegisterForm />;
   }
+
   return <RegisterForm />;
 }

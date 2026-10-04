@@ -196,52 +196,93 @@ export function NotificationPreferencesPanel({
       )}
 
       {preferences && (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-136 text-sm">
-            <thead>
-              <tr className="border-b border-foreground/10 text-xs text-foreground/50">
-                <th scope="col" className="pb-3 text-start font-medium">
-                  موضوع
-                </th>
-                {CHANNELS.map((channel) => (
-                  <th
-                    key={channel.id}
-                    scope="col"
-                    className="pb-3 ps-4 text-center font-medium"
-                  >
-                    {channel.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-foreground/10">
-              {TOPICS[role].map((topic) => (
-                <tr key={topic.id}>
-                  <td className="py-4 pe-4">
-                    <p className="font-medium text-foreground">{topic.label}</p>
-                    <p className="mt-0.5 text-xs leading-5 text-foreground/50">
-                      {topic.description}
-                    </p>
-                  </td>
+        <>
+          <div className="divide-y divide-foreground/10 md:hidden">
+            {TOPICS[role].map((topic) => (
+              <section key={topic.id} className="py-4 first:pt-0 last:pb-0">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {topic.label}
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-foreground/55">
+                  {topic.description}
+                </p>
+                <div className="mt-3 grid grid-cols-3 gap-2">
                   {CHANNELS.map((channel) => (
-                    <td key={channel.id} className="py-4 ps-4 text-center">
-                      <div className="flex justify-center">
-                        <Switch
-                          checked={preferences[topic.id][channel.id]}
-                          disabled={saving || isError}
-                          onChange={(checked) =>
-                            void updatePreference(topic.id, channel.id, checked)
-                          }
-                          label={`${topic.label} از طریق ${channel.label}`}
-                        />
-                      </div>
-                    </td>
+                    <div
+                      key={channel.id}
+                      className="flex min-w-0 flex-col items-center gap-2"
+                    >
+                      <span className="text-center text-[11px] leading-4 text-foreground/60">
+                        {channel.label}
+                      </span>
+                      <Switch
+                        checked={preferences[topic.id][channel.id]}
+                        disabled={saving || isError}
+                        onChange={(checked) =>
+                          void updatePreference(topic.id, channel.id, checked)
+                        }
+                        label={`${topic.label} از طریق ${channel.label}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[34rem] text-sm">
+              <thead>
+                <tr className="border-b border-foreground/10 text-xs text-foreground/50">
+                  <th scope="col" className="pb-3 text-start font-medium">
+                    موضوع
+                  </th>
+                  {CHANNELS.map((channel) => (
+                    <th
+                      key={channel.id}
+                      scope="col"
+                      className="pb-3 ps-4 text-center font-medium"
+                    >
+                      {channel.label}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-foreground/10">
+                {TOPICS[role].map((topic) => (
+                  <tr key={topic.id}>
+                    <td className="py-4 pe-4">
+                      <p className="font-medium text-foreground">
+                        {topic.label}
+                      </p>
+                      <p className="mt-0.5 text-xs leading-5 text-foreground/50">
+                        {topic.description}
+                      </p>
+                    </td>
+                    {CHANNELS.map((channel) => (
+                      <td key={channel.id} className="py-4 ps-4 text-center">
+                        <div className="flex justify-center">
+                          <Switch
+                            checked={preferences[topic.id][channel.id]}
+                            disabled={saving || isError}
+                            onChange={(checked) =>
+                              void updatePreference(
+                                topic.id,
+                                channel.id,
+                                checked,
+                              )
+                            }
+                            label={`${topic.label} از طریق ${channel.label}`}
+                          />
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </SectionCard>
   );

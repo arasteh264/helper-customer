@@ -2,11 +2,21 @@ import axios from "axios";
 import { normalizeError } from "./error";
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL:
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
+    "http://localhost:3005",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+apiClient.interceptors.request.use((config) => {
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    config.headers.set("Content-Type", false);
+  }
+
+  return config;
 });
 
 apiClient.interceptors.response.use(

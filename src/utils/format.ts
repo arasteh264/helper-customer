@@ -40,3 +40,6 @@ export const toPersianDigits = (value: string | number) =>
 
 export const maskSheba = (sheba: string) =>
   `${sheba.slice(0, 4)} •••• •••• •••• •••• ${sheba.slice(-4)}`;
+// 3 رقم 3 رقم جدا کن 
+export const formatWithCommas = (raw: string) =>
+  raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");

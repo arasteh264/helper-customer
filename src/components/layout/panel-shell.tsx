@@ -35,6 +35,7 @@ interface PanelShellProps {
   subtitle: string;
   nav: PanelNavItem[];
   notificationRole?: NotificationRole;
+  contentWidth?: "default" | "wide";
   user?: PanelUser;
   extraLink?: { label: string; href: string };
   children: ReactNode;
@@ -79,6 +80,7 @@ export function PanelShell({
   subtitle,
   nav,
   notificationRole,
+  contentWidth = "default",
   user,
   extraLink,
   children,
@@ -245,7 +247,9 @@ export function PanelShell({
 
         <main
           id="main-content"
-          className="mx-auto w-full max-w-5xl px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8"
+          className={`mx-auto w-full ${
+            contentWidth === "wide" ? "max-w-7xl" : "max-w-5xl"
+          } px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8`}
         >
           {children}
         </main>

@@ -9,13 +9,12 @@ export const specialistRegisterSchema = z.object({
 
   mobile: z
     .string()
-    .regex(/^09\d{9}$/, "شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)"),
+    .regex(
+      /^09\d{9}$/,
+      "شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)",
+    ),
 
-  email: z.string().trim().email("ایمیل واردشده معتبر نیست").or(z.literal("")),
-
-  categoryId: z.string().min(1, "دسته‌ی کاری اصلی خود را انتخاب کنید"),
-
-  city: z.string().trim().min(2, "شهر را وارد کنید").max(40, "حداکثر ۴۰ کاراکتر"),
+  email: z.string().trim().email("ایمیل واردشده معتبر نیست"),
 
   password: z
     .string()
