@@ -50,7 +50,7 @@ function Field({
 }
 
 const textareaCls =
-  "w-full resize-y rounded-xl border bg-background px-3.5 py-3 text-sm leading-7 outline-none transition-colors placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10";
+  "w-full resize-y rounded-lg border bg-background px-3.5 py-3 text-sm leading-7 outline-none transition-colors placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10";
 
 export function ProfileForm({ provider }: { provider: ProviderProfile }) {
   const {
@@ -77,10 +77,7 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
         return;
       }
 
-      await providerApi.updateProfile(
-        { bio: values.bio },
-        session.accessToken,
-      );
+      await providerApi.updateProfile({ bio: values.bio }, session.accessToken);
 
       reset(values);
       toast.success("تغییرات با موفقیت ذخیره شد");
@@ -93,85 +90,87 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
     errors[name]?.message as string | undefined;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <SectionCard
         id="basic"
-        title="اطلاعات پایه"
-        description="این اطلاعات در پروفایل عمومی شما دیده می‌شود."
+        title="اطلاعات پروفایل"
+        description="اطلاعاتی که مشتری پیش از انتخاب متخصص می‌بیند."
       >
-        <AvatarUploader
-          name={provider.user.name}
-          initialUrl={provider.avatarUrl ?? undefined}
-        />
-
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
-          <Field id="name" label="نام و نام خانوادگی">
-            <Input id="name" value={provider.user.name} disabled readOnly />
-          </Field>
-
-          <Field id="email" label="ایمیل">
-            <Input
-              id="email"
-              value={provider.user.email}
-              disabled
-              readOnly
-              dir="ltr"
-              className="text-start"
+        <div className="grid gap-5">
+          <div className="flex flex-col gap-4 rounded-xl border border-foreground/10 bg-background p-4">
+            <AvatarUploader
+              name={provider.user.name}
+              initialUrl={provider.avatarUrl ?? undefined}
             />
-          </Field>
-
-          <div className="sm:col-span-2">
-            <Field id="phone" label="شماره موبایل">
-              <div className="relative">
-                <Input
-                  id="phone"
-                  value={provider.user.phone}
-                  disabled
-                  dir="rtl"
-                  className="pe-28 text-start tracking-wider"
-                  readOnly
-                />
-                <span className="absolute end-3 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs font-medium text-green-700">
-                  <BadgeCheck size={15} />
-                  تأییدشده
-                </span>
+            <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0 rounded-lg bg-card px-3 py-2.5">
+                <p className="text-xs text-foreground/50">نام و نام خانوادگی</p>
+                <p className="mt-1 truncate text-sm font-medium text-foreground">
+                  {provider.user.name}
+                </p>
               </div>
+              <div className="min-w-0 rounded-lg bg-card px-3 py-2.5">
+                <p className="text-xs text-foreground/50">شماره تأییدشده</p>
+                <p
+                  className="mt-1 text-start text-sm font-medium text-foreground"
+                  dir="ltr"
+                >
+                  {provider.user.phone}
+                </p>
+              </div>
+              <div className="min-w-0 rounded-lg bg-card px-3 py-2.5 sm:col-span-2">
+                <p className="text-xs text-foreground/50">ایمیل</p>
+                <p
+                  className="mt-1 truncate text-start text-sm font-medium text-foreground"
+                  dir="ltr"
+                >
+                  {provider.user.email}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p className="-mt-2 text-xs leading-5 text-foreground/45">
+            نام و راه‌های تماس از حساب کاربری شما نمایش داده می‌شوند.
+          </p>
+
+          <div
+            id="bio"
+            className="scroll-mt-24 border-t border-foreground/10 pt-5"
+          >
+            <Field
+              id="bio-input"
+              label="معرفی حرفه‌ای"
+              hint="سابقه، مهارت‌ها و شیوه‌ی کارتان را کوتاه و روشن بنویسید."
+              error={err("bio")}
+            >
+              <textarea
+                id="bio-input"
+                rows={5}
+                placeholder="مثلاً: ۹ سال سابقه در نصب و تعمیر تأسیسات دارم و پیش از شروع کار، هزینه را شفاف اعلام می‌کنم."
+                aria-invalid={!!errors.bio}
+                className={`${textareaCls} ${
+                  errors.bio ? "border-destructive/50" : "border-foreground/15"
+                }`}
+                {...register("bio")}
+              />
             </Field>
+            <p
+              className={`mt-2 text-end text-xs ${
+                bioLength > 600 ? "text-destructive" : "text-foreground/45"
+              }`}
+            >
+              {new Intl.NumberFormat("fa-IR").format(bioLength)} / ۶۰۰
+            </p>
           </div>
         </div>
-      </SectionCard>
-
-      <SectionCard
-        id="bio"
-        title="درباره‌ی شما"
-        description="خودتان، تجربه‌تان و روش کارتان را معرفی کنید."
-      >
-        <Field id="bio-input" label="معرفی" error={err("bio")}>
-          <textarea
-            id="bio-input"
-            rows={5}
-            placeholder="مثلاً: ۹ سال سابقه در رفع نشتی و نصب تأسیسات دارم…"
-            aria-invalid={!!errors.bio}
-            className={`${textareaCls} ${
-              errors.bio ? "border-destructive/50" : "border-foreground/15"
-            }`}
-            {...register("bio")}
-          />
-        </Field>
-        <p
-          className={`mt-2 text-end text-xs ${
-            bioLength > 600 ? "text-destructive" : "text-foreground/45"
-          }`}
-        >
-          {new Intl.NumberFormat("fa-IR").format(bioLength)} / ۶۰۰
-        </p>
       </SectionCard>
 
       {isDirty && (
         <div
           role="region"
           aria-label="ذخیره‌ی تغییرات"
-          className="sticky bottom-24 z-20 flex items-center justify-between gap-3 rounded-2xl border border-primary/25 bg-card/95 p-3 shadow-xl shadow-foreground/10 backdrop-blur lg:bottom-6"
+          className="sticky bottom-24 z-20 mt-4 flex items-center justify-between gap-3 rounded-xl border border-primary/25 bg-card/95 p-3 shadow-lg shadow-foreground/10 backdrop-blur lg:bottom-6"
         >
           <p className="ps-2 text-sm text-foreground/70">
             تغییرات ذخیره‌نشده دارید
@@ -187,7 +186,11 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
               <RotateCcw size={16} />
               انصراف
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="gap-1.5">
+            <Button
+              type="submit"
+              disabled={isSubmitting || !isDirty}
+              className="gap-1.5"
+            >
               {isSubmitting ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (

@@ -54,7 +54,7 @@ export function ProfileCompletionCard({ percent, items }: Props) {
 
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-foreground sm:text-lg">
-            {complete ? "پروفایل شما کامل است 🎉" : "پروفایل خود را کامل کنید"}
+            {complete ? "پروفایل شما کامل است" : "پروفایل خود را کامل کنید"}
           </h2>
           <p className="mt-1 text-sm leading-6 text-foreground/60">
             {complete

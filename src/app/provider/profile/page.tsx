@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import {
+  BadgeCheck,
+  Bell,
+  BriefcaseBusiness,
+  Clock3,
+  FileCheck2,
+  MapPinned,
+  UserRound,
+} from "lucide-react";
 
 import { auth } from "@/src/auth";
 import { providerApi } from "@/src/features/provider/api/provider.api";
@@ -54,29 +63,86 @@ export default async function ProviderProfilePage() {
     },
   ];
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
-        title="پروفایل من"
-        description="اطلاعات‌تان را کامل و به‌روز نگه دارید تا مشتریان بیشتری شما را انتخاب کنند."
+        title="پروفایل حرفه‌ای"
+        description="اطلاعات، تخصص و زمان‌های فعالیت‌تان را مدیریت کنید."
+        action={
+          <span
+            className={`inline-flex h-9 items-center gap-2 self-start rounded-full px-3 text-xs font-medium sm:self-auto ${
+              provider.isVerified
+                ? "bg-emerald-600/10 text-emerald-800"
+                : "bg-amber-500/12 text-amber-800"
+            }`}
+          >
+            {provider.isVerified ? (
+              <BadgeCheck size={16} />
+            ) : (
+              <Clock3 size={16} />
+            )}
+            {provider.isVerified ? "هویت تأیید شده" : "در انتظار تأیید"}
+          </span>
+        }
       />
+
+      <nav
+        aria-label="بخش‌های پروفایل"
+        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {[
+          { href: "#basic", label: "اطلاعات پایه", Icon: UserRound },
+          { href: "#skills", label: "تخصص‌ها", Icon: BriefcaseBusiness },
+          { href: "#availability", label: "ساعات کاری", Icon: Clock3 },
+          { href: "#service-area", label: "محدوده فعالیت", Icon: MapPinned },
+          { href: "#documents", label: "مدارک", Icon: FileCheck2 },
+          { href: "#portfolio", label: "نمونه‌کار", Icon: BriefcaseBusiness },
+          { href: "#notifications", label: "اعلان‌ها", Icon: Bell },
+        ].map(({ href, label, Icon }) => (
+          <a
+            key={href}
+            href={href}
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-foreground/10 bg-card px-3 text-xs font-medium text-foreground/65 transition-colors hover:border-primary/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <Icon size={15} />
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <ProfileCompletionCard percent={percent} items={items} />
-      <ProfileForm provider={provider} />
-      <ServiceAreaEditor
-        initialLatitude={provider.serviceAreaLatitude}
-        initialLongitude={provider.serviceAreaLongitude}
-      />
-      <SkillsSection
-        initial={provider.specialties ?? []}
-        accessToken={session.accessToken}
-      />
-      <VerificationSection docs={docs} />
-      <PortfolioUploader initial={[]} />
-      <AvailabilityEditor initial={days} accessToken={session.accessToken} />
-      <NotificationPreferencesPanel
-        role="PROVIDER"
-        accessToken={session.accessToken}
-        initial={notificationPreferences}
-      />
+
+      <div className="grid items-start gap-5 xl:grid-cols-2">
+        <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-5">
+          <ProfileForm provider={provider} />
+          <SkillsSection
+            initial={provider.specialties ?? []}
+            accessToken={session.accessToken}
+          />
+        </div>
+        <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-5">
+          <VerificationSection docs={docs} />
+          <AvailabilityEditor
+            initial={days}
+            accessToken={session.accessToken}
+          />
+        </div>
+        <div className="min-w-0 xl:col-span-2">
+          <ServiceAreaEditor
+            initialLatitude={provider.serviceAreaLatitude}
+            initialLongitude={provider.serviceAreaLongitude}
+          />
+        </div>
+        <div className="min-w-0 xl:col-span-2">
+          <PortfolioUploader initial={[]} />
+        </div>
+        <div id="notifications" className="min-w-0 scroll-mt-24 xl:col-span-2">
+          <NotificationPreferencesPanel
+            role="PROVIDER"
+            accessToken={session.accessToken}
+            initial={notificationPreferences}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,3 +7,7 @@ export async function register(
   const { data } = await apiClient.post<RegisterResponse>("/users", input);
   return data;
 }
+
+export async function resendRegistrationOtp(phone: string): Promise<void> {
+  await apiClient.post("/users/resend-otp", { phone });
+}

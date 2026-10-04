@@ -14,18 +14,18 @@ export const customerNav: PanelNavItem[] = [
     icon: "listChecks",
     mobile: true,
   },
-  {
-    label: "آدرس‌ها",
-    href: "/customer/addresses",
-    icon: "mapPin",
-    mobile: true,
-  },
-  {
-    label: "علاقه‌مندی‌ها",
-    href: "/customer/favorites",
-    icon: "heart",
-    mobile: true,
-  },
+  // {
+  //   label: "آدرس‌ها",
+  //   href: "/customer/addresses",
+  //   icon: "mapPin",
+  //   mobile: true,
+  // },
+  // {
+  //   label: "علاقه‌مندی‌ها",
+  //   href: "/customer/favorites",
+  //   icon: "heart",
+  //   mobile: true,
+  // },
   { label: "کیف پول", href: "/customer/wallet", icon: "wallet", mobile: true },
   {
     label: "اعلان‌ها",
