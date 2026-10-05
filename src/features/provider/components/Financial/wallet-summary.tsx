@@ -22,6 +22,11 @@ export function WalletSummary({
   const [open, setOpen] = useState(false);
   const canWithdraw =
     finance.withdrawable >= finance.minWithdrawal && finance.bank !== null;
+  const withdrawalBlockReason = !finance.bank
+    ? "برای درخواست برداشت، ابتدا شماره شبا را در بخش حساب بانکی ثبت کنید."
+    : finance.withdrawable < finance.minWithdrawal
+      ? `حداقل مبلغ برداشت ${formatMoney(finance.minWithdrawal)} است.`
+      : null;
 
   const mini = [
     {
@@ -75,15 +80,22 @@ export function WalletSummary({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              disabled={!canWithdraw}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-primary shadow-lg transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              درخواست برداشت
-              <ArrowUpRight size={18} className="rtl:-scale-x-100" />
-            </button>
+            <div className="grid gap-2 sm:max-w-64 sm:justify-items-end">
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                disabled={!canWithdraw}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-primary shadow-lg transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                درخواست برداشت
+                <ArrowUpRight size={18} className="rtl:-scale-x-100" />
+              </button>
+              {withdrawalBlockReason ? (
+                <p className="text-xs leading-5 text-primary-foreground/80 sm:text-end">
+                  {withdrawalBlockReason}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
 

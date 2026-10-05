@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, ArrowUpLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowUpLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Container } from "@/src/components/shared/container";
@@ -42,7 +42,7 @@ export function CategoriesSection() {
   }, []);
 
   return (
-    <section id="services" className="scroll-mt-20 py-16 sm:py-20">
+    <section id="services" className="scroll-mt-20 py-16 sm:py-24">
       <Container>
         <SectionHeading
           eyebrow="دسته‌بندی‌ها"
@@ -60,10 +60,18 @@ export function CategoriesSection() {
         />
 
         {loading ? (
-          <div className="mt-10 flex items-center justify-center gap-2 text-sm text-foreground/55">
-            <Loader2 size={16} className="animate-spin" />
-            در حال بارگذاری دسته‌بندی‌ها…
-          </div>
+          <ul
+            className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+            aria-label="دسته‌بندی خدمات"
+            aria-busy="true"
+          >
+            {Array.from({ length: 8 }, (_, index) => (
+              <li
+                key={index}
+                className="h-36 animate-pulse rounded-2xl border border-foreground/[0.06] bg-foreground/[0.035] sm:h-40"
+              />
+            ))}
+          </ul>
         ) : error ? (
           <p className="mt-10 text-center text-sm text-red-600">{error}</p>
         ) : (
@@ -73,10 +81,10 @@ export function CategoriesSection() {
                 <li key={id}>
                   <Link
                     href={href}
-                    className="group relative flex h-full flex-col gap-4 rounded-2xl border border-foreground/10 bg-card p-4 transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-foreground/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-safe:hover:-translate-y-1 sm:p-5"
+                    className="group relative flex h-full min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card p-4 transition-all hover:border-primary/30 hover:shadow-xl hover:shadow-foreground/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-safe:hover:-translate-y-1 sm:min-h-44 sm:p-5"
                   >
                     <span
-                      className={`flex h-12 w-12 items-center justify-center rounded-xl ${tint}`}
+                      className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:rotate-[-5deg] group-hover:scale-105 ${tint}`}
                     >
                       {imageUrl ? (
                         <Image
@@ -96,7 +104,7 @@ export function CategoriesSection() {
                         {label}
                       </h3>
                       <p className="mt-1 text-xs text-foreground/50">
-                        مشاهده متخصص‌ها
+                        دیدن خدمات این دسته
                       </p>
                     </div>
 
@@ -112,7 +120,7 @@ export function CategoriesSection() {
           </ul>
         )}
 
-        <div className="mt-8 flex flex-col items-center justify-between gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary/[0.04] px-5 py-4 text-center sm:flex-row sm:text-right">
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 rounded-2xl border border-primary/15 bg-[#f3f0e7] px-5 py-4 text-center dark:bg-primary/[0.07] sm:flex-row sm:text-right">
           <p className="text-sm leading-7 text-foreground/70">
             دسته‌ی موردنظرتان را نمی‌بینید؟ هر کاری بخواهید ثبت کنید تا متخصصش
             را برایتان پیدا کنیم.

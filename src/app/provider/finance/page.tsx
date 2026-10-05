@@ -112,6 +112,14 @@ export default async function ProviderFinancePage() {
         <PageHeader
           title="پنل مالی"
           description="موجودی، درآمد و برداشت‌های خود را یکجا ببینید."
+          action={
+            <Link
+              href="/customer/wallet"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-foreground/15 px-4 text-sm font-medium text-foreground/70 transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              کیف پول خرید خدمات
+            </Link>
+          }
         />
         <SectionCard title="دریافت اطلاعات انجام نشد">
           <div className="flex flex-col items-start gap-4 text-sm text-foreground/65 sm:flex-row sm:items-center sm:justify-between">
@@ -133,6 +141,14 @@ export default async function ProviderFinancePage() {
       <PageHeader
         title="پنل مالی"
         description="موجودی، درآمد و برداشت‌های خود را یکجا ببینید."
+        action={
+          <Link
+            href="/customer/wallet"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-foreground/15 px-4 text-sm font-medium text-foreground/70 transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            کیف پول خرید خدمات
+          </Link>
+        }
       />
 
       <WalletSummary finance={finance} accessToken={session.accessToken} />
@@ -148,7 +164,7 @@ export default async function ProviderFinancePage() {
           </SectionCard>
         </div>
         <div className="lg:col-span-2">
-          <BankAccountCard bank={bank} />
+          <BankAccountCard bank={bank} accessToken={session.accessToken} />
         </div>
       </div>
 

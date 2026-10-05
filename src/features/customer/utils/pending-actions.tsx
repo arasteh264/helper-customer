@@ -27,14 +27,19 @@ export function getPendingActions(requests: ServiceRequest[]): PendingAction[] {
       });
     }
 
-    if (r.status === "completed" && !r.reviewed && r.specialist) {
+    if (
+      r.status === "completed" &&
+      !r.reviewed &&
+      !r.review &&
+      r.specialist
+    ) {
       actions.push({
         id: `review-${r.id}`,
         tone: "info",
         title: `نظر شما درباره‌ی ${r.specialist.name}`,
         description: `کار «${r.title}» تمام شده. تجربه‌تان را با بقیه به اشتراک بگذارید.`,
         cta: "ثبت نظر",
-        href: "/customer/requests?tab=completed",
+        href: `/customer/requests/${r.id}`,
       });
     }
   }

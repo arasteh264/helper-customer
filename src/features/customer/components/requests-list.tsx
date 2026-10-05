@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { CalendarClock, Inbox, MapPin, Star } from "lucide-react";
 
@@ -8,6 +8,7 @@ import type { RequestStatus, ServiceRequest } from "../types/customer.types";
 import { REQUEST_STATUS } from "../utils/status-maps";
 import { formatDateTime, formatMoney, formatNumber } from "@/src/utils/format";
 import { StatusBadge } from "@/src/components/shared/status-badge";
+import { requestApi } from "@/src/features/request/api/request.api";
 
 type Tab = "active" | "completed" | "cancelled";
 
@@ -46,29 +47,48 @@ const TABS: {
 
 export function RequestsList({
   requests,
+  total: initialTotal,
+  counts,
+  accessToken,
   initialTab = "active",
 }: {
   requests: ServiceRequest[];
+  total: number;
+  counts: Record<Tab, number>;
+  accessToken: string;
   initialTab?: Tab;
 }) {
   const [tab, setTab] = useState<Tab>(initialTab);
-
-  const counts = useMemo(() => {
-    const map = {} as Record<Tab, number>;
-    TABS.forEach((t) => {
-      map[t.id] = requests.filter((r) => t.statuses.includes(r.status)).length;
-    });
-    return map;
-  }, [requests]);
-
-  const visible = useMemo(() => {
-    const statuses = TABS.find((t) => t.id === tab)!.statuses;
-    return requests
-      .filter((r) => statuses.includes(r.status))
-      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
-  }, [requests, tab]);
-
+  const [visible, setVisible] = useState(requests);
+  const [total, setTotal] = useState(initialTotal);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const requestSequence = useRef(0);
   const active = TABS.find((t) => t.id === tab)!;
+
+  async function loadRequests(group: Tab, nextPage: number, append: boolean) {
+    const sequence = ++requestSequence.current;
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const response = await requestApi.getMyRequestsPage(accessToken, {
+        page: nextPage,
+        pageSize: 20,
+        group,
+      });
+      if (sequence !== requestSequence.current) return;
+      setVisible((current) =>
+        append ? [...current, ...response.items] : response.items,
+      );
+      setTotal(response.total);
+      setPage(response.page);
+    } catch {
+      if (sequence === requestSequence.current) setLoadError(true);
+    } finally {
+      if (sequence === requestSequence.current) setLoading(false);
+    }
+  }
 
   return (
     <div>
@@ -87,7 +107,14 @@ export function RequestsList({
               type="button"
               aria-selected={selected}
               aria-controls="requests-panel"
-              onClick={() => setTab(t.id)}
+              onClick={() => {
+                if (tab === t.id) return;
+                setTab(t.id);
+                setVisible([]);
+                setTotal(counts[t.id]);
+                setPage(1);
+                void loadRequests(t.id, 1, false);
+              }}
               className={[
                 "flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 selected
@@ -114,7 +141,36 @@ export function RequestsList({
         aria-labelledby={`req-tab-${tab}`}
         className="mt-5"
       >
-        {visible.length === 0 ? (
+        {loadError ? (
+          <div
+            className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm"
+            role="alert"
+          >
+            <span>دریافت درخواست‌ها ناموفق بود.</span>
+            <button
+              type="button"
+              onClick={() =>
+                void loadRequests(
+                  tab,
+                  visible.length ? page + 1 : 1,
+                  visible.length > 0,
+                )
+              }
+              disabled={loading}
+              className="font-medium text-primary underline underline-offset-4 disabled:opacity-60"
+            >
+              تلاش دوباره
+            </button>
+          </div>
+        ) : null}
+        {loading && visible.length === 0 ? (
+          <div
+            className="rounded-2xl border border-foreground/10 bg-card px-6 py-12 text-center text-sm text-foreground/55"
+            role="status"
+          >
+            در حال دریافت درخواست‌ها...
+          </div>
+        ) : loadError && visible.length === 0 ? null : visible.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-foreground/15 bg-card px-6 py-14 text-center">
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-foreground/[0.05] text-foreground/40">
               <Inbox size={26} />
@@ -203,6 +259,21 @@ export function RequestsList({
             })}
           </ul>
         )}
+        {visible.length < total ? (
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <p className="text-xs text-foreground/50">
+              نمایش {formatNumber(visible.length)} از {formatNumber(total)}
+            </p>
+            <button
+              type="button"
+              onClick={() => void loadRequests(tab, page + 1, true)}
+              disabled={loading}
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-foreground/15 px-4 text-sm font-medium text-foreground/75 transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-60"
+            >
+              {loading ? "در حال دریافت..." : "نمایش درخواست‌های بیشتر"}
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

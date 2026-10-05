@@ -39,4 +39,10 @@ export const providerNav: PanelNavItem[] = [
     badgeSource: "notifications",
     mobile: false,
   },
+  {
+    label: "کیف پول خرید خدمات",
+    href: "/customer/wallet",
+    icon: "wallet",
+    mobile: false,
+  },
 ];

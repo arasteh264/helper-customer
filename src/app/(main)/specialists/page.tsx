@@ -15,20 +15,28 @@ export const metadata: Metadata = {
 
 export default async function SpecialistsPage() {
   let specialists: DirectorySpecialist[] = [];
+  let specialistsTotal = 0;
   let categories: { id: string; label: string }[] = [];
+  let specialistsLoadFailed = false;
+  let categoriesLoadFailed = false;
   const [providersResult, groupsResult] = await Promise.allSettled([
-    publicProvidersApi.list(),
+    publicProvidersApi.listPage(1, 24),
     requestApi.getSpecialtyGroups(),
   ]);
 
   if (providersResult.status === "fulfilled") {
-    specialists = providersResult.value.map(mapPublicProvider);
+    specialists = providersResult.value.items.map(mapPublicProvider);
+    specialistsTotal = providersResult.value.total;
+  } else {
+    specialistsLoadFailed = true;
   }
   if (groupsResult.status === "fulfilled") {
     categories = groupsResult.value.map(({ id, name }) => ({
       id,
       label: name,
     }));
+  } else {
+    categoriesLoadFailed = true;
   }
 
   return (
@@ -45,7 +53,10 @@ export default async function SpecialistsPage() {
 
         <SpecialistsDirectory
           specialists={specialists}
+          specialistsTotal={specialistsTotal}
           categories={categories}
+          initialLoadFailed={specialistsLoadFailed}
+          categoriesLoadFailed={categoriesLoadFailed}
         />
       </Container>
     </div>

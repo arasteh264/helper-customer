@@ -22,8 +22,8 @@ export function mapPublicProvider(
       ? "محدوده فعالیت ثبت‌شده"
       : "محدوده مشخص نشده",
     rating: provider.rating,
-    reviews: 0,
-    jobs: 0,
+    reviews: provider.reviewsCount,
+    jobs: provider.completedJobs,
     startingPrice: 0,
     verified: provider.verified,
     image: provider.avatarUrl ?? undefined,

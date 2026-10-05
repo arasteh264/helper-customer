@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CalendarClock, MapPin, Phone, Wallet } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 
 import { StatusBadge } from "@/src/components/shared/status-badge";
 import { Job } from "../../types/types";
@@ -140,7 +141,7 @@ export function JobCard({ job, onAction, busy = false }: JobCardProps) {
             <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
               <label className="grid gap-1 text-xs text-foreground/60">
                 مبلغ قطعی (تومان)
-                <input
+                <Input
                   inputMode="numeric"
                   dir="ltr"
                   value={priceInput}
@@ -149,7 +150,7 @@ export function JobCard({ job, onAction, busy = false }: JobCardProps) {
                       toEnglishDigits(event.target.value).replace(/\D/g, ""),
                     )
                   }
-                  className="h-10 w-full min-w-36 rounded-lg border border-foreground/15 bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                  className="h-10 w-full min-w-36 rounded-lg px-3 text-sm"
                   aria-label="مبلغ پیشنهادی قطعی به تومان"
                 />
               </label>

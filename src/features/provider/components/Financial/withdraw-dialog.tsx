@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Landmark, Loader2, X } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 
 import { formatMoney, maskSheba, toEnglishDigits } from "../../utils/format";
@@ -106,7 +107,7 @@ export function WithdrawDialog({
 
         <div className="mt-5 space-y-2">
           <Label htmlFor="withdraw-amount">مبلغ (تومان)</Label>
-          <input
+          <Input
             id="withdraw-amount"
             inputMode="numeric"
             dir="ltr"
@@ -119,7 +120,7 @@ export function WithdrawDialog({
             }
             aria-invalid={!!error}
             aria-describedby="withdraw-hint"
-            className={`h-12 w-full rounded-xl border bg-background px-4 text-start text-base outline-none transition-colors focus:ring-4 ${
+            className={`h-12 w-full rounded-xl px-4 text-start text-base focus:ring-4 ${
               error
                 ? "border-destructive/50 focus:ring-destructive/10"
                 : "border-foreground/15 focus:border-primary/50 focus:ring-primary/10"

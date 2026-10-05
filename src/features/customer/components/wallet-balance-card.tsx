@@ -4,18 +4,29 @@ import { useState } from "react";
 import { Loader2, Plus, Wallet } from "lucide-react";
 
 import { useWalletTopup } from "../hooks/use-wallet-topup";
-import { formatMoney, formatWithCommas, toEnglishDigits } from "@/src/utils/format";
+import {
+  formatMoney,
+  formatWithCommas,
+  toEnglishDigits,
+} from "@/src/utils/format";
+import { Input } from "@/src/components/ui/input";
 
 const QUICK_AMOUNTS = [200000, 500000, 1000000];
 
 export function WalletBalanceCard({
   balance,
   accessToken,
+  suggestedAmountToman = 0,
+  isProviderBuyer = false,
 }: {
   balance: number;
   accessToken: string;
+  suggestedAmountToman?: number;
+  isProviderBuyer?: boolean;
 }) {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(() =>
+    suggestedAmountToman > 0 ? String(suggestedAmountToman) : "",
+  );
   const { topUp, isPending } = useWalletTopup(accessToken);
 
   const value = Number(amount || 0);
@@ -33,7 +44,9 @@ export function WalletBalanceCard({
             <Wallet size={22} />
           </span>
           <div>
-            <p className="text-sm text-primary-foreground/80">موجودی کیف پول</p>
+            <p className="text-sm text-primary-foreground/80">
+              {isProviderBuyer ? "موجودی خرید خدمات" : "موجودی کیف پول"}
+            </p>
             <p className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
               {formatMoney(balance)}
             </p>
@@ -42,7 +55,15 @@ export function WalletBalanceCard({
       </div>
 
       <div className="p-5 sm:p-6">
-        <p className="text-sm font-medium text-foreground">شارژ کیف پول</p>
+        <p className="text-sm font-medium text-foreground">
+          {isProviderBuyer ? "شارژ کیف پول خرید" : "شارژ کیف پول"}
+        </p>
+        {suggestedAmountToman > 0 ? (
+          <p className="mt-1 text-xs leading-5 text-foreground/55">
+            برای ادامه‌ی پرداخت، مبلغ پیشنهادی{" "}
+            {formatMoney(suggestedAmountToman)} است.
+          </p>
+        ) : null}
 
         <div className="mt-3 flex flex-wrap gap-2">
           {QUICK_AMOUNTS.map((a) => (
@@ -63,7 +84,7 @@ export function WalletBalanceCard({
         </div>
 
         <div className="mt-3 flex gap-2">
-          <input
+          <Input
             type="text"
             inputMode="numeric"
             dir="ltr"
@@ -72,7 +93,7 @@ export function WalletBalanceCard({
             onChange={(e) =>
               setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))
             }
-            className="h-12 flex-1 rounded-xl border border-foreground/15 bg-background px-4 text-start text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+            className="h-12 flex-1 rounded-xl px-4 text-start"
           />
           <button
             type="button"

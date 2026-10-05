@@ -1,15 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-   images: {
+  output: "standalone",
+  images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        pathname: "/rucleexf/**", 
+        pathname: "/rucleexf/**",
       },
     ],
-  }
+  },
 };
 
 export default nextConfig;

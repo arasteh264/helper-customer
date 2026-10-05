@@ -22,6 +22,7 @@ import { loginSchema, type LoginFormValues } from "../schemas/login.schema";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
+import { toEnglishDigits } from "@/src/utils/format";
 
 export function LoginForm() {
   const router = useRouter();
@@ -97,6 +98,7 @@ export function LoginForm() {
                   id="identifier"
                   type="text"
                   inputMode="email"
+                  persianDigits
                   autoComplete="username"
                   autoFocus
                   placeholder="۰۹۱۲۳۴۵۶۷۸۹ یا you@example.com"
@@ -106,7 +108,7 @@ export function LoginForm() {
                     errors.identifier ? "identifier-error" : undefined
                   }
                   className="pr-10"
-                  {...register("identifier")}
+                  {...register("identifier", { setValueAs: toEnglishDigits })}
                 />
               </div>
               {errors.identifier && (
@@ -192,11 +194,13 @@ export function LoginForm() {
               variant="outline"
               size="lg"
               className="w-full gap-2"
-              
             >
-              <Link href="/login-otp" className="w-full flex justify-center items-center gap-1.5">
+              <Link
+                href="/login-otp"
+                className="w-full flex justify-center items-center gap-1.5"
+              >
                 <MessageSquare size={15} />
-               <span> ورود با رمز یکبارمصرف</span>
+                <span> ورود با رمز یکبارمصرف</span>
               </Link>
             </Button>
           </form>

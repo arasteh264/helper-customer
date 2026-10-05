@@ -11,8 +11,8 @@ import {
 } from "@/src/features/catalog/utils/category-mapping";
 import { requestApi } from "@/src/features/request/api/request.api";
 
-export function ServicesExplorer() {
-  const [query, setQuery] = useState("");
+export function ServicesExplorer({ initialQuery = "" }: { initialQuery?: string }) {
+  const [query, setQuery] = useState(initialQuery);
   const [categories, setCategories] = useState<CatalogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

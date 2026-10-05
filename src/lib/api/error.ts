@@ -8,6 +8,7 @@ export enum ApiErrorCode {
   INVALID_OTP = "INVALID_OTP",
   EXPIRED_OTP = "EXPIRED_OTP",
   TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS",
+  INSUFFICIENT_WALLET_BALANCE = "INSUFFICIENT_WALLET_BALANCE",
   NETWORK_ERROR = "NETWORK_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
@@ -32,8 +33,11 @@ export const API_ERROR_MESSAGES: Record<ApiErrorCode, string> = {
   [ApiErrorCode.DUPLICATE_PHONE]: "این شماره موبایل قبلاً ثبت شده است",
   [ApiErrorCode.CONFLICT]: "این اطلاعات قبلاً ثبت شده است",
   [ApiErrorCode.INVALID_OTP]: "کد تأیید نادرست یا منقضی شده است",
-  [ApiErrorCode.EXPIRED_OTP]: "اعتبار کد شما به پایان رسید؛ کد جدید دریافت کنید",
+  [ApiErrorCode.EXPIRED_OTP]:
+    "اعتبار کد شما به پایان رسید؛ کد جدید دریافت کنید",
   [ApiErrorCode.TOO_MANY_REQUESTS]: "تعداد درخواست‌ها بیش از حد مجاز است",
+  [ApiErrorCode.INSUFFICIENT_WALLET_BALANCE]:
+    "موجودی کیف پول برای پرداخت کافی نیست",
   [ApiErrorCode.NETWORK_ERROR]: "خطا در برقراری ارتباط با سرور",
   [ApiErrorCode.UNKNOWN_ERROR]: "خطای غیرمنتظره‌ای رخ داد",
 };

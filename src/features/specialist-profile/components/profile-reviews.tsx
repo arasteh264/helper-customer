@@ -16,13 +16,19 @@ export function ProfileReviews({
     <div className="rounded-2xl border border-foreground/10 bg-card p-5 sm:p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-foreground">نظرات مشتریان</h2>
-        <span className="flex items-center gap-1 text-sm font-medium text-foreground">
-          <Star size={15} className="fill-amber-500 text-amber-500" />
-          {rating}
-          <span className="font-normal text-foreground/50">
-            ({formatNumber(reviewsCount)})
+        {reviewsCount > 0 ? (
+          <span className="flex items-center gap-1 text-sm font-medium text-foreground">
+            <Star size={15} className="fill-amber-500 text-amber-500" />
+            {rating.toFixed(1)}
+            <span className="font-normal text-foreground/50">
+              ({formatNumber(reviewsCount)})
+            </span>
           </span>
-        </span>
+        ) : (
+          <span className="text-xs font-normal text-foreground/50">
+            بدون امتیاز
+          </span>
+        )}
       </div>
 
       {reviews.length === 0 ? (
@@ -53,7 +59,9 @@ export function ProfileReviews({
                   ))}
                 </div>
               </div>
-              <p className="mt-2.5 text-sm leading-7 text-foreground/75">{r.text}</p>
+              {r.text ? (
+                <p className="mt-2.5 text-sm leading-7 text-foreground/75">{r.text}</p>
+              ) : null}
             </li>
           ))}
         </ul>

@@ -9,6 +9,7 @@ import { getProfileCompletion } from "@/src/features/provider/lib/completion";
 import { providerApi } from "@/src/features/provider/api/provider.api";
 import { getVerificationDocuments } from "@/src/features/provider/api/documents";
 import { providerJobsApi } from "@/src/features/provider/api/jobs.api";
+import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 import { walletApi } from "@/src/features/provider/api/wallet.api";
 import type { VerificationDoc } from "@/src/features/provider/types/types";
 import {
@@ -114,6 +115,12 @@ export default async function ProviderOverviewPage() {
   ).length;
   const completedJobs = jobs.filter((job) => job.status === "completed").length;
   const firstName = profile.user.name.split(" ")[0];
+  const recentReviews = profile.isVerified
+    ? await publicProvidersApi
+        .getById(profile.id)
+        .then((provider) => provider.reviews)
+        .catch(() => [])
+    : [];
 
   return (
     <div className="space-y-6">
@@ -184,7 +191,7 @@ export default async function ProviderOverviewPage() {
         </div>
       </div>
 
-      <RecentReviewsCard reviews={[]} />
+      <RecentReviewsCard reviews={recentReviews} />
     </div>
   );
 }

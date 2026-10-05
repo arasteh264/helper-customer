@@ -6,7 +6,13 @@ import { Search } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
 
-const SUGGESTIONS = ["لوله‌کش", "وکیل", "مدرس ریاضی", "طراح سایت", "عکاس"];
+const SUGGESTIONS = [
+  "تعمیرات لوازم",
+  "نظافت",
+  "خدمات آموزشی",
+  "حمل‌ونقل",
+  "خدمات خودرو",
+];
 
 export function HeroSearch() {
   const router = useRouter();
@@ -14,7 +20,7 @@ export function HeroSearch() {
 
   const go = (value: string) => {
     const q = value.trim();
-    router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/services");
+    router.push(q ? `/services?q=${encodeURIComponent(q)}` : "/services");
   };
 
   return (
@@ -40,7 +46,7 @@ export function HeroSearch() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="چه خدمت یا متخصصی نیاز دارید؟"
+          placeholder="نام دسته‌ی خدمتی که لازم دارید…"
           autoComplete="off"
           className="min-w-0 flex-1 bg-transparent px-1 py-3 text-sm outline-none placeholder:text-foreground/40 sm:text-base"
         />

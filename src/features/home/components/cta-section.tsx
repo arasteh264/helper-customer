@@ -5,14 +5,14 @@ import { ButtonLink } from "@/src/components/shared/button-link";
 
 export function CtaSection() {
   return (
-    <section className="py-16 sm:py-20">
+    <section className="py-16 sm:py-24">
       <Container className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-hover p-8 text-primary-foreground sm:p-10">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#244d3d] p-8 text-white sm:p-10">
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-white/10 blur-2xl"
+            className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-[#d99c5c]/25 blur-2xl"
           />
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
             <Search size={22} />
           </span>
           <h2 className="mt-6 text-2xl font-bold leading-snug sm:text-3xl">
@@ -26,7 +26,7 @@ export function CtaSection() {
             href="/request"
             variant="light"
             size="lg"
-            className="relative mt-8"
+            className="relative mt-8 border-0 bg-[#fff9ee] text-[#244d3d] hover:bg-white"
           >
             ثبت درخواست رایگان
             <ArrowLeft size={18} />
@@ -34,7 +34,7 @@ export function CtaSection() {
         </div>
 
         {/* متخصص */}
-        <div className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-card p-8 sm:p-10">
+        <div className="relative overflow-hidden rounded-[2rem] border border-[#e8dfcf] bg-[#f3f0e7] p-8 dark:border-foreground/10 dark:bg-card sm:p-10">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Briefcase size={22} />
           </span>
@@ -48,7 +48,7 @@ export function CtaSection() {
           <ButtonLink
             href="/register?role=specialist"
             size="lg"
-            className="mt-8"
+            className="mt-8 bg-[#d99c5c] text-[#302319] hover:bg-[#e5ad70]"
           >
             ثبت‌نام به‌عنوان متخصص
             <ArrowLeft size={18} />

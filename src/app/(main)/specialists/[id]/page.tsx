@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ApiError } from "@/src/lib/api/error";
 import { Container } from "@/src/components/shared/container";
 import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 import { ProfileHeader } from "@/src/features/specialist-profile/components/profile-header";
@@ -7,6 +8,7 @@ import { ProfileAbout } from "@/src/features/specialist-profile/components/profi
 import { ProfilePortfolio } from "@/src/features/specialist-profile/components/profile-portfolio";
 import { ProfileAvailability } from "@/src/features/specialist-profile/components/profile-availability.";
 import { BookingPanel } from "@/src/features/specialist-profile/components/booking-panel";
+import { ProfileReviews } from "@/src/features/specialist-profile/components/profile-reviews";
 import type { SpecialistProfile } from "@/src/features/specialist-profile/types/specialist-profile.types";
 
 export const metadata: Metadata = { title: "پروفایل متخصص | هلپر" };
@@ -30,8 +32,9 @@ export default async function SpecialistProfilePage({
   let provider;
   try {
     provider = await publicProvidersApi.getById(id);
-  } catch {
-    notFound();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
 
   const specialtyNames =
@@ -51,8 +54,8 @@ export default async function SpecialistProfilePage({
     avatar: provider.avatarUrl ?? undefined,
     verified: provider.verified,
     rating: provider.rating,
-    reviewsCount: 0,
-    completedJobs: 0,
+    reviewsCount: provider.reviewsCount,
+    completedJobs: provider.completedJobs,
     responseRate: 0,
     experienceYears: 0,
     memberSince: provider.createdAt,
@@ -68,7 +71,7 @@ export default async function SpecialistProfilePage({
     availableDays: provider.workingHours
       .filter((hour) => hour.isActive)
       .map((hour) => DAYS[hour.dayOfWeek] ?? ""),
-    reviews: [],
+    reviews: provider.reviews,
     hasFullProfile: true,
   };
 
@@ -79,6 +82,11 @@ export default async function SpecialistProfilePage({
           <div className="space-y-6">
             <ProfileHeader profile={profile} />
             <ProfileAbout profile={profile} />
+            <ProfileReviews
+              reviews={profile.reviews}
+              rating={profile.rating}
+              reviewsCount={profile.reviewsCount}
+            />
             <ProfilePortfolio profile={profile} />
             <ProfileAvailability workingHours={provider.workingHours} />
           </div>
