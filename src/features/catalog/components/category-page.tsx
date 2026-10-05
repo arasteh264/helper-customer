@@ -148,16 +148,27 @@ export function CategoryPage({
             {specialties.map((specialty) => (
               <li
                 key={specialty.id}
-                className="rounded-lg border border-foreground/10 bg-card p-4 transition-colors hover:border-primary/30"
+                className="overflow-hidden rounded-2xl border border-foreground/10 bg-card transition-colors hover:border-primary/30"
               >
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Check size={16} />
-                  </span>
+                {specialty.icon ? (
+                  <div className="relative aspect-[16/9] overflow-hidden bg-primary/5">
+                    <Image
+                      src={specialty.icon}
+                      alt={specialty.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : null}
+                <div className="flex items-start gap-3 p-4">
+                  {!specialty.icon ? (
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Check size={16} />
+                    </span>
+                  ) : null}
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-foreground">
-                      {specialty.name}
-                    </h3>
+                    <h3 className="font-semibold text-foreground">{specialty.name}</h3>
                     <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-foreground/55">
                       <Users size={13} />
                       {specialty.activeProvidersCount > 0

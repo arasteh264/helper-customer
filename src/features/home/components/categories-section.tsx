@@ -83,21 +83,24 @@ export function CategoriesSection() {
                     href={href}
                     className="group relative flex h-full min-h-40 flex-col justify-between overflow-hidden rounded-2xl border border-foreground/[0.08] bg-card p-4 transition-all hover:border-primary/30 hover:shadow-xl hover:shadow-foreground/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-safe:hover:-translate-y-1 sm:min-h-44 sm:p-5"
                   >
-                    <span
-                      className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:rotate-[-5deg] group-hover:scale-105 ${tint}`}
-                    >
-                      {imageUrl ? (
+                    {imageUrl ? (
+                      <span className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden rounded-t-xl bg-primary/5 sm:-mx-5 sm:-mt-5">
                         <Image
                           src={imageUrl}
                           alt=""
-                          width={40}
-                          height={40}
-                          className="object-contain"
+                          width={480}
+                          height={270}
+                          sizes="(max-width: 640px) 50vw, 25vw"
+                          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                         />
-                      ) : (
+                      </span>
+                    ) : (
+                      <span
+                        className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:rotate-[-5deg] group-hover:scale-105 ${tint}`}
+                      >
                         <Icon size={24} />
-                      )}
-                    </span>
+                      </span>
+                    )}
 
                     <div>
                       <h3 className="text-sm font-semibold leading-6 text-foreground sm:text-base">

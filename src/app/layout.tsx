@@ -5,6 +5,7 @@ import { QueryProvider } from "../providers/QueryProvider";
 import { Toaster } from "sonner";
 import { AuthSessionProvider } from "../features/provider/AuthSessionProvider";
 import { ServiceWorkerRegistration } from "./service-worker-registration";
+import { PwaInstallPrompt } from "./pwa-install-prompt";
 
 const vazirmatn = localFont({
   src: "../assets/fonts/Vazirmatn[wght].woff2",
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <QueryProvider>
             {children}
             <ServiceWorkerRegistration />
+            <PwaInstallPrompt />
           </QueryProvider>
         </AuthSessionProvider>
         <Toaster position="top-center" richColors />
