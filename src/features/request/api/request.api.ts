@@ -36,20 +36,41 @@ export interface ServiceRequestPayment {
   paidAt?: string | null;
 }
 
+export type ServiceRequestGroup = "active" | "completed" | "cancelled";
+
+export interface ServiceRequestPage {
+  items: ServiceRequest[];
+  total: number;
+  page: number;
+  pageSize: number;
+  counts: Record<ServiceRequestGroup, number>;
+}
+
 const authHeaders = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
 });
 
 export const requestApi = {
-  async getMyRequests(accessToken: string) {
-    const { data } = await apiClient<ServiceRequest[]>(
-      "/service-requests/mine",
-      {
-        method: "GET",
-        headers: authHeaders(accessToken),
-      },
-    );
-    return data;
+  async getMyRequestsPage(
+    accessToken: string,
+    options: {
+      page: number;
+      pageSize: number;
+      group: ServiceRequestGroup;
+    },
+  ): Promise<ServiceRequestPage> {
+    const params = new URLSearchParams({
+      page: String(options.page),
+      pageSize: String(options.pageSize),
+      group: options.group,
+    });
+    const { data } = await apiClient<
+      ServiceRequestPage | { data: ServiceRequestPage }
+    >(`/service-requests/mine?${params}`, {
+      method: "GET",
+      headers: authHeaders(accessToken),
+    });
+    return "data" in data ? data.data : data;
   },
 
   async getMyRequest(id: string, accessToken: string) {
@@ -73,6 +94,16 @@ export const requestApi = {
     return "data" in data ? data.data : data;
   },
 
+  async verifyPaymentStatus(requestId: string, accessToken: string) {
+    const { data } = await apiClient<
+      ServiceRequestPayment | { data: ServiceRequestPayment }
+    >(`/payments/service-requests/${requestId}/verify`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
+    return "data" in data ? data.data : data;
+  },
+
   async checkout(requestId: string, accessToken: string) {
     const { data } = await apiClient<
       { paymentUrl: string } | { data: { paymentUrl: string } }
@@ -81,6 +112,19 @@ export const requestApi = {
       headers: authHeaders(accessToken),
     });
     return "data" in data ? data.data : data;
+  },
+
+  async payFromWallet(requestId: string, accessToken: string) {
+    const { data } = await apiClient<{
+      status: "PAID";
+      requestId: string;
+      amountToman: number;
+      walletBalanceToman: number;
+    }>(`/payments/service-requests/${requestId}/wallet`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
+    return data;
   },
 
   confirmCompletion(requestId: string, accessToken: string) {

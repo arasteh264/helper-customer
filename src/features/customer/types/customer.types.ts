@@ -52,6 +52,14 @@ export interface ServiceRequest {
   finalPriceToman?: number;
   specialist?: RequestSpecialist;
   reviewed: boolean;
+  review?: {
+    id: string;
+    rating: number;
+    text: string | null;
+    createdAt: string;
+  } | null;
+  customerConfirmationDeadline?: string | null;
+  wasPaid?: boolean;
 }
 
 export type AddressType = "home" | "work" | "other";

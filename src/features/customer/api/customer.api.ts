@@ -123,10 +123,15 @@ export const customerApi = {
       method: "POST",
     }),
 
-  submitReview: (requestId: string, values: ReviewValues) =>
-    apiClient(`/api/customer/requests/${requestId}/review`, {
+  submitReview: (
+    requestId: string,
+    values: ReviewValues,
+    accessToken: string,
+  ) =>
+    apiClient(`/service-requests/${requestId}/review`, {
       method: "POST",
       data: values,
+      headers: authHeaders(accessToken),
     }),
 
   removeFavorite: (specialistId: string) =>

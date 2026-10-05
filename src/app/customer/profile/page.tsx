@@ -7,7 +7,6 @@ import { customerApi } from "@/src/features/customer/api/customer.api";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { CustomerInfoForm } from "@/src/features/customer/components/profile/customer-info-form";
 import { ChangePasswordForm } from "@/src/features/customer/components/profile/change-password-form";
-import { DeleteAccountSection } from "@/src/features/customer/components/profile/delete-account-section";
 import { NotificationPreferencesPanel } from "@/src/features/notifications/components/notification-preferences-panel";
 import { notificationPreferencesApi } from "@/src/features/notifications/api/notification-preferences.api";
 
@@ -44,7 +43,6 @@ export default async function CustomerProfilePage() {
         initial={notificationPreferences}
       />
       <ChangePasswordForm />
-      <DeleteAccountSection />
     </div>
   );
 }

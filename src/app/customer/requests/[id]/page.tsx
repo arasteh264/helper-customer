@@ -13,6 +13,11 @@ import { formatDateTime, formatMoney } from "@/src/utils/format";
 import { RequestPaymentActions } from "@/src/features/customer/components/request-payment-actions";
 import type { ServiceRequestPayment } from "@/src/features/request/api/request.api";
 import { RequestChat } from "@/src/features/request/components/request-chat";
+import { customerApi } from "@/src/features/customer/api/customer.api";
+import { ReviewForm } from "@/src/features/customer/components/review-form";
+import { Star } from "lucide-react";
+import { formatNumber } from "@/src/utils/format";
+import { ApiError } from "@/src/lib/api/error";
 
 export const metadata: Metadata = { title: "پیگیری درخواست | پنل مشتری" };
 
@@ -23,16 +28,27 @@ export default async function CustomerRequestDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const session = await auth();
   if (!session?.accessToken) {
-    redirect("/login?callbackUrl=%2Fcustomer%2Frequests");
+    redirect(
+      `/login?callbackUrl=${encodeURIComponent(`/customer/requests/${id}`)}`,
+    );
   }
-  const [{ id }, query] = await Promise.all([params, searchParams]);
   let request;
   try {
     request = await requestApi.getMyRequest(id, session.accessToken);
-  } catch {
-    notFound();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      redirect("/login?reason=session-expired");
+    }
+    if (
+      error instanceof ApiError &&
+      (error.status === 403 || error.status === 404)
+    ) {
+      notFound();
+    }
+    throw error;
   }
   let payment: ServiceRequestPayment | null = null;
   if (request.status === "awaiting_payment" || Object.keys(query).length > 0) {
@@ -48,6 +64,16 @@ export default async function CustomerRequestDetailPage({
     request.finalPriceToman ??
     request.proposedPriceToman ??
     request.price;
+  const review = request.review;
+  let walletBalance: number | undefined;
+  if (request.status === "awaiting_payment") {
+    try {
+      walletBalance = (await customerApi.getWallet(session.accessToken))
+        .balance;
+    } catch {
+      walletBalance = undefined;
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -75,12 +101,21 @@ export default async function CustomerRequestDetailPage({
           <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
         </div>
         <RequestProgress status={request.status} />
+        {request.status === "awaiting_confirmation" &&
+        request.customerConfirmationDeadline ? (
+          <p className="mt-5 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2.5 text-xs leading-6 text-amber-900">
+            تا {formatDateTime(request.customerConfirmationDeadline)} فرصت دارید
+            کار را تأیید یا اختلاف ثبت کنید. اگر پاسخی ثبت نشود، درخواست تکمیل
+            می‌شود و درآمد برای متخصص آزاد خواهد شد.
+          </p>
+        ) : null}
       </SectionCard>
 
       <RequestPaymentActions
         requestId={id}
         requestStatus={request.status}
         amountToman={amountToman}
+        walletBalance={walletBalance}
         initialPayment={payment}
         accessToken={session.accessToken}
       />
@@ -89,7 +124,11 @@ export default async function CustomerRequestDetailPage({
         requestId={id}
         accessToken={session.accessToken}
         currentUserId={session.user.id}
-        currentUserRole="CUSTOMER"
+        currentUserRole={
+          session.user.role?.toUpperCase() === "PROVIDER"
+            ? "PROVIDER"
+            : "CUSTOMER"
+        }
       />
 
       {request.specialist ? (
@@ -188,6 +227,60 @@ export default async function CustomerRequestDetailPage({
           </div>
         ) : null}
       </SectionCard>
+
+      {request.status === "completed" && request.specialist ? (
+        request.reviewed || review ? (
+          review ? (
+            <SectionCard title="نظر ثبت‌شده‌ی شما">
+              <div
+                className="flex items-center gap-1"
+                role="img"
+                aria-label={`امتیاز ${review.rating} از ۵`}
+              >
+                {Array.from({ length: 5 }, (_, index) => (
+                  <Star
+                    key={index}
+                    size={18}
+                    aria-hidden="true"
+                    className={
+                      index < review.rating
+                        ? "fill-amber-500 text-amber-500"
+                        : "text-foreground/20"
+                    }
+                  />
+                ))}
+                <span className="ms-2 text-sm font-medium text-foreground">
+                  {formatNumber(review.rating)} / ۵
+                </span>
+              </div>
+              {review.text ? (
+                <p className="mt-3 text-sm leading-7 text-foreground/70">
+                  {review.text}
+                </p>
+              ) : null}
+              <p className="mt-2 text-xs text-foreground/45">
+                {formatDateTime(review.createdAt)}
+              </p>
+            </SectionCard>
+          ) : (
+            <SectionCard title="نظر شما ثبت شده است">
+              <p className="text-sm leading-7 text-foreground/65">
+                ثبت امتیاز این درخواست قبلاً انجام شده است.
+              </p>
+            </SectionCard>
+          )
+        ) : (
+          <SectionCard
+            title="تجربه‌تان را ثبت کنید"
+            description="پس از تکمیل کار، امتیاز و نظر شما به دیگر مشتریان برای انتخاب متخصص کمک می‌کند."
+          >
+            <ReviewForm
+              requestId={id}
+              specialistName={request.specialist.name}
+            />
+          </SectionCard>
+        )
+      ) : null}
     </div>
   );
 }

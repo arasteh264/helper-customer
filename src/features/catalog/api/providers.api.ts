@@ -5,6 +5,8 @@ export interface PublicProvider {
   name: string;
   bio: string | null;
   rating: number;
+  reviewsCount: number;
+  completedJobs: number;
   verified: boolean;
   available: boolean;
   hasServiceArea: boolean;
@@ -25,7 +27,22 @@ export interface PublicProvider {
     endTime: string;
   }[];
   portfolio: string[];
+  reviews: {
+    id: string;
+    customerName: string;
+    rating: number;
+    text: string;
+    date: string;
+    service: string;
+  }[];
   createdAt: string;
+}
+
+export interface PublicProviderPage {
+  items: PublicProvider[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 export const publicProvidersApi = {
@@ -41,6 +58,18 @@ export const publicProvidersApi = {
       {
         method: "GET",
       },
+    );
+    return data;
+  },
+
+  async listPage(page: number, pageSize: number) {
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: String(pageSize),
+    });
+    const { data } = await apiClient<PublicProviderPage>(
+      `/public/providers?${params}`,
+      { method: "GET" },
     );
     return data;
   },

@@ -8,7 +8,13 @@ export const metadata: Metadata = {
   description: "همه‌ی دسته‌بندی‌های خدمات هلپر را ببینید و متخصص موردنظرتان را پیدا کنید.",
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q = "" } = await searchParams;
+
   return (
     <div className="py-10 sm:py-14">
       <Container>
@@ -21,7 +27,7 @@ export default function ServicesPage() {
           </p>
         </div>
 
-        <ServicesExplorer />
+        <ServicesExplorer initialQuery={q} />
       </Container>
     </div>
   );

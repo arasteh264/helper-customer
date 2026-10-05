@@ -126,6 +126,17 @@ export const walletApi = {
     return data;
   },
 
+  async upsertBankAccount(
+    accessToken: string,
+    values: { holderName: string; sheba: string; bankName?: string },
+  ) {
+    const { data } = await apiClient<ProviderBankAccountResponse>(
+      "/providers/wallet/bank-account",
+      { method: "PUT", headers: headers(accessToken), data: values },
+    );
+    return data;
+  },
+
   requestWithdrawal(accessToken: string, amount: number) {
     return apiClient("/providers/wallet/payouts", {
       method: "POST",

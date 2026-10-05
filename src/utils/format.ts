@@ -17,9 +17,10 @@ export const formatCompactMoney = (n: number) => {
 };
 
 export const formatDate = (iso: string) =>
-  new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium", timeZone: TZ }).format(
-    new Date(iso)
-  );
+  new Intl.DateTimeFormat("fa-IR", {
+    dateStyle: "medium",
+    timeZone: TZ,
+  }).format(new Date(iso));
 
 export const formatDateTime = (iso: string) =>
   new Intl.DateTimeFormat("fa-IR", {
@@ -40,6 +41,8 @@ export const toPersianDigits = (value: string | number) =>
 
 export const maskSheba = (sheba: string) =>
   `${sheba.slice(0, 4)} •••• •••• •••• •••• ${sheba.slice(-4)}`;
-// 3 رقم 3 رقم جدا کن 
-export const formatWithCommas = (raw: string) =>
-  raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+/** گروه‌بندی مبلغ ورودی با رقم‌های فارسی */
+export const formatWithCommas = (raw: string) => {
+  const digits = toEnglishDigits(raw).replace(/\D/g, "");
+  return digits ? new Intl.NumberFormat("fa-IR").format(Number(digits)) : "";
+};

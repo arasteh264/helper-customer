@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
 
-import { addresses } from "@/src/features/customer/api/mock-data";
-import { AddressesManager } from "@/src/features/customer/components/addresses-manager";
 import { PageHeader } from "@/src/components/shared/page-header";
+import { SectionCard } from "@/src/components/shared/section-card";
 
 export const metadata: Metadata = { title: "آدرس‌های من | پنل مشتری" };
 
 export default function CustomerAddressesPage() {
-  // TODO: آدرس‌ها را از API / دیتابیس بگیرید
   return (
-    <>
-      <PageHeader title="آدرس‌های من" description="آدرس‌هایی که برای ثبت درخواست استفاده می‌کنید." />
-      <AddressesManager initial={addresses} />
-    </>
+    <div className="space-y-6">
+      <PageHeader
+        title="آدرس‌های من"
+        description="آدرس‌هایی که برای ثبت درخواست استفاده می‌کنید."
+      />
+      <SectionCard title="مدیریت آدرس‌ها در دسترس نیست">
+        <p className="text-sm leading-7 text-foreground/65">
+          API فعلی ذخیره و مدیریت آدرس‌ها را پشتیبانی نمی‌کند. تا زمان آماده‌شدن این قابلیت، آدرس ساختگی نمایش داده نمی‌شود.
+        </p>
+      </SectionCard>
+    </div>
   );
 }

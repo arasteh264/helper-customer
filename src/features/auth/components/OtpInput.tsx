@@ -71,7 +71,7 @@ export function OtpInput({
 
   const handleKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     switch (e.key) {
       case "Backspace": {
@@ -133,7 +133,7 @@ export function OtpInput({
           pattern="[0-9]*"
           autoComplete={i === 0 ? "one-time-code" : "off"}
           maxLength={length}
-          value={digit}
+          value={digit ? toPersianDigits(digit) : ""}
           disabled={disabled}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}

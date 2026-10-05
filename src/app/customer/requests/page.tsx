@@ -15,7 +15,11 @@ export default async function CustomerRequestsPage() {
   if (!session?.accessToken) {
     redirect("/login?callbackUrl=%2Fcustomer%2Frequests");
   }
-  const requests = await requestApi.getMyRequests(session.accessToken);
+  const requestPage = await requestApi.getMyRequestsPage(session.accessToken, {
+    page: 1,
+    pageSize: 20,
+    group: "active",
+  });
 
   return (
     <>
@@ -32,7 +36,12 @@ export default async function CustomerRequestsPage() {
           </Link>
         }
       />
-      <RequestsList requests={requests} />
+      <RequestsList
+        requests={requestPage.items}
+        total={requestPage.total}
+        counts={requestPage.counts}
+        accessToken={session.accessToken}
+      />
     </>
   );
 }

@@ -1,84 +1,109 @@
-import { Quote, Star } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, BadgeCheck, Star } from "lucide-react";
 
 import { Container } from "@/src/components/shared/container";
 import { SectionHeading } from "@/src/components/shared/section-heading";
-import { testimonials } from "../api/data";
+import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 
-export function TestimonialsSection() {
+export async function TestimonialsSection() {
+  let reviews: {
+    id: string;
+    providerId: string;
+    providerName: string;
+    customerName: string;
+    rating: number;
+    text: string;
+    service: string;
+  }[] = [];
+  let hasError = false;
+
+  try {
+    const page = await publicProvidersApi.listPage(1, 16);
+    reviews = page.items
+      .flatMap((provider) =>
+        provider.reviews.map((review) => ({
+          ...review,
+          providerId: provider.id,
+          providerName: provider.name,
+        })),
+      )
+      .filter((review) => review.text.trim().length > 0)
+      .slice(0, 3);
+  } catch {
+    hasError = true;
+  }
+
   return (
     <section
       id="testimonials"
-      className="scroll-mt-20 bg-foreground/[0.03] py-16 sm:py-20"
+      className="scroll-mt-20 bg-[#f7f5ef] py-16 dark:bg-foreground/[0.025] sm:py-24"
     >
       <Container>
         <SectionHeading
           align="center"
-          eyebrow="نظر مشتریان"
-          title="مشتریان ما چه می‌گویند؟"
-          description="تجربه‌ی واقعی کسانی که کارشان را با هلپر انجام داده‌اند."
+          eyebrow="تجربه‌ی مشتریان"
+          title="نظرها را از خود مشتری‌ها بخوانید"
+          description="پیش از انتخاب، تجربه‌ی کسانی را ببینید که با این متخصص کار کرده‌اند."
         />
 
-        {/* امتیاز کلی */}
-        <div className="mx-auto mt-6 flex w-fit items-center gap-3 rounded-full border border-foreground/10 bg-card px-4 py-2 text-sm">
-          <span className="flex items-center gap-0.5" aria-hidden>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} size={14} className="fill-amber-500 text-amber-500" />
+        {reviews.length > 0 ? (
+          <ul className="mt-10 grid gap-4 md:grid-cols-3">
+            {reviews.map((review) => (
+              <li key={review.id}>
+                <article className="flex h-full flex-col rounded-2xl border border-foreground/[0.07] bg-card p-5 sm:p-6">
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
+                      aria-label={`امتیاز ${review.rating} از ۵`}
+                    >
+                      <Star
+                        size={16}
+                        className="fill-[#d99c5c] text-[#d99c5c]"
+                        aria-hidden="true"
+                      />
+                      {new Intl.NumberFormat("fa-IR").format(review.rating)}
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-medium text-primary">
+                      <BadgeCheck size={13} aria-hidden="true" />
+                      نظر ثبت‌شده
+                    </span>
+                  </div>
+
+                  <p className="mt-4 flex-1 text-sm leading-8 text-foreground/75">
+                    «{review.text}»
+                  </p>
+
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-foreground/[0.07] pt-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {review.customerName}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-foreground/50">
+                        {review.service} · برای {review.providerName}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/specialists/${review.providerId}`}
+                      aria-label={`دیدن پروفایل ${review.providerName}`}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-foreground/10 text-foreground/60 transition-colors hover:border-primary/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <ArrowLeft size={16} aria-hidden="true" />
+                    </Link>
+                  </div>
+                </article>
+              </li>
             ))}
-          </span>
-          <span className="font-semibold text-foreground">۴٫۸ از ۵</span>
-          <span className="text-foreground/50">بر اساس +۸٬۵۰۰ نظر</span>
-        </div>
-
-        <ul className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-4 [scrollbar-width:none] sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden">
-          {testimonials.map((t) => (
-            <li
-              key={t.name}
-              className="relative flex w-[85%] shrink-0 snap-start flex-col rounded-2xl border border-foreground/10 bg-card p-6 md:w-auto"
-            >
-              <Quote
-                size={36}
-                className="absolute left-5 top-5 text-primary/10"
-                aria-hidden
-              />
-
-              <div
-                className="flex items-center gap-0.5"
-                role="img"
-                aria-label={`امتیاز ${t.rating} از ۵`}
-              >
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    className={
-                      i < t.rating
-                        ? "fill-amber-500 text-amber-500"
-                        : "text-foreground/20"
-                    }
-                  />
-                ))}
-              </div>
-
-              <p className="mt-4 flex-1 text-sm leading-8 text-foreground/80 sm:text-base">
-                «{t.text}»
-              </p>
-
-              <div className="mt-6 flex items-center gap-3 border-t border-foreground/5 pt-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {t.name.charAt(0)}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {t.name}
-                  </p>
-                  <p className="text-xs text-foreground/50">
-                    {t.city} · {t.service}
-                  </p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+          </ul>
+        ) : (
+          <p
+            className="mx-auto mt-10 max-w-xl rounded-2xl border border-foreground/[0.07] bg-card px-6 py-8 text-center text-sm leading-7 text-foreground/60"
+            role={hasError ? "status" : undefined}
+          >
+            {hasError
+              ? "دریافت نظرها فعلاً ممکن نشد. می‌توانید نظرهای ثبت‌شده را در پروفایل متخصص‌ها ببینید."
+              : "هنوز نظری برای نمایش نداریم. با ثبت تجربه‌ی خودتان، به دیگران در انتخاب کمک کنید."}
+          </p>
+        )}
       </Container>
     </section>
   );

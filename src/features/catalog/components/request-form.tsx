@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { Input } from "@/src/components/ui/input";
+import { toEnglishDigits } from "@/src/utils/format";
 
 const field =
   "w-full rounded-xl border border-foreground/15 bg-card px-4 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10";
@@ -23,6 +25,7 @@ export function RequestForm({
     try {
       // TODO: جایگزین با API واقعی
       // await fetch("/api/requests", { method: "POST", body: JSON.stringify({ categoryId, ...data }) });
+      data.phone = toEnglishDigits(String(data.phone ?? ""));
       console.log({ categoryId, ...data });
       setDone(true);
     } finally {
@@ -47,13 +50,20 @@ export function RequestForm({
       onSubmit={onSubmit}
       className="space-y-3 rounded-2xl border border-foreground/10 bg-card p-5 shadow-lg shadow-foreground/[0.04]"
     >
-      <h3 className="text-base font-bold text-foreground">درخواست خدمات {categoryLabel}</h3>
+      <h3 className="text-base font-bold text-foreground">
+        درخواست خدمات {categoryLabel}
+      </h3>
       <p className="text-xs leading-6 text-foreground/55">
         نیازتان را بنویسید تا متخصصان پیشنهاد بدهند.
       </p>
 
-      <input name="name" required placeholder="نام و نام خانوادگی" className={`${field} h-11`} />
       <input
+        name="name"
+        required
+        placeholder="نام و نام خانوادگی"
+        className={`${field} h-11`}
+      />
+      <Input
         name="phone"
         type="tel"
         required
@@ -62,7 +72,12 @@ export function RequestForm({
         placeholder="۰۹۱۲۳۴۵۶۷۸۹"
         className={`${field} h-11 text-start`}
       />
-      <input name="city" required placeholder="شهر" className={`${field} h-11`} />
+      <input
+        name="city"
+        required
+        placeholder="شهر"
+        className={`${field} h-11`}
+      />
       <textarea
         name="description"
         required

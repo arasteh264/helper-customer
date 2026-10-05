@@ -9,20 +9,34 @@ export interface Author {
   role: string;
 }
 
-export interface BlogCategory {
-  id: string;
-  label: string;
-}
-
 export interface BlogArticle {
+  id: string;
   slug: string;
   title: string;
   excerpt: string;
-  categoryId: string;
-  author: Author;
-  publishedAt: string; // ISO
+  category: string;
+  categorySlug: string;
+  authorName: string;
+  authorRole: string;
+  publishedAt: string | null;
+  updatedAt: string;
   readingMinutes: number;
-  /** رنگ گرادیان کاور به‌جای عکس واقعی */
   coverTint: string;
+  coverImage: string | null;
+  coverAlt: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  canonicalUrl: string | null;
+  tags: string[];
   content: ContentBlock[];
+}
+
+export type BlogArticleSummary = Omit<BlogArticle, "content">;
+
+export interface BlogPage {
+  items: BlogArticleSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+  categories: { category: string; categorySlug: string }[];
 }
