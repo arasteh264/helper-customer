@@ -1,13 +1,9 @@
 import { ApiError, ApiErrorCode } from "@/src/lib/api/error";
+import { API_BASE_URL } from "@/src/lib/api/base-url";
 import type { BlogArticle, BlogPage } from "../types/blog.types";
 
-const API_URL =
-  process.env.API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:3005";
-
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_URL.replace(/\/$/, "")}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     next: { revalidate: 300, tags: ["blog"] },
   });
   if (!response.ok) {

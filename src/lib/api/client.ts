@@ -1,10 +1,9 @@
 import axios from "axios";
 import { normalizeError } from "./error";
+import { API_BASE_URL } from "./base-url";
 
 export const apiClient = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-    "http://localhost:3005",
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
