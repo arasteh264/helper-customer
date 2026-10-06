@@ -16,7 +16,6 @@ import {
   Mail,
   MessageSquare,
   Pencil,
-  ShieldCheck,
   Smartphone,
   User,
   UserPlus,
@@ -201,17 +200,17 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-card shadow-xl shadow-foreground/[0.06]">
-        <div className="border-b border-foreground/5 bg-gradient-to-b from-primary/[0.06] to-transparent px-6 py-7 text-center sm:px-8">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+    <div className="auth-form-card w-full max-w-md">
+      <div className="overflow-hidden rounded-[1.75rem] border border-[#e5dacf] bg-[#fffdf9] shadow-[0_22px_55px_-28px_rgba(26,60,47,0.35)]">
+        <div className="border-b border-[#efe5d8] bg-[linear-gradient(180deg,rgba(31,122,92,0.08),rgba(255,255,255,0))] px-6 py-7 text-center sm:px-8">
+          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f7a5c] text-white shadow-lg shadow-primary/25">
             {step === "details" ? (
               <UserPlus size={22} />
             ) : (
               <MessageSquare size={22} />
             )}
           </span>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-xl font-semibold tracking-tight text-[#173227]">
             {step === "details"
               ? "ایجاد حساب کاربری"
               : "شماره خود را تأیید کنید"}
@@ -423,7 +422,7 @@ export function RegisterForm() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full gap-2"
+                className="w-full gap-2 rounded-xl bg-primary shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5 hover:bg-primary-hover"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

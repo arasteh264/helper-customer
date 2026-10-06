@@ -13,6 +13,7 @@ import { formatNumber } from "@/src/utils/format";
 import type { DirectorySpecialist } from "../types/catalog.types";
 import type { CatalogCategory } from "../utils/category-mapping";
 import { SpecialistCard } from "@/src/features/home/components/specialist-card";
+import { CategorySvgIcon } from "@/src/features/catalog/components/category-svg-icon";
 import type { Specialty } from "@/src/features/request/types/specialty.types";
 
 const fa = new Intl.NumberFormat("fa-IR");
@@ -45,7 +46,7 @@ export function CategoryPage({
   specialties: Specialty[];
   specialists: DirectorySpecialist[];
 }) {
-  const { label, icon: Icon, imageUrl, tint } = category;
+  const { label, imageUrl, tint, svgKey } = category;
 
   return (
     <div className="space-y-14 pb-8">
@@ -91,7 +92,7 @@ export function CategoryPage({
         </div>
 
         <div
-          className={`mx-auto flex h-40 w-40 items-center justify-center rounded-2xl sm:h-48 sm:w-48 ${tint}`}
+          className={`mx-auto flex h-40 w-40 items-center justify-center rounded-2xl text-primary sm:h-48 sm:w-48 ${tint}`}
         >
           {imageUrl ? (
             <Image
@@ -103,7 +104,7 @@ export function CategoryPage({
               className="h-36 w-36 object-contain sm:h-44 sm:w-44"
             />
           ) : (
-            <Icon size={72} strokeWidth={1.4} />
+            <CategorySvgIcon slug={svgKey} className="h-28 w-28 sm:h-32 sm:w-32" />
           )}
         </div>
       </section>

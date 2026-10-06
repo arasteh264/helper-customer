@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpLeft, Loader2, Search } from "lucide-react";
 
+import { CategorySvgIcon } from "@/src/features/catalog/components/category-svg-icon";
 import {
   normalizeSpecialtyGroup,
   type CatalogCategory,
@@ -76,14 +77,14 @@ export function ServicesExplorer({ initialQuery = "" }: { initialQuery?: string 
         </p>
       ) : (
         <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-          {results.map(({ id, label, icon: Icon, imageUrl, tint, href }) => (
+          {results.map(({ id, label, imageUrl, tint, href, svgKey }) => (
             <li key={id}>
               <Link
                 href={href}
                 className="group relative flex h-full flex-col gap-4 rounded-2xl border border-foreground/10 bg-card p-4 transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-foreground/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-safe:hover:-translate-y-1 sm:p-5"
               >
                 <span
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl ${tint}`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl text-primary ${tint}`}
                 >
                   {imageUrl ? (
                     <Image
@@ -94,7 +95,7 @@ export function ServicesExplorer({ initialQuery = "" }: { initialQuery?: string 
                       className="object-contain"
                     />
                   ) : (
-                    <Icon size={24} />
+                    <CategorySvgIcon slug={svgKey} className="h-7 w-7" />
                   )}
                 </span>
                 <div>

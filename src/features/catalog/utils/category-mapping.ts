@@ -22,10 +22,38 @@ export interface CatalogCategory {
   slug: string;
   label: string;
   icon: LucideIcon;
+  svgKey: string;
   imageUrl: string | null;
   tint: string;
   href: string;
 }
+
+const fallbackSvgKeys: Record<string, string> = {
+  "building-renovation": "repair",
+  "appliance-repair": "repair",
+  "cleaning-services": "cleaning",
+  transportation: "moving",
+  "beauty-services": "beauty",
+  "gardening-services": "gardening",
+  "installation-services": "home",
+  "care-services": "health",
+  "education-services": "education",
+  "automotive-services": "auto",
+  repairs: "repair",
+  cleaning: "cleaning",
+  electrical: "electrical",
+  plumbing: "plumbing",
+  painting: "painting",
+  moving: "moving",
+  education: "education",
+  legal: "legal",
+  tech: "tech",
+  photo: "painting",
+  health: "health",
+  auto: "auto",
+  home: "home",
+  default: "default",
+};
 
 const fallbackIcons: Record<string, LucideIcon> = {
   "building-renovation": Hammer,
@@ -85,12 +113,14 @@ export function normalizeSpecialtyGroup(item: SpecialtyGroup): CatalogCategory {
   const key = slug.toLowerCase();
   const icon = fallbackIcons[key] ?? fallbackIcons.default;
   const tint = fallbackTints[key] ?? fallbackTints.default;
+  const svgKey = fallbackSvgKeys[key] ?? fallbackSvgKeys.default;
 
   return {
     id: item.id,
     slug,
     label: item.name,
     icon,
+    svgKey,
     imageUrl: item.icon ?? null,
     tint,
     href: `/services/${slug}`,

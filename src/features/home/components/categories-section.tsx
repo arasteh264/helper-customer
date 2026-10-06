@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 import { Container } from "@/src/components/shared/container";
 import { SectionHeading } from "@/src/components/shared/section-heading";
+import { CategorySvgIcon } from "@/src/features/catalog/components/category-svg-icon";
 import {
   normalizeSpecialtyGroup,
   type CatalogCategory,
@@ -77,7 +78,7 @@ export function CategoriesSection() {
         ) : (
           <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
             {categories.map(
-              ({ id, label, icon: Icon, imageUrl, tint, href }) => (
+              ({ id, label, imageUrl, tint, href, svgKey }) => (
                 <li key={id}>
                   <Link
                     href={href}
@@ -96,9 +97,9 @@ export function CategoriesSection() {
                       </span>
                     ) : (
                       <span
-                        className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:rotate-[-5deg] group-hover:scale-105 ${tint}`}
+                        className={`flex h-12 w-12 items-center justify-center rounded-2xl text-primary transition-transform group-hover:rotate-[-5deg] group-hover:scale-105 ${tint}`}
                       >
-                        <Icon size={24} />
+                        <CategorySvgIcon slug={svgKey} className="h-7 w-7" />
                       </span>
                     )}
 
@@ -106,8 +107,8 @@ export function CategoriesSection() {
                       <h3 className="text-sm font-semibold leading-6 text-foreground sm:text-base">
                         {label}
                       </h3>
-                      <p className="mt-1 text-xs text-foreground/50">
-                        دیدن خدمات این دسته
+                      <p className="mt-1 text-xs text-foreground/70" aria-label={`دیدن خدمات ${label}`}>
+                        دیدن خدمات {label}
                       </p>
                     </div>
 

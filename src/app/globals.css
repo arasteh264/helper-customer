@@ -60,6 +60,55 @@ body {
   font-family: var(--font-vazirmatn), sans-serif;
 }
 
+@keyframes authFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes softFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.auth-shell {
+  animation: authFadeIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-form-card {
+  animation: authFadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-float {
+  animation: softFloat 6s ease-in-out infinite;
+}
+
+.auth-glow {
+  animation: glowPulse 7s ease-in-out infinite;
+}
+
 input, button, textarea, select {
   font-family: inherit;
   font-feature-settings: inherit;
