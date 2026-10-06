@@ -16,15 +16,24 @@ export function AddressStep({
   value,
   latitude,
   longitude,
+  cityWide = false,
+  serviceRadiusKm = 10,
+  prefersOutOfArea = false,
   onChange,
 }: {
   value: string;
   latitude?: number;
   longitude?: number;
+  cityWide?: boolean;
+  serviceRadiusKm?: number;
+  prefersOutOfArea?: boolean;
   onChange: (patch: {
     address?: string;
     latitude?: number;
     longitude?: number;
+    cityWide?: boolean;
+    serviceRadiusKm?: number;
+    prefersOutOfArea?: boolean;
   }) => void;
 }) {
   const [locating, setLocating] = useState(false);
@@ -80,6 +89,70 @@ export function AddressStep({
           className="w-full resize-y rounded-xl border border-foreground/15 bg-background py-3 ps-10 pe-3.5 text-sm leading-6 outline-none transition-colors placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
         />
       </div>
+
+      <div className="mt-5 rounded-2xl border border-foreground/10 bg-card p-4">
+        <p className="text-sm font-medium text-foreground">محدوده خدمات مورد نیاز</p>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-foreground/10 bg-background px-3 py-2.5 text-sm text-foreground/75">
+            <span>در شهر فعلی</span>
+            <input
+              type="radio"
+              name="service-area-mode"
+              checked={cityWide}
+              onChange={() => onChange({ cityWide: true, serviceRadiusKm: 0 })}
+              className="h-4 w-4 accent-primary"
+            />
+          </label>
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-foreground/10 bg-background px-3 py-2.5 text-sm text-foreground/75">
+            <span>تا شعاع مشخص</span>
+            <input
+              type="radio"
+              name="service-area-mode"
+              checked={!cityWide}
+              onChange={() => onChange({ cityWide: false, serviceRadiusKm: serviceRadiusKm || 10 })}
+              className="h-4 w-4 accent-primary"
+            />
+          </label>
+        </div>
+        <div className="mt-3 flex items-center gap-3">
+          <label htmlFor="radius-km" className="text-xs text-foreground/60">
+            شعاع خدمات (کیلومتر)
+          </label>
+          <input
+            id="radius-km"
+            type="number"
+            min={1}
+            max={200}
+            step={1}
+            value={cityWide ? 0 : serviceRadiusKm}
+            disabled={cityWide}
+            onChange={(event) =>
+              onChange({
+                cityWide: false,
+                serviceRadiusKm: Number(event.target.value) || 10,
+              })
+            }
+            className="h-10 w-24 rounded-xl border border-foreground/15 bg-background px-2 text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-primary/10 bg-primary/[0.03] p-3 text-xs leading-6 text-foreground/60">
+        اگر متخصص در محدوده‌ی مدنظر پیدا نشد، می‌توانید برای درخواست فوری گزینه‌ی
+        «پیشنهاد متخصص خارج از محدوده با هزینه بیشتر» را فعال کنید.
+      </div>
+
+      <label className="mt-4 flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-foreground/10 bg-background px-3 py-2.5 text-sm text-foreground/75">
+        <span>در صورت نبود متخصص در محدوده، امکان پیشنهاد متخصص خارج از محدوده با هزینه بیشتر</span>
+        <input
+          type="checkbox"
+          checked={prefersOutOfArea}
+          onChange={(event) =>
+            onChange({ prefersOutOfArea: event.target.checked })
+          }
+          className="h-4 w-4 accent-primary"
+        />
+      </label>
 
       <p className="mt-5 text-sm font-medium text-foreground">
         موقعیت روی نقشه

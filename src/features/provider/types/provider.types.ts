@@ -149,6 +149,8 @@ export interface ProviderProfile {
   avatarUrl: string | null;
   serviceAreaLatitude: number | null;
   serviceAreaLongitude: number | null;
+  serviceAreaRadiusKm: number | null;
+  serviceAreaCityWide: boolean;
   user: {
     name: string;
     email: string;
@@ -166,5 +168,7 @@ export interface UpdateProviderProfileValues {
   isAvailable?: boolean;
   serviceAreaLatitude?: number | null;
   serviceAreaLongitude?: number | null;
+  serviceAreaRadiusKm?: number | null;
+  serviceAreaCityWide?: boolean;
   workingHours?: ProviderWorkingHour[];
 }

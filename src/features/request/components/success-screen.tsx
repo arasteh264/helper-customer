@@ -73,6 +73,11 @@ export function SuccessScreen({
             پس از تأیید متخصص، شماره تماس و راه هماهنگی در صفحه‌ی پیگیری نمایش
             داده می‌شود.
           </p>
+          {matches.length > 0 && (
+            <p className="mt-2 text-xs text-foreground/50">
+              اگر متخصص پیشنهادی در محدوده‌ی شما نبود، گزینه‌ی پیشنهاد متخصص خارج از محدوده با هزینه بیشتر برای درخواست بعدی فعال می‌شود.
+            </p>
+          )}
         </div>
       ) : matches.length ? (
         <div className="mt-7">

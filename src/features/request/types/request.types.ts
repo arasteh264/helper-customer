@@ -26,6 +26,9 @@ export interface NewRequestDraft {
   address: string;
   latitude?: number;
   longitude?: number;
+  cityWide?: boolean;
+  serviceRadiusKm?: number;
+  prefersOutOfArea?: boolean;
   hasBudget: boolean;
   budgetMin?: number;
   budgetMax?: number;
@@ -39,6 +42,9 @@ export const EMPTY_DRAFT: NewRequestDraft = {
   photoFiles: [],
   urgency: "this_week",
   address: "",
+  cityWide: false,
+  serviceRadiusKm: 10,
+  prefersOutOfArea: false,
   hasBudget: false,
 };
 
