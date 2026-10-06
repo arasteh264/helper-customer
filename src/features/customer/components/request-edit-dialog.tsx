@@ -51,8 +51,8 @@ export function RequestEditDialog({
     latitude?: number;
     longitude?: number;
   }>({
-    latitude: request.latitude,
-    longitude: request.longitude,
+    latitude: request.latitude ?? undefined,
+    longitude: request.longitude ?? undefined,
   });
 
   const {
@@ -82,8 +82,8 @@ export function RequestEditDialog({
       budgetMax: request.budget ? String(request.budget.max) : "",
     });
     setCoordinates({
-      latitude: request.latitude,
-      longitude: request.longitude,
+      latitude: request.latitude ?? undefined,
+      longitude: request.longitude ?? undefined,
     });
     setOpen(true);
   };
