@@ -66,15 +66,12 @@ export function PwaInstallPrompt() {
     const device = getDeviceSupport();
     if (!device.isPhoneOrTablet) return;
 
-    const showPromptTimer = window.setTimeout(() => {
-      setIsIOS(device.isIOS);
-      setIsVisible(true);
-    }, 1200);
-
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       deferredPromptRef.current = event as BeforeInstallPromptEvent;
       setCanInstallNatively(true);
+      setIsIOS(device.isIOS);
+      setIsVisible(true);
     };
 
     const handleAppInstalled = () => {
@@ -89,7 +86,6 @@ export function PwaInstallPrompt() {
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
-      window.clearTimeout(showPromptTimer);
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt,
