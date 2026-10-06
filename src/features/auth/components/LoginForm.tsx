@@ -23,6 +23,11 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { toEnglishDigits } from "@/src/utils/format";
+import { getSession } from "next-auth/react";
+
+async function fetchSessionRole() {
+  return await getSession();
+}
 
 export function LoginForm() {
   const router = useRouter();
@@ -52,8 +57,11 @@ export function LoginForm() {
       return;
     }
 
+    const session = await fetchSessionRole();
+    const nextRoute = session?.user?.role?.toUpperCase() === "PROVIDER" ? "/provider" : "/customer";
+
     toast.success("خوش آمدید");
-    router.push("/");
+    router.push(nextRoute);
   };
 
   return (

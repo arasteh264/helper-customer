@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { toast } from "sonner";
 import Link from "next/link";
 import {
@@ -166,8 +166,11 @@ export function RegisterForm() {
         redirect: false,
       });
 
+      const session = await getSession();
+      const nextRoute = session?.user?.role?.toUpperCase() === "PROVIDER" ? "/provider" : "/customer";
+
       toast.success("حساب شما ساخته شد. خوش آمدید!");
-      router.push(result?.error ? "/login" : "/");
+      router.push(result?.error ? "/login" : nextRoute);
     } catch (err) {
       console.log("verify error:", err);
       setServerError(normalizeError(err).message);
