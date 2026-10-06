@@ -39,9 +39,12 @@ export function JobCard({ job, onAction, busy = false }: JobCardProps) {
         REFUNDED: "بازپرداخت‌شده",
       }[job.paymentStatus]
     : null;
-  const showPhone =
-    !!job.customerPhone &&
-    (job.status === "accepted" || job.status === "in_progress");
+  const paymentConfirmed =
+    job.paymentStatus === "PAID" ||
+    job.customerConfirmed ||
+    ["in_progress", "awaiting_confirmation", "completed"].includes(job.status);
+
+  const showPhone = !!job.customerPhone && paymentConfirmed;
 
   return (
     <article className="rounded-2xl border border-foreground/10 bg-card p-4 sm:p-5">
