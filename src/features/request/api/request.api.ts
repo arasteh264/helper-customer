@@ -214,6 +214,9 @@ export const requestApi = {
         address: draft.address,
         latitude: draft.latitude,
         longitude: draft.longitude,
+        cityWide: !!draft.cityWide,
+        serviceRadiusKm: draft.serviceRadiusKm ?? 10,
+        prefersOutOfArea: !!draft.prefersOutOfArea,
         preferredTime:
           draft.urgency === "asap"
             ? "URGENT"

@@ -130,6 +130,8 @@ export default async function ProviderProfilePage() {
           <ServiceAreaEditor
             initialLatitude={provider.serviceAreaLatitude}
             initialLongitude={provider.serviceAreaLongitude}
+            initialRadiusKm={provider.serviceAreaRadiusKm ?? 10}
+            initialCityWide={provider.serviceAreaCityWide}
           />
         </div>
         <div className="min-w-0 xl:col-span-2">

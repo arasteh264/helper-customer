@@ -70,6 +70,9 @@ export function RequestWizard({
             value={wizard.draft.address}
             latitude={wizard.draft.latitude}
             longitude={wizard.draft.longitude}
+            cityWide={wizard.draft.cityWide}
+            serviceRadiusKm={wizard.draft.serviceRadiusKm}
+            prefersOutOfArea={wizard.draft.prefersOutOfArea}
             onChange={wizard.update}
           />
         )}
