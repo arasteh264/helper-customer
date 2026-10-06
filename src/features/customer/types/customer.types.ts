@@ -75,6 +75,8 @@ export interface Address {
   plaque: string;
   unit?: string;
   postalCode: string;
+  latitude?: number;
+  longitude?: number;
   isDefault: boolean;
 }
 
