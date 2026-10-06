@@ -46,8 +46,8 @@ export function SpecialtyGroupSection({
       </button>
 
       {expanded && (
-        <div className="border-t border-foreground/10 px-3 pb-3 pt-3">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="border-t border-foreground/10 px-2.5 pb-2.5 pt-2.5 sm:px-3 sm:pb-3 sm:pt-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {specialties.map((specialty) => (
               <SpecialtyCard
                 key={specialty.id}

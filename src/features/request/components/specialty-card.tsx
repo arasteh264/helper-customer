@@ -35,6 +35,11 @@ function getSpecialtyIcon(iconName?: string | null) {
   return iconMap[key] ?? Wrench;
 }
 
+const SpecialtyIcon = ({ iconName }: { iconName?: string | null }) => {
+  const Icon = getSpecialtyIcon(iconName);
+  return <Icon size={21} />;
+};
+
 export function SpecialtyCard({
   specialty,
   selected,
@@ -44,8 +49,6 @@ export function SpecialtyCard({
   selected: boolean;
   onSelect: (specialty: Specialty) => void;
 }) {
-  const Icon = getSpecialtyIcon(specialty.icon);
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -60,20 +63,20 @@ export function SpecialtyCard({
       onKeyDown={handleKeyDown}
       aria-pressed={selected}
       className={[
-        "group relative flex h-full w-full flex-col items-start gap-3 rounded-2xl border p-4 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group relative flex h-full w-full flex-col items-start gap-2.5 rounded-xl border p-3 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:gap-3 sm:rounded-2xl sm:p-4",
         selected
           ? "border-primary bg-primary/8 shadow-sm"
           : "border-foreground/10 bg-card hover:border-primary/30 hover:bg-primary/[0.02]",
       ].join(" ")}
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon size={21} />
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-11 sm:w-11">
+        <SpecialtyIcon iconName={specialty.icon} />
       </span>
       <div className="w-full">
-        <p className="text-sm font-semibold text-foreground">
+        <p className="text-[12px] font-semibold leading-5 text-foreground sm:text-sm">
           {specialty.name}
         </p>
-        <p className="mt-1 text-xs leading-5 text-foreground/55">
+        <p className="mt-1 text-[10px] leading-4 text-foreground/55 sm:text-xs sm:leading-5">
           {new Intl.NumberFormat("fa-IR").format(
             specialty.activeProvidersCount,
           )}{" "}

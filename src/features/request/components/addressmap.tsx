@@ -8,7 +8,6 @@ import { MapPin } from "lucide-react";
 const DEFAULT_CENTER: [number, number] = [35.6892, 51.389]; // تهران
 const EPS = 1e-6;
 
-// برای نشان: آدرس تایل را با کلید خودتان جایگزین کنید.
 const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const TILE_ATTR = "© OpenStreetMap";
 
@@ -25,8 +24,14 @@ export default function AddressMap({
   const mapRef = useRef<L.Map | null>(null);
   const onMoveRef = useRef(onMove);
   const propsRef = useRef({ latitude, longitude });
-  onMoveRef.current = onMove;
-  propsRef.current = { latitude, longitude };
+
+  useEffect(() => {
+    onMoveRef.current = onMove;
+  }, [onMove]);
+
+  useEffect(() => {
+    propsRef.current = { latitude, longitude };
+  }, [latitude, longitude]);
 
   // ساخت نقشه (یک بار)
   useEffect(() => {
@@ -71,9 +76,11 @@ export default function AddressMap({
   }, [latitude, longitude]);
 
   return (
-    <div className="relative h-72 overflow-hidden rounded-xl border border-foreground/15">
+    <div className="relative h-72 overflow-hidden rounded-xl border border-foreground/15 bg-muted/40">
       <div ref={elRef} className="h-full w-full" dir="ltr" />
-      {/* پین ثابت وسط نقشه؛ نوک پین روی مرکز است */}
+      <div className="pointer-events-none absolute bottom-2 left-2 z-[1000] rounded-lg border border-foreground/10 bg-background/80 px-2 py-1 text-[10px] text-foreground/60 backdrop-blur-sm">
+        OpenStreetMap
+      </div>
       <MapPin
         size={36}
         className="pointer-events-none absolute left-1/2 top-1/2 z-[1000] -translate-x-1/2 -translate-y-full fill-primary/20 text-primary drop-shadow"

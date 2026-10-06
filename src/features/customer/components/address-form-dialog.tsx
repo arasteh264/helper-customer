@@ -46,7 +46,7 @@ const DEFAULTS: AddressValues = {
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: AddressValues) => Promise<unknown> | unknown;
+  onSubmit: (values: AddressValues) => Promise<boolean | void> | boolean | void;
   initial?: Address;
   isPending?: boolean;
 }
@@ -98,8 +98,8 @@ export function AddressFormDialog({ open, onClose, onSubmit, initial, isPending 
   };
 
   const submit = async (values: AddressValues) => {
-    await onSubmit(values);
-    onClose();
+    const saved = await onSubmit(values);
+    if (saved !== false) onClose();
   };
 
   return (

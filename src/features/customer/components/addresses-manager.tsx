@@ -8,8 +8,17 @@ import { useAddresses } from "../hooks/use-addresses";
 import { AddressCard } from "./address-card";
 import { AddressFormDialog } from "./address-form-dialog";
 
-export function AddressesManager({ initial }: { initial: Address[] }) {
-  const { addresses, create, update, remove, isPending } = useAddresses(initial);
+export function AddressesManager({
+  initial,
+  accessToken,
+}: {
+  initial: Address[];
+  accessToken: string;
+}) {
+  const { addresses, create, update, remove, isPending } = useAddresses(
+    initial,
+    accessToken,
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Address | undefined>(undefined);
 
@@ -66,7 +75,12 @@ export function AddressesManager({ initial }: { initial: Address[] }) {
       <AddressFormDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        onSubmit={(values) => (editing ? update(editing.id, values) : create(values))}
+        onSubmit={async (values) => {
+          const result = await (editing
+            ? update(editing.id, values)
+            : create(values));
+          return result.ok;
+        }}
         initial={editing}
         isPending={isPending}
       />

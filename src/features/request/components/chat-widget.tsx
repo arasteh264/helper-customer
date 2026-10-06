@@ -35,8 +35,11 @@ export function ChatWidget({ participant, persona }: ChatWidgetProps) {
     const hasNewFromOther = messages
       .slice(lastSeenCount.current)
       .some((m) => m.sender !== "customer");
-    if (hasNewFromOther) setHasUnread(true);
-  }, [messages, open]);
+    if (hasNewFromOther) {
+      const next = true;
+      if (hasUnread !== next) setHasUnread(next);
+    }
+  }, [hasUnread, messages, open]);
 
   return (
     <div className="fixed bottom-4 end-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:end-6">

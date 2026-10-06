@@ -18,6 +18,7 @@ import { ReviewForm } from "@/src/features/customer/components/review-form";
 import { Star } from "lucide-react";
 import { formatNumber } from "@/src/utils/format";
 import { ApiError } from "@/src/lib/api/error";
+import { RequestEditDialog } from "@/src/features/customer/components/request-edit-dialog";
 
 export const metadata: Metadata = { title: "پیگیری درخواست | پنل مشتری" };
 
@@ -59,6 +60,15 @@ export default async function CustomerRequestDetailPage({
     }
   }
   const status = REQUEST_STATUS[request.status];
+  const canShowSpecialistContact =
+    !!request.specialist?.phone &&
+    (request.wasPaid ||
+      [
+        "in_progress",
+        "awaiting_confirmation",
+        "completed",
+        "disputed",
+      ].includes(request.status));
   const amountToman =
     request.priceToman ??
     request.finalPriceToman ??
@@ -150,7 +160,7 @@ export default async function CustomerRequestDetailPage({
                 </p>
               </div>
             </div>
-            {request.specialist.phone && (
+            {canShowSpecialistContact ? (
               <a
                 href={`tel:${request.specialist.phone}`}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
@@ -158,6 +168,10 @@ export default async function CustomerRequestDetailPage({
                 <Phone size={16} />
                 تماس با متخصص
               </a>
+            ) : (
+              <div className="rounded-lg border border-foreground/10 bg-background px-3 py-2 text-xs text-foreground/55">
+                شماره متخصص بعد از پرداخت و تأیید وضعیت درخواست نمایش داده می‌شود.
+              </div>
             )}
           </div>
         </SectionCard>
@@ -171,6 +185,13 @@ export default async function CustomerRequestDetailPage({
       )}
 
       <SectionCard title="جزئیات درخواست">
+        {request.status === "awaiting_offers" ? (
+          <RequestEditDialog request={request} />
+        ) : (
+          <p className="mb-5 text-xs text-foreground/50">
+            ویرایش درخواست تا پیش از دریافت پیشنهاد متخصصان امکان‌پذیر است.
+          </p>
+        )}
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-xs text-foreground/50">نشانی محل کار</dt>
