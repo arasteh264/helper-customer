@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { login } from "./features/auth/api/login";
 import { verifyLoginOtp } from "./features/auth/api/verify-login-otp";
-import { ApiError, ApiErrorCode } from "./lib/api/error";
+import { ApiError } from "./lib/api/error";
 import { decodeJwt } from "jose";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

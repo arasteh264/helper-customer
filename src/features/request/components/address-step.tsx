@@ -38,6 +38,10 @@ export function AddressStep({
 }) {
   const [locating, setLocating] = useState(false);
   const hasLocation = latitude !== undefined && longitude !== undefined;
+  const externalMapUrl =
+    hasLocation && latitude !== undefined && longitude !== undefined
+      ? `https://www.google.com/maps?q=${latitude},${longitude}`
+      : "https://www.google.com/maps";
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {

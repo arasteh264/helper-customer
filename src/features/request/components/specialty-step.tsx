@@ -3,6 +3,7 @@
 import { AlertCircle, RotateCcw, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { getCategorySvgKey } from "@/src/features/catalog/utils/category-mapping";
 import {
   useSpecialtyGroupSpecialties,
   useSpecialtyGroups,
@@ -130,10 +131,9 @@ export function SpecialtyStep({
       </p>
 
       {!selectedGroup ? (
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3">
           {groups.map((group) => {
-            const groupKey = (group.slug ?? group.id ?? "").toLowerCase();
-            const Icon = group.icon ? Wrench : Wrench;
+            const symbolId = getCategorySvgKey(group.slug ?? group.id ?? "");
             return (
               <button
                 key={group.id}
@@ -141,13 +141,13 @@ export function SpecialtyStep({
                 onClick={() => handleGroupSelect(group.id)}
                 aria-pressed={selectedGroupId === group.id}
                 className={[
-                  "relative flex items-center gap-3 rounded-2xl border p-4 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  "relative flex items-center gap-2.5 rounded-xl border p-3 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:gap-3 sm:rounded-2xl sm:p-4",
                   selectedGroupId === group.id
                     ? "border-primary bg-primary/8 shadow-sm"
                     : "border-foreground/10 bg-card hover:border-primary/30 hover:bg-primary/[0.02]",
                 ].join(" ")}
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-primary">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-primary sm:h-11 sm:w-11">
                   {group.icon ? (
                     <Image
                       src={group.icon}
@@ -160,21 +160,21 @@ export function SpecialtyStep({
                     <svg
                       viewBox="0 0 64 64"
                       aria-hidden="true"
-                      className="h-6 w-6"
+                      className="h-5 w-5 sm:h-6 sm:w-6"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <use href={`/icons/category-sprite.svg#${groupKey || "default"}`} />
+                      <use href={`/icons/category-sprite.svg#${symbolId}`} />
                     </svg>
                   )}
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-[11px] font-semibold leading-5 text-foreground sm:text-sm">
                     {group.name}
                   </p>
 
-                  <p className="mt-1 text-xs text-foreground/55">
+                  <p className="mt-0.5 text-[10px] text-foreground/55 sm:text-xs">
                     {new Intl.NumberFormat("fa-IR").format(0)} گروه
                   </p>
                 </div>

@@ -46,6 +46,17 @@ export interface ServiceRequestPage {
   counts: Record<ServiceRequestGroup, number>;
 }
 
+export interface UpdateServiceRequestInput {
+  title: string;
+  description: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  scheduledAt: string | null;
+  budgetMin: number | null;
+  budgetMax: number | null;
+}
+
 const authHeaders = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
 });
@@ -82,6 +93,18 @@ export const requestApi = {
       },
     );
     return data;
+  },
+
+  updateMyRequest(
+    id: string,
+    input: UpdateServiceRequestInput,
+    accessToken: string,
+  ) {
+    return apiClient(`/service-requests/${id}`, {
+      method: "PATCH",
+      headers: authHeaders(accessToken),
+      data: input,
+    });
   },
 
   async getPaymentStatus(requestId: string, accessToken: string) {

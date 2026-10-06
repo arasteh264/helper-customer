@@ -7,6 +7,7 @@ import type {
   Customer,
   NotificationPrefs,
   ServiceRequest,
+  Address,
   WalletPayment,
 } from "../types/customer.types";
 
@@ -98,19 +99,42 @@ export const customerApi = {
 
   deleteAccount: () => apiClient("/customer/account", { method: "DELETE" }),
 
-  createAddress: async (values: AddressValues) => {
+  getAddresses: async (accessToken: string): Promise<Address[]> => {
+    const { data } = await apiClient<Address[] | { data: Address[] }>(
+      "/customer/addresses",
+      {
+        method: "GET",
+        headers: authHeaders(accessToken),
+      },
+    );
+    const addresses = Array.isArray(data) ? data : data.data;
+    if (!Array.isArray(addresses)) {
+      throw new Error("پاسخ دریافت آدرس‌ها از سرور معتبر نیست.");
+    }
+    return addresses;
+  },
+
+  createAddress: async (values: AddressValues, accessToken: string) => {
     const { data } = await apiClient<{ id: string }>("/customer/addresses", {
       method: "POST",
+      headers: authHeaders(accessToken),
       data: values,
     });
     return data;
   },
 
-  updateAddress: (id: string, values: AddressValues) =>
-    apiClient(`/customer/addresses/${id}`, { method: "PATCH", data: values }),
+  updateAddress: (id: string, values: AddressValues, accessToken: string) =>
+    apiClient(`/customer/addresses/${id}`, {
+      method: "PATCH",
+      headers: authHeaders(accessToken),
+      data: values,
+    }),
 
-  deleteAddress: (id: string) =>
-    apiClient(`/customer/addresses/${id}`, { method: "DELETE" }),
+  deleteAddress: (id: string, accessToken: string) =>
+    apiClient(`/customer/addresses/${id}`, {
+      method: "DELETE",
+      headers: authHeaders(accessToken),
+    }),
 
   cancelRequest: (id: string, reason?: string) =>
     apiClient(`/api/customer/requests/${id}/cancel`, {

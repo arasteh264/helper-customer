@@ -39,13 +39,16 @@ export function SuccessScreen({
 
   useEffect(() => {
     if (attemptedPreferredInvite.current || !initiallyInvitedProviderId) return;
+
     const preferred = matches.find(
       (provider) => provider.id === initiallyInvitedProviderId,
     );
+
     if (!preferred) return;
+
     attemptedPreferredInvite.current = true;
     void invite(preferred);
-  }, [initiallyInvitedProviderId, matches]);
+  }, [accessToken, initiallyInvitedProviderId, matches, requestId]);
 
   return (
     <div className="mx-auto max-w-3xl px-1 py-5">

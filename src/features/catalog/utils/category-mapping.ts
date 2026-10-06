@@ -110,7 +110,42 @@ const fallbackTints: Record<string, string> = {
 
 export function getCategorySvgKey(value?: string | null): string {
   const normalized = (value ?? "").trim().toLowerCase();
-  return fallbackSvgKeys[normalized] ?? fallbackSvgKeys.default;
+  if (!normalized) return fallbackSvgKeys.default;
+
+  const direct = fallbackSvgKeys[normalized];
+  if (direct) return direct;
+
+  const aliases: Record<string, string> = {
+    ساختمان: "repair",
+    بازسازی: "repair",
+    تعمیرات: "repair",
+    لوازم: "repair",
+    نظافت: "cleaning",
+    حمل: "moving",
+    نقل: "moving",
+    زیبایی: "beauty",
+    باغبانی: "gardening",
+    نصب: "home",
+    راه‌اندازی: "home",
+    مراقبت: "health",
+    پرستاری: "health",
+    آموزش: "education",
+    خودرو: "auto",
+    ماشین: "auto",
+    الکترونیک: "electrical",
+    لوله: "plumbing",
+    نقاشی: "painting",
+    شیشه: "painting",
+    پزشکی: "health",
+    حقوقی: "legal",
+    فناوری: "tech",
+  };
+
+  for (const [keyword, key] of Object.entries(aliases)) {
+    if (normalized.includes(keyword)) return key;
+  }
+
+  return fallbackSvgKeys.default;
 }
 
 export function normalizeSpecialtyGroup(item: SpecialtyGroup): CatalogCategory {

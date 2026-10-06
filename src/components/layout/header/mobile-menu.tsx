@@ -29,18 +29,11 @@ const FOCUSABLE = "a[href], button:not([disabled]), input, summary";
 
 export function MobileMenu({ user }: { user?: HeaderUser | null }) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
@@ -275,6 +268,8 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
     </div>
   );
 
+  const portalTarget = typeof document !== "undefined" ? document.body : null;
+
   return (
     <>
       <button
@@ -289,7 +284,7 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
         <Menu size={22} />
       </button>
 
-      {mounted ? createPortal(drawer, document.body) : null}
+      {portalTarget ? createPortal(drawer, portalTarget) : null}
     </>
   );
 }
