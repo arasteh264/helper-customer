@@ -1,0 +1,577 @@
+[
+  {
+    "name": "ساختمان و بازسازی",
+    "slug": "building-renovation",
+    "icon": "groups/building-renovation.svg",
+    "specialties": [
+      {
+        "name": "نصب کاغذ دیواری",
+        "slug": "wallpaper-installation",
+        "icon": "specialties/wallpaper-installation.svg"
+      },
+      {
+        "name": "عایق‌کاری و آب‌بندی",
+        "slug": "building-waterproofing",
+        "icon": "specialties/building-waterproofing.svg"
+      },
+      {
+        "name": "گچ‌کاری و ترمیم دیوار",
+        "slug": "plastering-and-wall-repair",
+        "icon": "specialties/plastering-and-wall-repair.svg"
+      },
+      {
+        "name": "نصب کف‌پوش",
+        "slug": "flooring-installation",
+        "icon": "specialties/flooring-installation.svg"
+      },
+      {
+        "name": "نقاشی ساختمان",
+        "slug": "house-painting",
+        "icon": "specialties/house-painting.svg"
+      },
+      {
+        "name": "کاشی‌کاری و سرامیک",
+        "slug": "tiling-and-ceramics",
+        "icon": "specialties/tiling-and-ceramics.svg"
+      },
+      {
+        "name": "بنایی و دیوارچینی",
+        "slug": "masonry-and-bricklaying",
+        "icon": "specialties/masonry-and-bricklaying.svg"
+      },
+      {
+        "name": "اجرای سقف کاذب",
+        "slug": "false-ceiling-installation",
+        "icon": "specialties/false-ceiling-installation.svg"
+      },
+      {
+        "name": "تعمیر و تعویض در و پنجره",
+        "slug": "door-window-repair",
+        "icon": "specialties/door-window-repair.svg"
+      },
+      {
+        "name": "کابینت و کمد دیواری",
+        "slug": "cabinet-and-wardrobe",
+        "icon": "specialties/cabinet-and-wardrobe.svg"
+      },
+      {
+        "name": "لوله‌کشی و تعمیرات آب",
+        "slug": "plumbing-repair",
+        "icon": "specialties/plumbing-repair.svg"
+      }
+    ]
+  },
+  {
+    "name": "تعمیرات لوازم",
+    "slug": "appliance-repair",
+    "icon": "groups/appliance-repair.svg",
+    "specialties": [
+      {
+        "name": "تعمیر ماشین ظرفشویی",
+        "slug": "dishwasher-repair",
+        "icon": "specialties/dishwasher-repair.svg"
+      },
+      {
+        "name": "تعمیر مایکروویو",
+        "slug": "microwave-repair",
+        "icon": "specialties/microwave-repair.svg"
+      },
+      {
+        "name": "تعمیر جاروبرقی",
+        "slug": "vacuum-cleaner-repair",
+        "icon": "specialties/vacuum-cleaner-repair.svg"
+      },
+      {
+        "name": "تعمیر ماشین لباسشویی",
+        "slug": "washing-machine-repair",
+        "icon": "specialties/washing-machine-repair.svg"
+      },
+      {
+        "name": "تعمیر یخچال و فریزر",
+        "slug": "refrigerator-freezer-repair",
+        "icon": "specialties/refrigerator-freezer-repair.svg"
+      },
+      {
+        "name": "تعمیر کولر گازی",
+        "slug": "air-conditioner-repair",
+        "icon": "specialties/air-conditioner-repair.svg"
+      },
+      {
+        "name": "تعمیر اجاق گاز و فر",
+        "slug": "stove-and-oven-repair",
+        "icon": "specialties/stove-and-oven-repair.svg"
+      },
+      {
+        "name": "تعمیر تلویزیون",
+        "slug": "television-repair",
+        "icon": "specialties/television-repair.svg"
+      },
+      {
+        "name": "تعمیر آب‌گرم‌کن",
+        "slug": "water-heater-repair",
+        "icon": "specialties/water-heater-repair.svg"
+      },
+      {
+        "name": "تعمیر چرخ خیاطی",
+        "slug": "sewing-machine-repair",
+        "icon": "specialties/sewing-machine-repair.svg"
+      }
+    ]
+  },
+  {
+    "name": "نظافت",
+    "slug": "cleaning-services",
+    "icon": "groups/cleaning-services.svg",
+    "specialties": [
+      {
+        "name": "قالیشویی و شست‌وشوی فرش",
+        "slug": "carpet-cleaning",
+        "icon": "specialties/carpet-cleaning.svg"
+      },
+      {
+        "name": "نظافت شیشه و پنجره",
+        "slug": "window-cleaning",
+        "icon": "specialties/window-cleaning.svg"
+      },
+      {
+        "name": "نظافت پس از بازسازی",
+        "slug": "post-renovation-cleaning",
+        "icon": "specialties/post-renovation-cleaning.svg"
+      },
+      {
+        "name": "نظافت منزل",
+        "slug": "home-cleaning",
+        "icon": "specialties/home-cleaning.svg"
+      },
+      {
+        "name": "نظافت محل کار و دفتر",
+        "slug": "office-cleaning",
+        "icon": "specialties/office-cleaning.svg"
+      },
+      {
+        "name": "مبل‌شویی و شست‌وشوی صندلی",
+        "slug": "upholstery-cleaning",
+        "icon": "specialties/upholstery-cleaning.svg"
+      },
+      {
+        "name": "تشک‌شویی",
+        "slug": "mattress-cleaning",
+        "icon": "specialties/mattress-cleaning.svg"
+      },
+      {
+        "name": "نظافت راه‌پله و مشاعات",
+        "slug": "stairwell-cleaning",
+        "icon": "specialties/stairwell-cleaning.svg"
+      },
+      {
+        "name": "شست‌وشوی پرده",
+        "slug": "curtain-cleaning",
+        "icon": "specialties/curtain-cleaning.svg"
+      },
+      {
+        "name": "نظافت آشپزخانه و سرویس بهداشتی",
+        "slug": "kitchen-bathroom-cleaning",
+        "icon": "specialties/kitchen-bathroom-cleaning.svg"
+      }
+    ]
+  },
+  {
+    "name": "حمل‌ونقل",
+    "slug": "transportation",
+    "icon": "groups/transportation.svg",
+    "specialties": [
+      {
+        "name": "اسباب‌کشی محل کار",
+        "slug": "office-moving",
+        "icon": "specialties/office-moving.svg"
+      },
+      {
+        "name": "حمل بار با وانت",
+        "slug": "pickup-truck-transport",
+        "icon": "specialties/pickup-truck-transport.svg"
+      },
+      {
+        "name": "اسباب‌کشی بین‌شهری",
+        "slug": "intercity-moving",
+        "icon": "specialties/intercity-moving.svg"
+      },
+      {
+        "name": "اسباب‌کشی منزل",
+        "slug": "home-moving",
+        "icon": "specialties/home-moving.svg"
+      },
+      {
+        "name": "بسته‌بندی اثاثیه",
+        "slug": "moving-packing",
+        "icon": "specialties/moving-packing.svg"
+      },
+      {
+        "name": "حمل اثاثیه سنگین",
+        "slug": "heavy-furniture-transport",
+        "icon": "specialties/heavy-furniture-transport.svg"
+      },
+      {
+        "name": "کارگر جابه‌جایی و تخلیه بار",
+        "slug": "moving-loading-unloading",
+        "icon": "specialties/moving-loading-unloading.svg"
+      },
+      {
+        "name": "حمل بار با کامیون",
+        "slug": "truck-cargo-transport",
+        "icon": "specialties/truck-cargo-transport.svg"
+      },
+      {
+        "name": "حمل خرده‌بار شهری",
+        "slug": "local-small-cargo",
+        "icon": "specialties/local-small-cargo.svg"
+      },
+      {
+        "name": "چیدمان و بازکردن اثاثیه",
+        "slug": "furniture-assembly-moving",
+        "icon": "specialties/furniture-assembly-moving.svg"
+      }
+    ]
+  },
+  {
+    "name": "خدمات زیبایی",
+    "slug": "beauty-services",
+    "icon": "groups/beauty-services.svg",
+    "specialties": [
+      {
+        "name": "رنگ و مش مو",
+        "slug": "hair-coloring",
+        "icon": "specialties/hair-coloring.svg"
+      },
+      {
+        "name": "پاک‌سازی و مراقبت پوست",
+        "slug": "facial-skincare",
+        "icon": "specialties/facial-skincare.svg"
+      },
+      {
+        "name": "اصلاح و مرتب‌سازی ابرو",
+        "slug": "eyebrow-grooming",
+        "icon": "specialties/eyebrow-grooming.svg"
+      },
+      {
+        "name": "کوتاهی و آرایش مو",
+        "slug": "haircut-and-styling",
+        "icon": "specialties/haircut-and-styling.svg"
+      },
+      {
+        "name": "میکاپ و گریم",
+        "slug": "makeup-and-beauty",
+        "icon": "specialties/makeup-and-beauty.svg"
+      },
+      {
+        "name": "کاشت و طراحی ناخن",
+        "slug": "nail-care-and-design",
+        "icon": "specialties/nail-care-and-design.svg"
+      },
+      {
+        "name": "خدمات مژه",
+        "slug": "eyelash-services",
+        "icon": "specialties/eyelash-services.svg"
+      },
+      {
+        "name": "آرایش عروس",
+        "slug": "bridal-makeup",
+        "icon": "specialties/bridal-makeup.svg"
+      },
+      {
+        "name": "اصلاح و پیرایش آقایان",
+        "slug": "mens-grooming",
+        "icon": "specialties/mens-grooming.svg"
+      },
+      {
+        "name": "بافت و اکستنشن مو",
+        "slug": "hair-braiding-and-extensions",
+        "icon": "specialties/hair-braiding-and-extensions.svg"
+      }
+    ]
+  },
+  {
+    "name": "خدمات باغبانی",
+    "slug": "gardening-services",
+    "icon": "groups/gardening-services.svg",
+    "specialties": [
+      {
+        "name": "نگهداری و رسیدگی به باغچه",
+        "slug": "garden-maintenance",
+        "icon": "specialties/garden-maintenance.svg"
+      },
+      {
+        "name": "کاشت درخت و گیاه",
+        "slug": "tree-and-planting",
+        "icon": "specialties/tree-and-planting.svg"
+      },
+      {
+        "name": "سم‌پاشی فضای سبز",
+        "slug": "garden-pest-control",
+        "icon": "specialties/garden-pest-control.svg"
+      },
+      {
+        "name": "هرس درخت و درختچه",
+        "slug": "tree-and-shrub-pruning",
+        "icon": "specialties/tree-and-shrub-pruning.svg"
+      },
+      {
+        "name": "طراحی فضای سبز",
+        "slug": "landscape-design",
+        "icon": "specialties/landscape-design.svg"
+      },
+      {
+        "name": "چمن‌کاری و ترمیم چمن",
+        "slug": "lawn-installation-and-repair",
+        "icon": "specialties/lawn-installation-and-repair.svg"
+      },
+      {
+        "name": "نصب و تعمیر آبیاری",
+        "slug": "irrigation-installation-repair",
+        "icon": "specialties/irrigation-installation-repair.svg"
+      },
+      {
+        "name": "نگهداری گل و گیاه آپارتمانی",
+        "slug": "indoor-plant-care",
+        "icon": "specialties/indoor-plant-care.svg"
+      },
+      {
+        "name": "رسیدگی به گلخانه",
+        "slug": "greenhouse-maintenance",
+        "icon": "specialties/greenhouse-maintenance.svg"
+      },
+      {
+        "name": "ساخت و نگهداری روف‌گاردن",
+        "slug": "rooftop-garden-maintenance",
+        "icon": "specialties/rooftop-garden-maintenance.svg"
+      }
+    ]
+  },
+  {
+    "name": "نصب و راه‌اندازی",
+    "slug": "installation-services",
+    "icon": "groups/installation-services.svg",
+    "specialties": [
+      {
+        "name": "نصب دستگاه تصفیه آب",
+        "slug": "water-purifier-installation",
+        "icon": "specialties/water-purifier-installation.svg"
+      },
+      {
+        "name": "نصب و تعویض روشنایی",
+        "slug": "lighting-installation",
+        "icon": "specialties/lighting-installation.svg"
+      },
+      {
+        "name": "نصب تجهیزات خانه هوشمند",
+        "slug": "smart-home-installation",
+        "icon": "specialties/smart-home-installation.svg"
+      },
+      {
+        "name": "نصب کولر گازی و اسپلیت",
+        "slug": "air-conditioner-installation",
+        "icon": "specialties/air-conditioner-installation.svg"
+      },
+      {
+        "name": "نصب دوربین مداربسته",
+        "slug": "cctv-installation",
+        "icon": "specialties/cctv-installation.svg"
+      },
+      {
+        "name": "نصب و راه‌اندازی شبکه",
+        "slug": "network-installation",
+        "icon": "specialties/network-installation.svg"
+      },
+      {
+        "name": "نصب پرده و کرکره",
+        "slug": "curtain-and-blind-installation",
+        "icon": "specialties/curtain-and-blind-installation.svg"
+      },
+      {
+        "name": "نصب قفل و دستگیره در",
+        "slug": "door-lock-installation",
+        "icon": "specialties/door-lock-installation.svg"
+      },
+      {
+        "name": "مونتاژ و نصب مبلمان",
+        "slug": "furniture-assembly",
+        "icon": "specialties/furniture-assembly.svg"
+      },
+      {
+        "name": "نصب آنتن و تجهیزات گیرنده",
+        "slug": "antenna-installation",
+        "icon": "specialties/antenna-installation.svg"
+      }
+    ]
+  },
+  {
+    "name": "مراقبت و پرستاری",
+    "slug": "care-services",
+    "icon": "groups/care-services.svg",
+    "specialties": [
+      {
+        "name": "همراهی و مراقبت روزانه از سالمند",
+        "slug": "elderly-companionship",
+        "icon": "specialties/elderly-companionship.svg"
+      },
+      {
+        "name": "نگهداری ساعتی از کودک",
+        "slug": "babysitting",
+        "icon": "specialties/babysitting.svg"
+      },
+      {
+        "name": "مراقبت روزانه از نوزاد",
+        "slug": "newborn-care",
+        "icon": "specialties/newborn-care.svg"
+      },
+      {
+        "name": "پرستاری و مراقبت در منزل",
+        "slug": "home-nursing-care",
+        "icon": "specialties/home-nursing-care.svg"
+      },
+      {
+        "name": "همراهی سالمند برای امور روزانه",
+        "slug": "elderly-daily-assistance",
+        "icon": "specialties/elderly-daily-assistance.svg"
+      },
+      {
+        "name": "مراقبت از کودک در منزل",
+        "slug": "in-home-childcare",
+        "icon": "specialties/in-home-childcare.svg"
+      },
+      {
+        "name": "همراهی بیمار در منزل",
+        "slug": "patient-home-companionship",
+        "icon": "specialties/patient-home-companionship.svg"
+      },
+      {
+        "name": "مراقبت شبانه از سالمند",
+        "slug": "overnight-elderly-care",
+        "icon": "specialties/overnight-elderly-care.svg"
+      },
+      {
+        "name": "همراهی کودک در رفت‌وآمد",
+        "slug": "child-transport-companionship",
+        "icon": "specialties/child-transport-companionship.svg"
+      },
+      {
+        "name": "مراقبت ساعتی از سالمند",
+        "slug": "hourly-elderly-care",
+        "icon": "specialties/hourly-elderly-care.svg"
+      }
+    ]
+  },
+  {
+    "name": "خدمات آموزشی",
+    "slug": "education-services",
+    "icon": "groups/education-services.svg",
+    "specialties": [
+      {
+        "name": "آمادگی آزمون و کنکور",
+        "slug": "exam-preparation",
+        "icon": "specialties/exam-preparation.svg"
+      },
+      {
+        "name": "آموزش کامپیوتر و مهارت‌های دیجیتال",
+        "slug": "computer-training",
+        "icon": "specialties/computer-training.svg"
+      },
+      {
+        "name": "آموزش هنر و نقاشی",
+        "slug": "art-and-painting-lessons",
+        "icon": "specialties/art-and-painting-lessons.svg"
+      },
+      {
+        "name": "تدریس خصوصی زبان",
+        "slug": "private-language-lessons",
+        "icon": "specialties/private-language-lessons.svg"
+      },
+      {
+        "name": "تدریس خصوصی ریاضی",
+        "slug": "private-math-lessons",
+        "icon": "specialties/private-math-lessons.svg"
+      },
+      {
+        "name": "آموزش موسیقی",
+        "slug": "music-lessons",
+        "icon": "specialties/music-lessons.svg"
+      },
+      {
+        "name": "آموزش برنامه‌نویسی",
+        "slug": "programming-lessons",
+        "icon": "specialties/programming-lessons.svg"
+      },
+      {
+        "name": "کمک‌درسی و رفع اشکال مدرسه",
+        "slug": "school-tutoring",
+        "icon": "specialties/school-tutoring.svg"
+      },
+      {
+        "name": "آموزش نرم‌افزارهای تخصصی",
+        "slug": "professional-software-training",
+        "icon": "specialties/professional-software-training.svg"
+      },
+      {
+        "name": "آموزش خیاطی و هنرهای دستی",
+        "slug": "sewing-and-handicrafts-lessons",
+        "icon": "specialties/sewing-and-handicrafts-lessons.svg"
+      }
+    ]
+  },
+  {
+    "name": "خدمات خودرو",
+    "slug": "automotive-services",
+    "icon": "groups/automotive-services.svg",
+    "specialties": [
+      {
+        "name": "باتری‌به‌باتری و امداد باتری",
+        "slug": "car-battery-assistance",
+        "icon": "specialties/car-battery-assistance.svg"
+      },
+      {
+        "name": "تعویض لاستیک در محل",
+        "slug": "mobile-tire-service",
+        "icon": "specialties/mobile-tire-service.svg"
+      },
+      {
+        "name": "کارواش و صفرشویی خودرو",
+        "slug": "car-detailing",
+        "icon": "specialties/car-detailing.svg"
+      },
+      {
+        "name": "تعویض روغن در محل",
+        "slug": "mobile-oil-change",
+        "icon": "specialties/mobile-oil-change.svg"
+      },
+      {
+        "name": "عیب‌یابی و دیاگ خودرو",
+        "slug": "car-diagnostics",
+        "icon": "specialties/car-diagnostics.svg"
+      },
+      {
+        "name": "مکانیک سیار",
+        "slug": "mobile-car-mechanic",
+        "icon": "specialties/mobile-car-mechanic.svg"
+      },
+      {
+        "name": "صافکاری و نقاشی خودرو",
+        "slug": "car-bodywork-and-paint",
+        "icon": "specialties/car-bodywork-and-paint.svg"
+      },
+      {
+        "name": "تعمیر شیشه و چراغ خودرو",
+        "slug": "car-glass-and-light-repair",
+        "icon": "specialties/car-glass-and-light-repair.svg"
+      },
+      {
+        "name": "سرویس و تعمیر ترمز",
+        "slug": "brake-service-and-repair",
+        "icon": "specialties/brake-service-and-repair.svg"
+      },
+      {
+        "name": "تنظیم موتور خودرو",
+        "slug": "engine-tuning",
+        "icon": "specialties/engine-tuning.svg"
+      }
+    ]
+  }
+]

@@ -21,22 +21,22 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
-      <aside className="relative order-2 hidden overflow-hidden bg-gradient-to-br from-primary to-primary-hover px-12 py-10 lg:flex lg:w-1/2 lg:flex-col lg:justify-between xl:w-2/5">
+    <div className="auth-shell flex min-h-screen flex-col bg-[#f5f1e9] lg:flex-row">
+      <aside className="auth-float relative order-2 hidden overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.18),_transparent_36%),linear-gradient(135deg,#1f7a5c_0%,#255c4b_52%,#1a453a_100%)] px-12 py-10 lg:flex lg:w-1/2 lg:flex-col lg:justify-between xl:w-[42%]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          className="auth-glow pointer-events-none absolute inset-0 opacity-[0.1]"
           style={{
             backgroundImage:
               "radial-gradient(currentColor 1px, transparent 1px)",
             backgroundSize: "22px 22px",
           }}
         />
-        <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary-foreground/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-primary-foreground/10 blur-3xl" />
+        <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#f9d5a5]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-[#f3e5cb]/20 blur-3xl" />
 
         <div className="relative flex items-center gap-3 text-primary-foreground">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground text-lg font-bold text-primary shadow-lg">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fffaf3] text-lg font-bold text-[#1d5d49] shadow-lg shadow-black/10">
             H
           </span>
           <span className="text-xl font-semibold">Helper</span>
@@ -53,7 +53,7 @@ export default function AuthLayout({
             هستند.
           </p>
 
-          <div className="mt-8 max-w-md">
+          <div className="mt-8 max-w-md rounded-[1.75rem] border border-white/10 bg-white/5 p-2 shadow-[0_24px_60px_-30px_rgba(9,31,24,0.75)] backdrop-blur-sm">
             <SpecialistsScene />
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function AuthLayout({
                 key={text}
                 className="flex items-center gap-3 text-primary-foreground/90"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-foreground/10">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fffaf3]/10">
                   <Icon size={16} />
                 </span>
                 <span className="text-sm">{text}</span>
@@ -94,7 +94,7 @@ export default function AuthLayout({
         </div>
       </aside>
 
-      <main className="relative order-1 flex flex-1 flex-col bg-background">
+      <main className="relative order-1 flex flex-1 flex-col bg-[#f5f1e9]">
         <header className="flex items-center justify-between px-6 pt-6 sm:px-10">
           <div className="flex items-center gap-2 lg:hidden">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
@@ -114,7 +114,7 @@ export default function AuthLayout({
 
         <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-sm">
-            <div className="mb-6 flex items-center gap-2 rounded-xl bg-primary/5 px-4 py-3 text-xs text-foreground/70 lg:hidden">
+            <div className="mb-6 flex items-center gap-2 rounded-2xl border border-[#e4d9c5] bg-[#fffaf2] px-4 py-3 text-xs text-[#3b544c] shadow-sm lg:hidden">
               <ShieldCheck size={16} className="shrink-0 text-primary" />
               متخصصان تأییدشده، رزرو در کمتر از دو دقیقه
             </div>

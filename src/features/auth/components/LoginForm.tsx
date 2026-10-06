@@ -57,13 +57,13 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-card shadow-xl shadow-foreground/[0.06]">
-        <div className="border-b border-foreground/5 bg-gradient-to-b from-primary/[0.06] to-transparent px-6 py-7 text-center sm:px-8">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-primary/25">
+    <div className="auth-form-card w-full max-w-md">
+      <div className="overflow-hidden rounded-[1.75rem] border border-[#e5dacf] bg-[#fffdf9] shadow-[0_22px_55px_-28px_rgba(26,60,47,0.35)]">
+        <div className="border-b border-[#efe5d8] bg-[linear-gradient(180deg,rgba(31,122,92,0.08),rgba(255,255,255,0))] px-6 py-7 text-center sm:px-8">
+          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f7a5c] text-lg font-bold text-white shadow-lg shadow-primary/25">
             H
           </span>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-xl font-semibold tracking-tight text-[#173227]">
             خوش آمدید
           </h1>
           <p className="mt-1.5 text-sm text-foreground/60">
@@ -189,20 +189,13 @@ export function LoginForm() {
               <span className="h-px flex-1 bg-foreground/10" />
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-full gap-2"
+            <Link
+              href="/login-otp"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#e2d7c7] bg-[#f7f0e6] text-sm font-medium text-[#234b3f] transition-colors hover:bg-[#f0e7d7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
             >
-              <Link
-                href="/login-otp"
-                className="w-full flex justify-center items-center gap-1.5"
-              >
-                <MessageSquare size={15} />
-                <span> ورود با رمز یکبارمصرف</span>
-              </Link>
-            </Button>
+              <MessageSquare size={15} />
+              <span>ورود با رمز یکبارمصرف</span>
+            </Link>
           </form>
         </div>
 
