@@ -132,6 +132,7 @@ export function SpecialtyStep({
       {!selectedGroup ? (
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {groups.map((group) => {
+            const groupKey = (group.slug ?? group.id ?? "").toLowerCase();
             const Icon = group.icon ? Wrench : Wrench;
             return (
               <button
@@ -156,7 +157,15 @@ export function SpecialtyStep({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <Icon size={21} />
+                    <svg
+                      viewBox="0 0 64 64"
+                      aria-hidden="true"
+                      className="h-6 w-6"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <use href={`/icons/category-sprite.svg#${groupKey || "default"}`} />
+                    </svg>
                   )}
                 </span>
 

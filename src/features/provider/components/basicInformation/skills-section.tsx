@@ -192,6 +192,7 @@ export function SkillsSection({
           {groups.map((group) => {
             const Icon = getIcon(group.icon);
             const isSelected = activeGroupId === group.id;
+            const groupKey = (group.slug ?? group.id ?? "").toLowerCase();
 
             return (
               <button
@@ -215,7 +216,15 @@ export function SkillsSection({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <Icon size={18} />
+                    <svg
+                      viewBox="0 0 64 64"
+                      aria-hidden="true"
+                      className="h-5 w-5"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <use href={`/icons/category-sprite.svg#${groupKey || "default"}`} />
+                    </svg>
                   )}
                 </span>
 

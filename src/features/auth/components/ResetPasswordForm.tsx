@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -105,7 +105,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
       setView("success");
     } catch {
-      setServerError("تغییر رمز عبور انجام نشد. لطفاً دوباره تلاش کنید.");
+      setServerError("ØªØºÛŒÛŒØ± Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø§Ù†Ø¬Ø§Ù… Ù†Ø´Ø¯. Ù„Ø·ÙØ§Ù‹ Ø¯ÙˆØ¨Ø§Ø±Ù‡ ØªÙ„Ø§Ø´ Ú©Ù†ÛŒØ¯.");
     }
   };
 
@@ -117,41 +117,41 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             <CardHeader
               tone="danger"
               icon={<TimerOff size={22} />}
-              title="لینک بازیابی معتبر نیست"
-              description="این لینک منقضی شده یا قبلاً استفاده شده است. دوباره درخواست بازیابی بدهید."
+              title="Ù„ÛŒÙ†Ú© Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ Ù…Ø¹ØªØ¨Ø± Ù†ÛŒØ³Øª"
+              description="Ø§ÛŒÙ† Ù„ÛŒÙ†Ú© Ù…Ù†Ù‚Ø¶ÛŒ Ø´Ø¯Ù‡ ÛŒØ§ Ù‚Ø¨Ù„Ø§Ù‹ Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø´Ø¯Ù‡ Ø§Ø³Øª. Ø¯ÙˆØ¨Ø§Ø±Ù‡ Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ Ø¨Ø¯Ù‡ÛŒØ¯."
             />
             <div className="px-6 py-6 sm:px-8">
               <Button size="lg" className="w-full" >
-                <Link href="/forgot-password">درخواست کد جدید</Link>
+                <Link href="/forgot-password">Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ú©Ø¯ Ø¬Ø¯ÛŒØ¯</Link>
               </Button>
             </div>
           </>
         )}
 
-        {/* ───── موفقیت ───── */}
+        {/* â”€â”€â”€â”€â”€ Ù…ÙˆÙÙ‚ÛŒØª â”€â”€â”€â”€â”€ */}
         {view === "success" && (
           <>
             <CardHeader
               tone="success"
               icon={<CheckCircle2 size={22} />}
-              title="رمز عبور تغییر کرد"
-              description="حالا می‌توانید با رمز عبور جدید وارد حساب خود شوید"
+              title="Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± ØªØºÛŒÛŒØ± Ú©Ø±Ø¯"
+              description="Ø­Ø§Ù„Ø§ Ù…ÛŒâ€ŒØªÙˆØ§Ù†ÛŒØ¯ Ø¨Ø§ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¬Ø¯ÛŒØ¯ ÙˆØ§Ø±Ø¯ Ø­Ø³Ø§Ø¨ Ø®ÙˆØ¯ Ø´ÙˆÛŒØ¯"
             />
             <div className="px-6 py-6 sm:px-8">
               <Button size="lg" className="w-full" >
-                <Link href="/login">ورود به حساب</Link>
+                <Link href="/login">ÙˆØ±ÙˆØ¯ Ø¨Ù‡ Ø­Ø³Ø§Ø¨</Link>
               </Button>
             </div>
           </>
         )}
 
-        {/* ───── فرم رمز جدید ───── */}
+        {/* â”€â”€â”€â”€â”€ ÙØ±Ù… Ø±Ù…Ø² Ø¬Ø¯ÛŒØ¯ â”€â”€â”€â”€â”€ */}
         {view === "form" && (
           <>
             <CardHeader
               icon={<LockKeyhole size={22} />}
-              title="تعیین رمز عبور جدید"
-              description="یک رمز عبور قوی انتخاب کنید که قبلاً استفاده نکرده‌اید"
+              title="ØªØ¹ÛŒÛŒÙ† Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¬Ø¯ÛŒØ¯"
+              description="ÛŒÚ© Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ù‚ÙˆÛŒ Ø§Ù†ØªØ®Ø§Ø¨ Ú©Ù†ÛŒØ¯ Ú©Ù‡ Ù‚Ø¨Ù„Ø§Ù‹ Ø§Ø³ØªÙØ§Ø¯Ù‡ Ù†Ú©Ø±Ø¯Ù‡â€ŒØ§ÛŒØ¯"
             />
 
             <div className="px-6 py-6 sm:px-8">
@@ -171,7 +171,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">رمز عبور جدید</Label>
+                  <Label htmlFor="password">Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¬Ø¯ÛŒØ¯</Label>
                   <div className="relative">
                     <Lock
                       size={18}
@@ -183,7 +183,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                       autoComplete="new-password"
                       autoFocus
                       dir="ltr"
-                      placeholder="حداقل ۸ کاراکتر"
+                      placeholder="Ø­Ø¯Ø§Ù‚Ù„ Û¸ Ú©Ø§Ø±Ø§Ú©ØªØ±"
                       error={!!errors.password}
                       aria-invalid={!!errors.password}
                       aria-describedby="password-hint"
@@ -195,7 +195,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute left-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       aria-label={
-                        showPassword ? "پنهان کردن رمز عبور" : "نمایش رمز عبور"
+                        showPassword ? "Ù¾Ù†Ù‡Ø§Ù† Ú©Ø±Ø¯Ù† Ø±Ù…Ø² Ø¹Ø¨ÙˆØ±" : "Ù†Ù…Ø§ÛŒØ´ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ±"
                       }
                       aria-pressed={showPassword}
                     >
@@ -217,7 +217,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                       id="password-hint"
                       className="text-xs text-foreground/50"
                     >
-                      ترکیبی از حروف انگلیسی و عدد، حداقل ۸ کاراکتر
+                      ØªØ±Ú©ÛŒØ¨ÛŒ Ø§Ø² Ø­Ø±ÙˆÙ Ø§Ù†Ú¯Ù„ÛŒØ³ÛŒ Ùˆ Ø¹Ø¯Ø¯ØŒ Ø­Ø¯Ø§Ù‚Ù„ Û¸ Ú©Ø§Ø±Ø§Ú©ØªØ±
                     </p>
                   )}
                 </div>
@@ -231,10 +231,10 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="animate-spin" size={18} />
-                      در حال ذخیره…
+                      Ø¯Ø± Ø­Ø§Ù„ Ø°Ø®ÛŒØ±Ù‡â€¦
                     </>
                   ) : (
-                    "ذخیره رمز عبور"
+                    "Ø°Ø®ÛŒØ±Ù‡ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ±"
                   )}
                 </Button>
               </form>
@@ -246,9 +246,10 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       {view === "form" && (
         <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-foreground/45">
           <ShieldCheck size={14} />
-          بعد از تغییر رمز، رمز قبلی دیگر معتبر نخواهد بود
+          Ø¨Ø¹Ø¯ Ø§Ø² ØªØºÛŒÛŒØ± Ø±Ù…Ø²ØŒ Ø±Ù…Ø² Ù‚Ø¨Ù„ÛŒ Ø¯ÛŒÚ¯Ø± Ù…Ø¹ØªØ¨Ø± Ù†Ø®ÙˆØ§Ù‡Ø¯ Ø¨ÙˆØ¯
         </p>
       )}
     </div>
   );
 }
+

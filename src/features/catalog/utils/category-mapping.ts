@@ -108,12 +108,17 @@ const fallbackTints: Record<string, string> = {
   default: "bg-primary/10 text-primary",
 };
 
+export function getCategorySvgKey(value?: string | null): string {
+  const normalized = (value ?? "").trim().toLowerCase();
+  return fallbackSvgKeys[normalized] ?? fallbackSvgKeys.default;
+}
+
 export function normalizeSpecialtyGroup(item: SpecialtyGroup): CatalogCategory {
   const slug = item.slug ?? item.id;
   const key = slug.toLowerCase();
   const icon = fallbackIcons[key] ?? fallbackIcons.default;
   const tint = fallbackTints[key] ?? fallbackTints.default;
-  const svgKey = fallbackSvgKeys[key] ?? fallbackSvgKeys.default;
+  const svgKey = getCategorySvgKey(key);
 
   return {
     id: item.id,
