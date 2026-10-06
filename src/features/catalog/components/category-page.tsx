@@ -11,7 +11,10 @@ import {
 
 import { formatNumber } from "@/src/utils/format";
 import type { DirectorySpecialist } from "../types/catalog.types";
-import type { CatalogCategory } from "../utils/category-mapping";
+import {
+  getCategorySvgKey,
+  type CatalogCategory,
+} from "../utils/category-mapping";
 import { SpecialistCard } from "@/src/features/home/components/specialist-card";
 import { CategorySvgIcon } from "@/src/features/catalog/components/category-svg-icon";
 import type { Specialty } from "@/src/features/request/types/specialty.types";

@@ -1,7 +1,6 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useFormContext } from "react-hook-form";
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
@@ -9,9 +8,11 @@ import { Label } from "@/src/components/ui/label";
 import { PasswordStrength } from "../PasswordStrength";
 import type { SpecialistRegisterValues } from "../../schemas/specialist-register.schema";
 import { FieldError, ICON_CLS, SectionTitle } from "./shared";
+import { LegalModal } from "../legal-modal";
 
 export function PasswordSection() {
   const [show, setShow] = useState(false);
+  const [legalType, setLegalType] = useState<"terms" | "privacy" | null>(null);
   const {
     register,
     watch,
@@ -70,18 +71,32 @@ export function PasswordSection() {
             {...register("terms")}
           />
           <span>
-            <Link href="/terms" target="_blank" className="font-medium text-primary hover:underline">
+            <button
+              type="button"
+              onClick={() => setLegalType("terms")}
+              className="font-medium text-primary hover:underline"
+            >
               قوانین و مقررات
-            </Link>{" "}
+            </button>{" "}
             و{" "}
-            <Link href="/privacy" target="_blank" className="font-medium text-primary hover:underline">
+            <button
+              type="button"
+              onClick={() => setLegalType("privacy")}
+              className="font-medium text-primary hover:underline"
+            >
               حریم خصوصی
-            </Link>{" "}
+            </button>{" "}
             را می‌پذیرم
           </span>
         </label>
         <FieldError id="terms-error" message={errors.terms?.message} />
       </div>
+
+      <LegalModal
+        open={legalType !== null}
+        onClose={() => setLegalType(null)}
+        type={legalType ?? "terms"}
+      />
     </>
   );
 }
