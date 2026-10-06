@@ -8,10 +8,30 @@ import { ServiceWorkerRegistration } from "./service-worker-registration";
 import { PwaInstallPrompt } from "./pwa-install-prompt";
 
 const vazirmatn = localFont({
-  src: "../assets/fonts/Vazirmatn[wght].woff2",
+  src: [
+    {
+      path: "../assets/fonts/Vazirmatn-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../assets/fonts/Vazirmatn-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../assets/fonts/Vazirmatn-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../assets/fonts/Vazirmatn-ExtraBold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+  ],
   variable: "--font-vazirmatn",
   display: "swap",
-  weight: "100 900",
 });
 
 export const metadata: Metadata = {

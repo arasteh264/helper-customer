@@ -14,7 +14,9 @@ export default async function MainLayout({
       <SiteHeader
         user={session?.user ? { name: session.user.name ?? "کاربر" } : null}
       />
-      {children}
+      <div id="main-content" tabIndex={-1} className="outline-none">
+        {children}
+      </div>
       <SiteFooter />
     </>
   );
