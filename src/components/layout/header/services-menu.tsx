@@ -5,10 +5,16 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 
 import { ButtonLink } from "@/src/components/shared/button-link";
-import { serviceMenuItems } from "./nav-data";
 import { ICONS } from "@/src/features/provider/lib/icons";
+import type { ServiceMenuItem } from "./nav-data";
 
-export function ServicesMenu({ active }: { active: boolean }) {
+export function ServicesMenu({
+  active,
+  items = [],
+}: {
+  active: boolean;
+  items?: ServiceMenuItem[];
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | undefined>(undefined);
@@ -85,7 +91,7 @@ export function ServicesMenu({ active }: { active: boolean }) {
         <div className="flex overflow-hidden rounded-2xl border border-foreground/10 bg-card shadow-2xl shadow-foreground/[0.12]">
           <div className="flex-1 p-3">
             <ul className="grid grid-cols-2 gap-1">
-              {serviceMenuItems.slice(0, 10).map((item) => {
+              {items.slice(0, 10).map((item) => {
                 const Icon = ICONS[item.icon];
                 return (
                   <li key={item.href}>

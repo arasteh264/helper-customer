@@ -1,9 +1,11 @@
-import { ArrowLeft } from "lucide-react";
-
 import { Container } from "@/src/components/shared/container";
-import { ButtonLink } from "@/src/components/shared/button-link";
+import { ProviderStartButton } from "./provider-start-button";
 
-export function ProviderFinalCta() {
+export function ProviderFinalCta({
+  authenticated,
+}: {
+  authenticated: boolean;
+}) {
   return (
     <section className="py-16 sm:py-20">
       <Container>
@@ -14,12 +16,14 @@ export function ProviderFinalCta() {
           />
           <h2 className="relative text-2xl font-bold sm:text-3xl">آماده‌اید شروع کنید؟</h2>
           <p className="relative mx-auto mt-3 max-w-md text-sm leading-7 text-primary-foreground/85 sm:text-base">
-            ثبت‌نام رایگان است و فقط چند دقیقه طول می‌کشد.
+            {authenticated
+              ? "پروفایل متخصص را به حساب فعلی‌تان اضافه کنید؛ نیازی به ثبت‌نام دوباره نیست."
+              : "اگر حساب ندارید، ثبت‌نام کنید؛ اگر وارد حساب شده‌اید، پروفایل متخصص را با همان حساب بسازید."}
           </p>
-          <ButtonLink href="/register?role=specialist" variant="light" size="lg" className="relative mt-7">
-            شروع ثبت‌نام رایگان
-            <ArrowLeft size={18} />
-          </ButtonLink>
+          <ProviderStartButton
+            authenticated={authenticated}
+            className="relative mt-7"
+          />
         </div>
       </Container>
     </section>

@@ -122,11 +122,13 @@ export default async function CustomerRequestDetailPage({
       </SectionCard>
 
       <RequestPaymentActions
+        key={`${id}-${request.status}-${request.dispute?.updatedAt ?? ""}`}
         requestId={id}
         requestStatus={request.status}
         amountToman={amountToman}
         walletBalance={walletBalance}
         initialPayment={payment}
+        initialDispute={request.dispute ?? null}
         accessToken={session.accessToken}
       />
 

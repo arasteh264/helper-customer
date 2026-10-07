@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AlertCircle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
@@ -8,12 +8,17 @@ import { AlertCircle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { StatusBadge } from "@/src/components/shared/status-badge";
 import { formatMoney } from "@/src/utils/format";
+import { formatDateTime } from "@/src/utils/format";
 import { ApiErrorCode, normalizeError } from "@/src/lib/api/error";
 import {
   requestApi,
   type ServiceRequestPayment,
 } from "@/src/features/request/api/request.api";
-import type { RequestStatus } from "../types/customer.types";
+import type {
+  DisputeReason,
+  RequestStatus,
+  ServiceRequestDispute,
+} from "../types/customer.types";
 
 const PAYMENT_STATUS: Record<
   ServiceRequestPayment["status"],
@@ -31,6 +36,7 @@ export function RequestPaymentActions({
   amountToman,
   walletBalance,
   initialPayment,
+  initialDispute,
   accessToken,
 }: {
   requestId: string;
@@ -38,11 +44,31 @@ export function RequestPaymentActions({
   amountToman?: number;
   walletBalance?: number;
   initialPayment: ServiceRequestPayment | null;
+  initialDispute: ServiceRequestDispute | null;
   accessToken: string;
 }) {
   const router = useRouter();
   const [payment, setPayment] = useState(initialPayment);
   const [busy, setBusy] = useState(false);
+  const [disputeFormOpen, setDisputeFormOpen] = useState(false);
+  const [disputeReason, setDisputeReason] = useState<DisputeReason>(
+    initialDispute?.reason ?? "WORK_NOT_COMPLETED",
+  );
+  const [disputeDescription, setDisputeDescription] = useState(
+    initialDispute?.description ?? "",
+  );
+  const [dispute, setDispute] = useState(initialDispute);
+  const [disputeMessages, setDisputeMessages] = useState(
+    initialDispute?.messages ?? [],
+  );
+  const [followUp, setFollowUp] = useState("");
+  const isDisputed = requestStatus === "disputed";
+  const hasDisputeCase = dispute !== null;
+  useEffect(() => {
+    if (!isDisputed) return;
+    const interval = window.setInterval(() => router.refresh(), 20_000);
+    return () => window.clearInterval(interval);
+  }, [isDisputed, router]);
   const walletShortfall =
     amountToman != null && walletBalance != null
       ? Math.max(0, amountToman - walletBalance)
@@ -112,17 +138,12 @@ export function RequestPaymentActions({
     }
   };
 
-  const submitCompletionAction = async (action: "confirm" | "dispute") => {
+  const confirmCompletion = async () => {
     if (busy) return;
     setBusy(true);
     try {
-      if (action === "confirm") {
-        await requestApi.confirmCompletion(requestId, accessToken);
-        toast.success("اتمام کار تأیید شد.");
-      } else {
-        await requestApi.dispute(requestId, accessToken);
-        toast.success("درخواست بررسی اختلاف ثبت شد.");
-      }
+      await requestApi.confirmCompletion(requestId, accessToken);
+      toast.success("اتمام کار تأیید شد.");
       router.refresh();
     } catch {
       toast.error("ثبت پاسخ شما انجام نشد. دوباره تلاش کنید.");
@@ -131,10 +152,130 @@ export function RequestPaymentActions({
     }
   };
 
+  const confirmDisputedCompletion = async () => {
+    if (busy) return;
+    const confirmed = window.confirm(
+      "با تأیید، اختلاف بسته می‌شود و مبلغ طبق روال به متخصص پرداخت خواهد شد. ادامه می‌دهید؟",
+    );
+    if (!confirmed) return;
+
+    setBusy(true);
+    try {
+      await requestApi.confirmDisputedCompletion(requestId, accessToken);
+      toast.success("اختلاف پس گرفته شد و انجام کار تأیید شد.");
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "تأیید انجام کار و بستن اختلاف انجام نشد.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveDispute = async () => {
+    if (busy) return;
+    if (disputeDescription.trim().length < 10) {
+      toast.error("شرح اختلاف را حداقل در ۱۰ نویسه وارد کنید.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await requestApi.dispute(
+        requestId,
+        accessToken,
+        { reason: disputeReason, description: disputeDescription.trim() },
+        isDisputed,
+      );
+      setDispute((current) => ({
+        ...current,
+        reason: disputeReason,
+        description: disputeDescription.trim(),
+        updatedAt: new Date().toISOString(),
+        messages: disputeMessages,
+        resolved: false,
+        resolution: null,
+        resolutionNote: null,
+      }));
+      toast.success(
+        isDisputed
+          ? "شرح اختلاف به‌روزرسانی شد."
+          : "اختلاف برای بررسی ثبت شد.",
+      );
+      setDisputeFormOpen(false);
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "ثبت تغییرات اختلاف انجام نشد.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitFollowUp = async () => {
+    if (busy) return;
+    if (followUp.trim().length < 2) {
+      toast.error("پیام پیگیری را وارد کنید.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { data: message } = await requestApi.addDisputeMessage(
+        requestId,
+        accessToken,
+        followUp.trim(),
+      );
+      setDisputeMessages((current) => [
+        ...current,
+        {
+          id: message.id,
+          body: message.body,
+          createdAt: message.createdAt,
+          authorId: message.author.id,
+          authorName: message.author.name,
+          authorRole: message.author.role,
+        },
+      ]);
+      setDispute((current) =>
+        current
+          ? {
+              ...current,
+              updatedAt: message.createdAt,
+              messages: [
+                ...current.messages,
+                {
+                  id: message.id,
+                  body: message.body,
+                  createdAt: message.createdAt,
+                  authorId: message.author.id,
+                  authorName: message.author.name,
+                  authorRole: message.author.role,
+                },
+              ],
+            }
+          : current,
+      );
+      setFollowUp("");
+      toast.success("پیام پیگیری ارسال شد.");
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "ارسال پیام انجام نشد.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const showPayment = requestStatus === "awaiting_payment" || payment !== null;
-  const showCompletion = requestStatus === "awaiting_confirmation";
-  if (!showPayment && !showCompletion && requestStatus !== "disputed")
-    return null;
+  const showCompletion =
+    requestStatus === "awaiting_confirmation" && !isDisputed;
+  if (!showPayment && !showCompletion && !hasDisputeCase) return null;
 
   return (
     <>
@@ -234,7 +375,7 @@ export function RequestPaymentActions({
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => submitCompletionAction("confirm")}
+              onClick={confirmCompletion}
               disabled={busy}
               className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
             >
@@ -247,21 +388,222 @@ export function RequestPaymentActions({
             </button>
             <button
               type="button"
-              onClick={() => submitCompletionAction("dispute")}
+              onClick={() => setDisputeFormOpen((open) => !open)}
               disabled={busy}
               className="h-11 rounded-lg border border-destructive/30 px-4 text-sm font-medium text-destructive disabled:opacity-50"
             >
               ثبت اختلاف
             </button>
           </div>
+          {disputeFormOpen ? (
+            <div className="mt-5 space-y-4 rounded-xl border border-destructive/20 bg-background p-4">
+              <label className="block space-y-2 text-sm font-medium">
+                دلیل اختلاف
+                <select
+                  value={disputeReason}
+                  onChange={(event) =>
+                    setDisputeReason(event.target.value as DisputeReason)
+                  }
+                  className="h-11 w-full rounded-lg border border-foreground/15 bg-background px-3 font-normal"
+                >
+                  <option value="WORK_NOT_COMPLETED">کار انجام نشده یا ناقص است</option>
+                  <option value="WORK_QUALITY">کیفیت انجام کار مورد قبول نیست</option>
+                  <option value="PRICE_DISAGREEMENT">اختلاف بر سر مبلغ یا هزینه</option>
+                  <option value="PROVIDER_NO_SHOW">متخصص برای انجام کار حاضر نشد</option>
+                  <option value="OTHER">سایر موارد</option>
+                </select>
+              </label>
+              <label className="block space-y-2 text-sm font-medium">
+                شرح اختلاف
+                <textarea
+                  value={disputeDescription}
+                  onChange={(event) => setDisputeDescription(event.target.value)}
+                  minLength={10}
+                  maxLength={2000}
+                  rows={4}
+                  className="w-full rounded-lg border border-foreground/15 bg-background p-3 font-normal leading-6"
+                  placeholder="جزئیات اختلاف را برای بررسی بهتر توضیح دهید."
+                />
+              </label>
+              <button
+                type="button"
+                onClick={saveDispute}
+                disabled={busy || disputeDescription.trim().length < 10}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+              >
+                {busy ? <Loader2 size={16} className="animate-spin" /> : null}
+                ثبت اختلاف
+              </button>
+            </div>
+          ) : null}
         </SectionCard>
       ) : null}
 
-      {requestStatus === "disputed" ? (
-        <SectionCard title="بررسی اختلاف">
-          <p className="text-sm leading-7 text-foreground/65">
-            اختلاف شما ثبت شده و وضعیت آن از طریق backend پیگیری می‌شود.
-          </p>
+      {hasDisputeCase ? (
+        <SectionCard
+          title={dispute?.resolved ? "نتیجه‌ی رسیدگی به اختلاف" : "پیگیری اختلاف"}
+          description={
+            dispute?.resolved
+              ? "پرونده بسته شده است؛ شرح، پیام‌ها و نتیجه‌ی ثبت‌شده را مشاهده کنید."
+              : "می‌توانید شرح اولیه را ویرایش کنید و پیام تکمیلی برای تیم رسیدگی یا متخصص بفرستید."
+          }
+        >
+          <div className="space-y-4">
+            {dispute?.resolved ? (
+              <p className="rounded-lg bg-foreground/[0.04] p-3 text-sm leading-6">
+                نتیجه:{" "}
+                {dispute.resolution === "PROVIDER"
+                  ? "به نفع متخصص"
+                  : dispute.resolution === "BUYER"
+                    ? "به نفع مشتری"
+                    : "ثبت نشده"}
+                {dispute.resolutionNote ? ` — ${dispute.resolutionNote}` : ""}
+              </p>
+            ) : null}
+            {!dispute?.resolved ? (
+              <>
+                {isDisputed ? (
+                  <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-3">
+                    <p className="text-sm leading-6">
+                      اگر با متخصص به توافق رسیده‌اید، می‌توانید اختلاف را پس
+                      بگیرید و انجام کار را تأیید کنید. با این کار پرونده بسته
+                      و مبلغ طبق روال برای متخصص تسویه می‌شود.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={confirmDisputedCompletion}
+                      disabled={busy}
+                      className="mt-3 inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                    >
+                      {busy ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <CheckCircle2 size={16} />
+                      )}
+                      پس گرفتن اختلاف و تأیید کار
+                    </button>
+                  </div>
+                ) : null}
+                <label className="block space-y-2 text-sm font-medium">
+                  دلیل اختلاف
+                  <select
+                    value={disputeReason}
+                    onChange={(event) =>
+                      setDisputeReason(event.target.value as DisputeReason)
+                    }
+                    className="h-11 w-full rounded-lg border border-foreground/15 bg-background px-3 font-normal"
+                    disabled={
+                      dispute?.reason === "CUSTOMER_NON_PAYMENT" || !isDisputed
+                    }
+                  >
+                    {dispute?.reason === "CUSTOMER_NON_PAYMENT" ? (
+                      <option value="CUSTOMER_NON_PAYMENT">
+                        اختلاف پرداخت ثبت‌شده از طرف متخصص
+                      </option>
+                    ) : null}
+                    <option value="WORK_NOT_COMPLETED">
+                      کار انجام نشده یا ناقص است
+                    </option>
+                    <option value="WORK_QUALITY">
+                      کیفیت انجام کار مورد قبول نیست
+                    </option>
+                    <option value="PRICE_DISAGREEMENT">
+                      اختلاف بر سر مبلغ یا هزینه
+                    </option>
+                    <option value="PROVIDER_NO_SHOW">
+                      متخصص برای انجام کار حاضر نشد
+                    </option>
+                    <option value="OTHER">سایر موارد</option>
+                  </select>
+                </label>
+                {dispute?.reason === "CUSTOMER_NON_PAYMENT" ? (
+                  <p className="text-xs leading-6 text-foreground/55">
+                    این پرونده از طرف متخصص درباره‌ی پرداخت ثبت شده است.
+                  </p>
+                ) : null}
+                <label className="block space-y-2 text-sm font-medium">
+                  شرح اختلاف
+                  <textarea
+                    value={disputeDescription}
+                    onChange={(event) =>
+                      setDisputeDescription(event.target.value)
+                    }
+                    minLength={10}
+                    maxLength={2000}
+                    rows={4}
+                    className="w-full rounded-lg border border-foreground/15 bg-background p-3 font-normal leading-6"
+                    readOnly={!isDisputed}
+                  />
+                </label>
+                {isDisputed ? (
+                  <button
+                    type="button"
+                    onClick={saveDispute}
+                    disabled={busy || disputeDescription.trim().length < 10}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-foreground/15 px-4 text-sm font-medium disabled:opacity-50"
+                  >
+                    {busy ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : null}
+                    ذخیره‌ی تغییرات
+                  </button>
+                ) : null}
+              </>
+            ) : null}
+
+            {disputeMessages.length ? (
+              <ol className="space-y-3 border-t border-foreground/10 pt-4">
+                {disputeMessages.map((message) => (
+                  <li
+                    key={message.id}
+                    className="rounded-lg bg-foreground/[0.04] p-3"
+                  >
+                    <div className="flex flex-wrap justify-between gap-2 text-xs text-foreground/55">
+                      <span>
+                        {message.authorRole === "PROVIDER"
+                          ? "پاسخ متخصص"
+                          : message.authorRole === "ADMIN"
+                            ? "پاسخ پشتیبانی"
+                            : "پیام شما"}
+                      </span>
+                      <time dateTime={message.createdAt}>
+                        {formatDateTime(message.createdAt)}
+                      </time>
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
+                      {message.body}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+            {!dispute?.resolved ? (
+              <>
+                <label className="block space-y-2 text-sm font-medium">
+                  پیام پیگیری
+                  <textarea
+                    value={followUp}
+                    onChange={(event) => setFollowUp(event.target.value)}
+                    maxLength={2000}
+                    rows={3}
+                    className="w-full rounded-lg border border-foreground/15 bg-background p-3 font-normal leading-6"
+                    placeholder="مدرک یا توضیح تکمیلی را اینجا بنویسید."
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={submitFollowUp}
+                  disabled={busy || followUp.trim().length < 2}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                >
+                  {busy ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : null}
+                  ارسال پیگیری
+                </button>
+              </>
+            ) : null}
+          </div>
         </SectionCard>
       ) : null}
     </>

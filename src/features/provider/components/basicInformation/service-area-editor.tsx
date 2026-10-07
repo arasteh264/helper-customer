@@ -21,12 +21,10 @@ export function ServiceAreaEditor({
   initialLatitude,
   initialLongitude,
   initialRadiusKm = 10,
-  initialCityWide = false,
 }: {
   initialLatitude: number | null;
   initialLongitude: number | null;
   initialRadiusKm?: number | null;
-  initialCityWide?: boolean;
 }) {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     initialLatitude !== null && initialLongitude !== null
@@ -34,7 +32,6 @@ export function ServiceAreaEditor({
       : null,
   );
   const [radiusKm, setRadiusKm] = useState<number>(initialRadiusKm ?? 10);
-  const [cityWide, setCityWide] = useState<boolean>(initialCityWide);
   const [dirty, setDirty] = useState(false);
   const [locating, setLocating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -76,8 +73,7 @@ export function ServiceAreaEditor({
         {
           serviceAreaLatitude: Number(coords.lat.toFixed(6)),
           serviceAreaLongitude: Number(coords.lng.toFixed(6)),
-          serviceAreaRadiusKm: cityWide ? 0 : Math.max(1, Number(radiusKm) || 10),
-          serviceAreaCityWide: cityWide,
+          serviceAreaRadiusKm: Math.min(200, Math.max(1, Number(radiusKm) || 10)),
         },
         session.accessToken,
       );
@@ -100,61 +96,33 @@ export function ServiceAreaEditor({
         روی نقشه کلیک کنید یا پین را بکشید تا مرکز محدوده‌ی کارتان مشخص شود.
       </p>
 
-      <div className="mb-4 grid gap-3 rounded-2xl border border-foreground/10 bg-card p-3 md:grid-cols-2">
-        <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-foreground/10 bg-background px-3 py-2.5 text-sm text-foreground/75">
-          <span>در کل شهر فعال هستم</span>
-          <input
-            type="radio"
-            name="provider-area-mode"
-            checked={cityWide}
-            onChange={() => {
-              setCityWide(true);
-              setDirty(true);
-            }}
-            className="h-4 w-4 accent-primary"
-          />
+      <div className="mb-4 flex items-center gap-3">
+        <label htmlFor="provider-radius" className="text-xs text-foreground/60">
+          شعاع خدمات (کیلومتر)
         </label>
-        <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-foreground/10 bg-background px-3 py-2.5 text-sm text-foreground/75">
-          <span>تا شعاع مشخص</span>
-          <input
-            type="radio"
-            name="provider-area-mode"
-            checked={!cityWide}
-            onChange={() => {
-              setCityWide(false);
-              setDirty(true);
-            }}
-            className="h-4 w-4 accent-primary"
-          />
-        </label>
+        <input
+          id="provider-radius"
+          type="number"
+          min={1}
+          max={200}
+          step={1}
+          value={radiusKm}
+          onChange={(event) => {
+            const next = Number(event.target.value) || 10;
+            setRadiusKm(Math.min(200, Math.max(1, next)));
+            setDirty(true);
+          }}
+          className="h-10 w-24 rounded-xl border border-foreground/15 bg-background px-2 text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+        />
+        <span className="text-xs text-foreground/50">
+          درخواست‌ها فقط تا این فاصله به شما پیشنهاد می‌شوند.
+        </span>
       </div>
-
-      {!cityWide && (
-        <div className="mb-4 flex items-center gap-3">
-          <label htmlFor="provider-radius" className="text-xs text-foreground/60">
-            شعاع خدمات (کیلومتر)
-          </label>
-          <input
-            id="provider-radius"
-            type="number"
-            min={1}
-            max={200}
-            step={1}
-            value={radiusKm}
-            onChange={(event) => {
-              const next = Number(event.target.value) || 10;
-              setRadiusKm(next);
-              setDirty(true);
-            }}
-            className="h-10 w-24 rounded-xl border border-foreground/15 bg-background px-2 text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-          />
-        </div>
-      )}
 
       <ServiceAreaMap
         latitude={coords?.lat}
         longitude={coords?.lng}
-        radiusKm={cityWide ? undefined : radiusKm}
+        radiusKm={radiusKm}
         onMove={move}
       />
 

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AlertCircle, Check, Loader2, Wrench } from "lucide-react";
 import Image from "next/image";
@@ -39,6 +40,7 @@ export function SkillsSection({
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [loadingGroupId, setLoadingGroupId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -124,6 +126,7 @@ export function SkillsSection({
 
       await providerApi.updateSpecialties(selectedIds, accessToken);
       toast.success("انتخاب تخصصها با موفقیت ذخیره شد");
+      router.refresh();
     } catch {
       setError("ذخیرهسازی تخصصها انجام نشد. لطفا دوباره تلاش کنید.");
       toast.error("ذخیرهسازی تخصصها انجام نشد");

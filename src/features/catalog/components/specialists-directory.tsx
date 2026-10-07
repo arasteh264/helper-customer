@@ -47,7 +47,9 @@ export function SpecialistsDirectory({
 }) {
   const router = useRouter();
   const [specialists, setSpecialists] = useState(initialSpecialists);
-  const [specialistsTotal, setSpecialistsTotal] = useState(initialSpecialistsTotal);
+  const [specialistsTotal, setSpecialistsTotal] = useState(
+    initialSpecialistsTotal,
+  );
   const [filters, setFilters] = useState<SpecialistFilters>(DEFAULT_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -233,11 +235,12 @@ export function SpecialistsDirectory({
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[17rem_1fr]">
         {/* فیلترها - دسکتاپ */}
         <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl border border-foreground/10 bg-card p-5">
-            <p className="mb-4 text-sm font-semibold text-foreground">
+          <div className="sticky top-24 rounded-3xl border border-foreground/10 bg-card p-5 shadow-sm">
+            <p className="mb-4 flex items-center gap-2 text-sm font-bold text-foreground">
+              <SlidersHorizontal size={16} className="text-primary" />
               فیلترها
             </p>
             {FiltersPanel}
@@ -246,7 +249,7 @@ export function SpecialistsDirectory({
 
         <div>
           {/* نوار جستجو و مرتب‌سازی */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="rounded-2xl border border-foreground/10 bg-card p-3 shadow-sm sm:flex sm:items-center sm:gap-3">
             <div className="relative flex-1">
               <Search
                 size={17}
@@ -257,14 +260,14 @@ export function SpecialistsDirectory({
                 value={filters.query}
                 onChange={(e) => update({ query: e.target.value })}
                 placeholder="جستجو در نام یا تخصص…"
-                className="h-11 w-full rounded-xl border border-foreground/15 bg-card pe-10 ps-4 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                className="h-11 w-full rounded-xl border border-foreground/10 bg-foreground/[0.025] pe-10 ps-4 text-sm outline-none transition-colors focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10"
               />
             </div>
 
             <button
               type="button"
               onClick={() => setFiltersOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-card px-4 py-2.5 text-sm font-medium text-foreground/75 transition-colors hover:border-primary/40 hover:text-primary lg:hidden"
+              className="mt-2 inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-foreground/10 bg-background px-4 text-sm font-medium text-foreground/75 transition-colors hover:border-primary/40 hover:text-primary sm:mt-0 lg:hidden"
             >
               <SlidersHorizontal size={16} />
               فیلترها
@@ -278,7 +281,8 @@ export function SpecialistsDirectory({
             <select
               value={filters.sort}
               onChange={(e) => update({ sort: e.target.value as SortOption })}
-              className="h-11 rounded-xl border border-foreground/15 bg-card px-3.5 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+              aria-label="مرتب‌سازی متخصصان"
+              className="mt-2 h-11 w-full rounded-xl border border-foreground/10 bg-background px-3.5 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10 sm:mt-0 sm:w-auto"
             >
               {SORTS.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -336,7 +340,7 @@ export function SpecialistsDirectory({
               </p>
             </div>
           ) : (
-            <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {results.map((s) => (
                 <li key={s.id}>
                   <SpecialistCard specialist={s} />

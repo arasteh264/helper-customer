@@ -30,7 +30,12 @@ function isStepComplete(step: WizardStepId, draft: NewRequestDraft) {
         draft.title.trim().length >= 5 && draft.description.trim().length >= 20
       );
     case "address":
-      return draft.address.trim().length >= 8;
+      return (
+        draft.address.trim().length >= 8 &&
+        draft.plaque.trim().length > 0 &&
+        draft.latitude !== undefined &&
+        draft.longitude !== undefined
+      );
     case "schedule":
       return draft.urgency !== "scheduled" || !!draft.scheduledAt;
     default:

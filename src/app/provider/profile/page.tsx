@@ -6,6 +6,7 @@ import {
   BriefcaseBusiness,
   Clock3,
   FileCheck2,
+  House,
   MapPinned,
   UserRound,
 } from "lucide-react";
@@ -13,16 +14,15 @@ import {
 import { auth } from "@/src/auth";
 import { providerApi } from "@/src/features/provider/api/provider.api";
 import { getProfileCompletion } from "@/src/features/provider/lib/completion";
-import { AvailabilityEditor } from "@/src/features/provider/components/availability/availability-editor";
 import { ProfileCompletionCard } from "@/src/features/provider/components/profile-completion-card";
 import { VerificationSection } from "@/src/features/provider/components/basicInformation/verification-section";
 import { ProfileForm } from "@/src/features/provider/components/basicInformation/profile-form";
 import { ServiceAreaEditor } from "@/src/features/provider/components/basicInformation/service-area-editor";
+import { ProviderAddressEditor } from "@/src/features/provider/components/basicInformation/provider-address-editor";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { NotificationPreferencesPanel } from "@/src/features/notifications/components/notification-preferences-panel";
 import { notificationPreferencesApi } from "@/src/features/notifications/api/notification-preferences.api";
 import { SkillsSection } from "@/src/features/provider/components/basicInformation/skills-section";
-import { buildAvailabilityDays } from "@/src/features/provider/lib/availability";
 import { PortfolioUploader } from "@/src/features/provider/components/Portfolio/portfolio-uploader";
 import type { VerificationDoc } from "@/src/features/provider/types/provider.types";
 
@@ -36,12 +36,7 @@ export default async function ProviderProfilePage() {
     providerApi.getProfile(session.accessToken),
     notificationPreferencesApi.get(session.accessToken).catch(() => null),
   ]);
-  const days = buildAvailabilityDays(provider.workingHours);
-  const { percent, items } = getProfileCompletion(
-    provider,
-    [],
-    provider.workingHours,
-  );
+  const { percent, items } = getProfileCompletion(provider, []);
   const docs: VerificationDoc[] = [
     {
       id: "NATIONAL_CARD",
@@ -66,7 +61,7 @@ export default async function ProviderProfilePage() {
     <div className="space-y-5">
       <PageHeader
         title="پروفایل حرفه‌ای"
-        description="اطلاعات، تخصص و زمان‌های فعالیت‌تان را مدیریت کنید."
+        description="اطلاعات و تخصص‌های حرفه‌ای‌تان را مدیریت کنید."
         action={
           <span
             className={`inline-flex h-9 items-center gap-2 self-start rounded-full px-3 text-xs font-medium sm:self-auto ${
@@ -92,8 +87,8 @@ export default async function ProviderProfilePage() {
         {[
           { href: "#basic", label: "اطلاعات پایه", Icon: UserRound },
           { href: "#skills", label: "تخصص‌ها", Icon: BriefcaseBusiness },
-          { href: "#availability", label: "ساعات کاری", Icon: Clock3 },
           { href: "#service-area", label: "محدوده فعالیت", Icon: MapPinned },
+          { href: "#private-address", label: "نشانی محرمانه", Icon: House },
           { href: "#documents", label: "مدارک", Icon: FileCheck2 },
           { href: "#portfolio", label: "نمونه‌کار", Icon: BriefcaseBusiness },
           { href: "#notifications", label: "اعلان‌ها", Icon: Bell },
@@ -121,17 +116,18 @@ export default async function ProviderProfilePage() {
         </div>
         <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-5">
           <VerificationSection docs={docs} />
-          <AvailabilityEditor
-            initial={days}
-            accessToken={session.accessToken}
-          />
         </div>
         <div className="min-w-0 xl:col-span-2">
           <ServiceAreaEditor
             initialLatitude={provider.serviceAreaLatitude}
             initialLongitude={provider.serviceAreaLongitude}
             initialRadiusKm={provider.serviceAreaRadiusKm ?? 10}
-            initialCityWide={provider.serviceAreaCityWide}
+          />
+        </div>
+        <div className="min-w-0 xl:col-span-2">
+          <ProviderAddressEditor
+            initialAddress={provider.providerAddress}
+            initialAddressType={provider.providerAddressType}
           />
         </div>
         <div className="min-w-0 xl:col-span-2">

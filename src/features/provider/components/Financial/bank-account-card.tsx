@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { BadgeCheck, Landmark, Loader2, Save } from "lucide-react";
+import {
+  BadgeCheck,
+  Loader2,
+  Save,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { SectionCard } from "@/src/components/shared/section-card";
@@ -10,7 +14,12 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { BankAccount } from "../../types/types";
 import { walletApi } from "../../api/wallet.api";
-import { maskSheba, toEnglishDigits } from "../../utils/format";
+import {
+  getIranianBankName,
+  isValidIranianSheba,
+  maskSheba,
+  normalizeSheba,
+} from "../../utils/format";
 
 export function BankAccountCard({
   bank,
@@ -22,16 +31,24 @@ export function BankAccountCard({
   const [savedBank, setSavedBank] = useState(bank);
   const [holderName, setHolderName] = useState(bank?.holder ?? "");
   const [sheba, setSheba] = useState(bank?.sheba ?? "");
-  const [bankName, setBankName] = useState(bank?.bankName ?? "");
   const [saving, setSaving] = useState(false);
+  const normalizedSheba = normalizeSheba(sheba);
+  const completeSheba = /^IR\d{24}$/.test(normalizedSheba);
+  const validSheba = isValidIranianSheba(normalizedSheba);
+  const detectedBankName = getIranianBankName(normalizedSheba);
+  const bankCode = completeSheba
+    ? normalizedSheba.slice(4, 7)
+    : null;
+  const shownBankName =
+    detectedBankName ??
+    (bankCode ? `بانک با کد ${bankCode}` : savedBank?.bankName) ??
+    "کارت بانکی";
 
   const saveAccount = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const normalizedSheba = toEnglishDigits(sheba)
-      .replace(/\s+/g, "")
-      .toUpperCase();
-    if (!holderName.trim() || !/^IR\d{24}$/.test(normalizedSheba)) {
-      toast.error("نام صاحب حساب و شبای معتبر را وارد کنید.");
+    const normalized = normalizeSheba(sheba);
+    if (!holderName.trim() || !isValidIranianSheba(normalized)) {
+      toast.error("نام صاحب حساب و شماره شبای معتبر را وارد کنید.");
       return;
     }
 
@@ -39,8 +56,8 @@ export function BankAccountCard({
     try {
       const account = await walletApi.upsertBankAccount(accessToken, {
         holderName: holderName.trim(),
-        sheba: normalizedSheba,
-        bankName: bankName.trim() || undefined,
+        sheba: normalized,
+        bankName: getIranianBankName(normalized) ?? undefined,
       });
       const next = {
         bankName: account.bankName ?? "حساب بانکی",
@@ -51,7 +68,6 @@ export function BankAccountCard({
       setSavedBank(next);
       setHolderName(next.holder);
       setSheba(next.sheba);
-      setBankName(account.bankName ?? "");
       toast.success("حساب بانکی ذخیره شد.");
     } catch (error) {
       toast.error(
@@ -66,38 +82,55 @@ export function BankAccountCard({
 
   return (
     <SectionCard title="حساب بانکی" description="مقصد واریز برداشت‌های شما">
-      {savedBank ? (
-        <div className="flex items-center gap-3 rounded-xl border border-foreground/10 bg-background p-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Landmark size={22} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-semibold text-foreground">
-                {savedBank.bankName ?? "حساب بانکی"}
-              </p>
-              {savedBank.verified && (
-                <StatusBadge tone="success">
-                  <BadgeCheck size={13} />
-                  تأییدشده
-                </StatusBadge>
-              )}
-            </div>
-            <p className="mt-0.5 text-xs text-foreground/55">
-              {savedBank.holder}
+      <div
+        className="space-y-4 rounded-xl border border-foreground/10 bg-foreground/[0.03] p-4"
+        dir="rtl"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs text-foreground/55">
+              {savedBank ? "حساب مقصد برداشت" : "پیش‌نمایش حساب بانکی"}
             </p>
-            <p
-              dir="ltr"
-              className="mt-1 break-all text-start text-xs tracking-wide text-foreground/70"
-            >
-              {maskSheba(savedBank.sheba)}
+            <p className="mt-1 font-semibold">{shownBankName}</p>
+          </div>
+          <p className="text-xs text-foreground/55">
+            {detectedBankName
+              ? "بانک شناسایی شد"
+              : completeSheba && !validSheba
+                ? "شماره شبا معتبر نیست"
+                : bankCode
+                  ? `کد بانک ${bankCode} شناسایی نشد`
+                  : normalizedSheba.length > 4
+                    ? "کد بانک در فهرست موجود نیست"
+                    : "پس از واردکردن شبا، بانک نمایش داده می‌شود"}
+          </p>
+        </div>
+
+        <div className="grid gap-3 border-t border-foreground/10 pt-3 sm:grid-cols-2">
+          <div>
+            <p className="text-xs text-foreground/55">شماره شبا</p>
+            <p dir="ltr" className="mt-1 text-start font-medium tracking-wide">
+              {completeSheba
+                ? maskSheba(normalizedSheba)
+                : "IR•••• •••• •••• •••• ••••"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-foreground/55">صاحب حساب</p>
+            <p className="mt-1 truncate font-medium">
+              {holderName.trim() || "نام صاحب حساب"}
             </p>
           </div>
         </div>
-      ) : (
-        <p className="rounded-xl bg-foreground/[0.03] px-4 py-8 text-center text-sm text-foreground/55">
-          هنوز حساب بانکی ثبت نشده است.
-        </p>
+      </div>
+
+      {savedBank?.verified && (
+        <div className="mt-3">
+          <StatusBadge tone="success">
+            <BadgeCheck size={13} />
+            حساب تأییدشده
+          </StatusBadge>
+        </div>
       )}
 
       <form
@@ -116,34 +149,28 @@ export function BankAccountCard({
               maxLength={100}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="payout-bank">نام بانک (اختیاری)</Label>
-            <Input
-              id="payout-bank"
-              value={bankName}
-              onChange={(event) => setBankName(event.target.value)}
-              placeholder="مثلاً ملت"
-              maxLength={100}
-            />
-          </div>
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="payout-sheba">شماره شبا</Label>
             <Input
               id="payout-sheba"
               value={sheba}
               persianDigits
-              onChange={(event) =>
-                setSheba(toEnglishDigits(event.target.value).toUpperCase())
-              }
+              onChange={(event) => setSheba(event.target.value.toUpperCase())}
               inputMode="text"
               dir="ltr"
               autoComplete="off"
-              maxLength={26}
-              placeholder="IR000000000000000000000000"
+              maxLength={34}
+              placeholder="IR یا ۲۴ رقم شبا"
               className="text-start tracking-wide"
             />
             <p className="text-xs leading-5 text-foreground/50">
-              IR و ۲۴ رقم؛ اعتبارسنجی نهایی هنگام ذخیره انجام می‌شود.
+              می‌توانید IR را وارد کنید یا فقط ۲۴ رقم شبا را بنویسید؛ پیشوند IR
+              در صورت نیاز خودکار اضافه می‌شود.
+            </p>
+            <p className="text-xs leading-5 text-foreground/50">
+              نام بانک از کد داخل شبا تشخیص داده می‌شود. تطبیق مالکیت حساب با
+              بانک نیازمند سرویس تأیید بانکی است و این فرم به‌تنهایی آن را تأیید
+              نمی‌کند.
             </p>
           </div>
         </div>

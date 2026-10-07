@@ -68,11 +68,10 @@ export function RequestWizard({
         {wizard.step === "address" && (
           <AddressStep
             value={wizard.draft.address}
+            plaque={wizard.draft.plaque}
+            unit={wizard.draft.unit}
             latitude={wizard.draft.latitude}
             longitude={wizard.draft.longitude}
-            cityWide={wizard.draft.cityWide}
-            serviceRadiusKm={wizard.draft.serviceRadiusKm}
-            prefersOutOfArea={wizard.draft.prefersOutOfArea}
             onChange={wizard.update}
           />
         )}
@@ -86,7 +85,6 @@ export function RequestWizard({
         )}
       </div>
 
-      {/* ناوبری */}
       <div className="mt-6 flex items-center justify-between gap-3">
         <button
           type="button"
@@ -94,8 +92,9 @@ export function RequestWizard({
           disabled={wizard.isFirst}
           className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/15 px-4 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <ChevronRight size={17} className="rtl:rotate-180" />
-          مرحله‌ی قبل
+          مرحله‌ قبل
+                    <ChevronRight size={17} className="rtl:rotate-180" />
+
         </button>
 
         {wizard.isLast ? (
@@ -117,8 +116,9 @@ export function RequestWizard({
             disabled={!wizard.canGoNext}
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
           >
+                        <ChevronLeft size={17} className="rtl:rotate-180" />
+
             مرحله‌ی بعد
-            <ChevronLeft size={17} className="rtl:rotate-180" />
           </button>
         )}
       </div>

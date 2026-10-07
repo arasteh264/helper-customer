@@ -11,13 +11,22 @@ import { ButtonLink } from "@/src/components/shared/button-link";
 import { Logo } from "../logo";
 import { MobileMenu } from "./mobile-menu";
 import { ServicesMenu } from "./services-menu";
-import { isActivePath, navLinks, type HeaderUser } from "./nav-data";
+import {
+  isActivePath,
+  navLinks,
+  type HeaderUser,
+  type ServiceMenuItem,
+} from "./nav-data";
 
 interface SiteHeaderProps {
   user?: HeaderUser | null;
+  serviceItems: ServiceMenuItem[];
 }
 
-export function SiteHeader({ user = null }: SiteHeaderProps) {
+export function SiteHeader({
+  user = null,
+  serviceItems = [],
+}: SiteHeaderProps) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
@@ -52,7 +61,10 @@ export function SiteHeader({ user = null }: SiteHeaderProps) {
             aria-label="منوی اصلی"
             className="hidden items-center gap-1 lg:flex"
           >
-            <ServicesMenu active={pathname.startsWith("/services")} />
+            <ServicesMenu
+              active={pathname.startsWith("/services")}
+              items={serviceItems}
+            />
 
             {navLinks.map((link) => {
               const active = isActivePath(pathname, link.href);
@@ -82,9 +94,23 @@ export function SiteHeader({ user = null }: SiteHeaderProps) {
           <div className="hidden items-center gap-2 lg:flex">
             {user ? (
               <>
-                <ButtonLink href="/customer" variant="outline">
-                  مشاهده پروفایل
+                <ButtonLink
+                  href={
+                    user.role?.toUpperCase() === "PROVIDER"
+                      ? "/provider"
+                      : "/customer"
+                  }
+                  variant="outline"
+                >
+                  {user.role?.toUpperCase() === "PROVIDER"
+                    ? "پنل متخصص"
+                    : "پنل مشتری"}
                 </ButtonLink>
+                {user.role?.toUpperCase() !== "PROVIDER" ? (
+                  <ButtonLink href="/become-provider" variant="ghost">
+                    همکاری با هلپر
+                  </ButtonLink>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -104,7 +130,7 @@ export function SiteHeader({ user = null }: SiteHeaderProps) {
             )}
           </div>
 
-          <MobileMenu user={user} />
+          <MobileMenu user={user} serviceItems={serviceItems} />
         </div>
       </Container>
     </header>

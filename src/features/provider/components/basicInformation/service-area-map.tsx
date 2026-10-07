@@ -116,6 +116,13 @@ export default function ServiceAreaMap({
     if (!map.getBounds().contains(point)) map.panTo(point);
   }, [latitude, longitude, radiusKm]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    const circle = circleRef.current;
+    if (!map || !circle) return;
+    map.fitBounds(circle.getBounds(), { padding: [24, 24], maxZoom: 13 });
+  }, [radiusKm]);
+
   return (
     <div
       ref={containerRef}

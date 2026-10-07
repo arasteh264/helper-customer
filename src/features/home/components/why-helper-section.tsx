@@ -1,37 +1,52 @@
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
 import { Container } from "@/src/components/shared/container";
 import { SectionHeading } from "@/src/components/shared/section-heading";
 import { features } from "../api/data";
 
 export function WhyHelperSection() {
   return (
-    <section className="relative overflow-hidden bg-slate-950 py-16 sm:py-24">
+    <section className="relative isolate overflow-hidden bg-[#173b30] py-16 text-white sm:py-20">
       <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl"
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-28 -top-28 -z-10 h-80 w-80 rounded-full bg-[#d99c5c]/20 blur-3xl"
       />
+      <Container className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+        <div>
+          <SectionHeading
+            tone="inverted"
+            eyebrow="انتخاب با آگاهی"
+            title="قبل از سفارش، جواب سؤال‌های مهم را ببینید"
+            description="اطلاعاتی که برای تصمیم‌گیری لازم دارید، در پروفایل و صفحه‌ی درخواست در دسترس است."
+          />
+          <Link
+            href="/terms"
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            خواندن قوانین و شرایط خدمات
+            <ArrowLeft size={16} aria-hidden="true" />
+          </Link>
+        </div>
 
-      <Container className="relative grid gap-10 lg:grid-cols-3 lg:gap-14">
-        <SectionHeading
-          tone="inverted"
-          eyebrow="چرا هلپر؟"
-          title="چرا مشتریان به هلپر اعتماد دارند؟"
-          description="از انتخاب متخصص تا پرداخت و پشتیبانی، همه‌چیز برای آرامش شما طراحی شده است."
-          className="lg:col-span-1"
-        />
-
-        <ul className="grid gap-4 sm:grid-cols-2 lg:col-span-2">
-          {features.map(({ icon: Icon, title, description }) => (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {features.map(({ icon: Icon, title, description }, index) => (
             <li
               key={title}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors hover:bg-white/[0.07]"
+              className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 transition-colors hover:bg-white/[0.1] sm:p-6"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <Icon size={22} />
-              </span>
-              <h3 className="mt-5 text-base font-semibold text-white">
-                {title}
-              </h3>
-              <p className="mt-2 text-sm leading-7 text-white/65">
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d99c5c] text-[#173b30]">
+                  <Icon size={21} aria-hidden="true" />
+                </span>
+                <span className="text-xs font-semibold text-white/45">
+                  {new Intl.NumberFormat("fa-IR", {
+                    minimumIntegerDigits: 2,
+                  }).format(index + 1)}
+                </span>
+              </div>
+              <h3 className="mt-5 text-base font-bold text-white">{title}</h3>
+              <p className="mt-2 text-sm leading-7 text-white/70">
                 {description}
               </p>
             </li>

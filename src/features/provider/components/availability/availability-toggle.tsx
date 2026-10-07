@@ -46,7 +46,11 @@ export function AvailabilityToggle({
     } catch (error) {
       console.error(error);
 
-      toast.error("تغییر وضعیت انجام نشد. دوباره تلاش کنید.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "تغییر وضعیت انجام نشد. دوباره تلاش کنید.",
+      );
     } finally {
       setSaving(false);
     }

@@ -175,7 +175,7 @@ export function SpecialtyStep({
                   </p>
 
                   <p className="mt-0.5 text-[10px] text-foreground/55 sm:text-xs">
-                    {new Intl.NumberFormat("fa-IR").format(0)} گروه
+                    مشاهده تخصص‌ها
                   </p>
                 </div>
               </button>

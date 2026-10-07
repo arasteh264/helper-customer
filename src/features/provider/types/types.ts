@@ -34,14 +34,6 @@ export interface VerificationDoc {
   note?: string;
 }
 
-export interface DaySchedule {
-  id: string;
-  label: string;
-  enabled: boolean;
-  from: string; // "08:00"
-  to: string; // "18:00"
-}
-
 export type JobStatus =
   | "new"
   | "accepted"
@@ -70,6 +62,18 @@ export interface Job {
   status: JobStatus;
   note?: string;
   images?: string[];
+  disputeReason?: string | null;
+  disputeDescription?: string | null;
+  disputeResolved?: boolean;
+  disputeResolution?: "PROVIDER" | "BUYER" | null;
+  disputeResolutionNote?: string | null;
+  disputeMessages?: {
+    id: string;
+    body: string;
+    createdAt: string;
+    authorName: string;
+    authorRole: string;
+  }[];
 }
 
 export interface Review {

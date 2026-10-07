@@ -19,8 +19,8 @@ export function CtaSection() {
             دنبال متخصص می‌گردید؟
           </h2>
           <p className="mt-3 max-w-md text-sm leading-7 text-primary-foreground/80 sm:text-base">
-            درخواستتان را در کمتر از دو دقیقه ثبت کنید و پیشنهاد متخصصان
-            تأییدشده را دریافت کنید.
+            درخواست را ثبت کنید، پیشنهادهای موجود را ببینید و پیش از پرداخت
+            مبلغ و اطلاعات متخصص را بررسی کنید.
           </p>
           <ButtonLink
             href="/request"
@@ -28,7 +28,7 @@ export function CtaSection() {
             size="lg"
             className="relative mt-8 border-0 bg-[#fff9ee] text-[#244d3d] hover:bg-white"
           >
-            ثبت درخواست رایگان
+            ثبت درخواست
             <ArrowLeft size={18} />
           </ButtonLink>
         </div>
@@ -42,15 +42,15 @@ export function CtaSection() {
             متخصص هستید؟ به هلپر بپیوندید
           </h2>
           <p className="mt-3 max-w-md text-sm leading-7 text-foreground/65 sm:text-base">
-            با مشتریان جدید آشنا شوید، برنامه‌ی کاری‌تان را خودتان تنظیم کنید و
-            درآمدتان را افزایش دهید.
+            پروفایل تخصصی بسازید، درخواست‌های متناسب را ببینید و قیمت پیشنهادی
+            خود را برای مشتری ثبت کنید.
           </p>
           <ButtonLink
-            href="/register?role=specialist"
+            href="/become-provider"
             size="lg"
             className="mt-8 bg-[#d99c5c] text-[#302319] hover:bg-[#e5ad70]"
           >
-            ثبت‌نام به‌عنوان متخصص
+            همکاری با هلپر
             <ArrowLeft size={18} />
           </ButtonLink>
         </div>

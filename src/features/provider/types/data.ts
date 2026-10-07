@@ -1,6 +1,5 @@
 // داده‌ی نمونه. در پروژه‌ی واقعی از API / دیتابیس گرفته شود.
 import type {
-  DaySchedule,
   FinanceSummary,
   Job,
   Provider,
@@ -48,58 +47,6 @@ export const verificationDocs: VerificationDoc[] = [
     description: "برای ورود به منزل مشتریان الزامی است",
     status: "rejected",
     note: "تصویر ناخوانا بود. لطفاً دوباره و با کیفیت بهتر بارگذاری کنید.",
-  },
-];
-
-export const defaultSchedule: DaySchedule[] = [
-  {
-    id: "0",
-    label: "شنبه",
-    enabled: true,
-    from: "08:00",
-    to: "18:00",
-  },
-  {
-    id: "1",
-    label: "یکشنبه",
-    enabled: true,
-    from: "08:00",
-    to: "18:00",
-  },
-  {
-    id: "2",
-    label: "دوشنبه",
-    enabled: true,
-    from: "08:00",
-    to: "18:00",
-  },
-  {
-    id: "3",
-    label: "سه‌شنبه",
-    enabled: true,
-    from: "08:00",
-    to: "18:00",
-  },
-  {
-    id: "4",
-    label: "چهارشنبه",
-    enabled: true,
-    from: "08:00",
-    to: "18:00",
-  },
-  {
-    id: "5",
-    label: "پنجشنبه",
-    enabled: true,
-    from: "08:00",
-    to: "13:00",
-  },
-  {
-    id: "6",
-    label: "جمعه",
-    enabled: false,
-    from: "09:00",
-    to: "13:00",
   },
 ];
 

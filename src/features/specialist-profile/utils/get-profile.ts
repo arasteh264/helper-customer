@@ -46,7 +46,6 @@ export function getSpecialistProfile(id: string): SpecialistProfile | null {
     skills: [summary.field],
     serviceAreas: [summary.city],
     portfolioTints: [],
-    availableDays: ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه"],
     reviews: [],
     hasFullProfile: false,
   };

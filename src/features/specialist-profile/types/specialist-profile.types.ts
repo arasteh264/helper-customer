@@ -27,7 +27,6 @@ export interface SpecialistProfile {
   /** به‌جای عکس واقعی، رنگ گرادیان هر نمونه‌کار (چون تصویر واقعی نداریم) */
   portfolioTints: string[];
   portfolioImages?: string[];
-  availableDays: string[];
   reviews: ProfileReview[];
   /** true یعنی این پروفایل کامل و واقعی است؛ false یعنی از داده‌ی خلاصه‌ی دایرکتوری ساخته شده */
   hasFullProfile: boolean;
