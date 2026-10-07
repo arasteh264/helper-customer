@@ -94,11 +94,11 @@ export default async function ProviderOverviewPage() {
   const { percent, items } = getProfileCompletion(
     {
       bio: profile.bio,
+      specialties: profile.specialties,
       skills: profile.skills,
       avatarUrl: profile.avatarUrl,
     },
     verificationDocs,
-    profile.workingHours,
   );
   const months = finance.monthly;
   const current = months.at(-1) ?? { label: "این ماه", amount: 0 };
@@ -138,7 +138,7 @@ export default async function ProviderOverviewPage() {
         </div>
         <div className="md:w-80">
           <AvailabilityToggle
-            initial={profile.isAvailable}
+            initial={profile.isAvailable && Boolean(profile.providerAddress?.trim())}
             accessToken={session.accessToken}
           />
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,18 +17,32 @@ import {
 
 import { ButtonLink } from "@/src/components/shared/button-link";
 import { Logo } from "../logo";
+import { ICONS } from "@/src/features/provider/lib/icons";
 import {
   isActivePath,
   navLinks,
-  serviceMenuItems,
+  type ServiceMenuItem,
   type HeaderUser,
 } from "./nav-data";
-import { ICONS } from "@/src/features/provider/lib/icons";
 
 const FOCUSABLE = "a[href], button:not([disabled]), input, summary";
+const subscribeHydration = () => () => {};
+const getPortalMounted = () => true;
+const getServerPortalMounted = () => false;
 
-export function MobileMenu({ user }: { user?: HeaderUser | null }) {
+export function MobileMenu({
+  user,
+  serviceItems = [],
+}: {
+  user?: HeaderUser | null;
+  serviceItems?: ServiceMenuItem[];
+}) {
   const [open, setOpen] = useState(false);
+  const portalMounted = useSyncExternalStore(
+    subscribeHydration,
+    getPortalMounted,
+    getServerPortalMounted,
+  );
   const pathname = usePathname();
 
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -154,7 +168,7 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
                   </summary>
 
                   <ul className="mt-1 grid grid-cols-1 gap-1 pb-2 pr-2">
-                    {serviceMenuItems.map((item) => {
+                    {serviceItems.map((item) => {
                       const Icon = ICONS[item.icon];
                       return (
                         <li key={item.href}>
@@ -227,12 +241,18 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <ButtonLink
-                  href="/customer/profile"
+                  href={
+                    user.role?.toUpperCase() === "PROVIDER"
+                      ? "/provider"
+                      : "/customer/profile"
+                  }
                   size="lg"
                   className="gap-1.5"
                 >
                   <LayoutDashboard size={18} />
-                  مشاهده پروفایل
+                  {user.role?.toUpperCase() === "PROVIDER"
+                    ? "پنل متخصص"
+                    : "مشاهده پروفایل"}
                 </ButtonLink>
                 <button
                   type="button"
@@ -243,6 +263,17 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
                   خروج
                 </button>
               </div>
+              {user.role?.toUpperCase() !== "PROVIDER" ? (
+                <Link
+                  href="/become-provider"
+                  className="block text-center text-sm text-foreground/60 transition-colors hover:text-primary"
+                >
+                  متخصص هستید؟{" "}
+                  <span className="font-medium text-primary">
+                    همکاری با هلپر
+                  </span>
+                </Link>
+              ) : null}
             </>
           ) : (
             <>
@@ -255,7 +286,7 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
                 </ButtonLink>
               </div>
               <Link
-                href="/register?role=specialist"
+                href="/become-provider"
                 className="block text-center text-sm text-foreground/60 transition-colors hover:text-primary"
               >
                 متخصص هستید؟{" "}
@@ -268,7 +299,7 @@ export function MobileMenu({ user }: { user?: HeaderUser | null }) {
     </div>
   );
 
-  const portalTarget = typeof document !== "undefined" ? document.body : null;
+  const portalTarget = portalMounted ? document.body : null;
 
   return (
     <>

@@ -42,6 +42,13 @@ export default function AddressMap({
       has ? 16 : 12,
     );
     L.tileLayer(TILE_URL, { maxZoom: 19, attribution: TILE_ATTR }).addTo(map);
+    const resizeObserver = new ResizeObserver(() =>
+      map.invalidateSize({ pan: false }),
+    );
+    resizeObserver.observe(elRef.current);
+    const resizeFrame = requestAnimationFrame(() =>
+      map.invalidateSize({ pan: false }),
+    );
 
     map.on("moveend", () => {
       const c = map.getCenter();
@@ -59,6 +66,8 @@ export default function AddressMap({
 
     mapRef.current = map;
     return () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
     };

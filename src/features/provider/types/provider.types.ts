@@ -35,14 +35,6 @@ export interface VerificationDoc {
   note?: string;
 }
 
-export interface DaySchedule {
-  id: string;
-  label: string;
-  enabled: boolean;
-  from: string; // "08:00"
-  to: string; // "18:00"
-}
-
 export type JobStatus =
   | "new"
   | "accepted"
@@ -130,13 +122,6 @@ export interface ProviderSpecialtyGroup {
   icon?: string | null;
 }
 
-export interface ProviderWorkingHour {
-  dayOfWeek: number;
-  isActive: boolean;
-  startTime: string;
-  endTime: string;
-}
-
 export interface ProviderProfile {
   id: string;
   bio: string | null;
@@ -150,7 +135,8 @@ export interface ProviderProfile {
   serviceAreaLatitude: number | null;
   serviceAreaLongitude: number | null;
   serviceAreaRadiusKm: number | null;
-  serviceAreaCityWide: boolean;
+  providerAddress: string | null;
+  providerAddressType: "HOME" | "BUSINESS";
   user: {
     name: string;
     email: string;
@@ -158,7 +144,6 @@ export interface ProviderProfile {
   };
   skills: ProviderSkill[];
   specialties?: ProviderSpecialty[];
-  workingHours: ProviderWorkingHour[];
   createdAt: string;
   updatedAt: string;
 }
@@ -169,6 +154,6 @@ export interface UpdateProviderProfileValues {
   serviceAreaLatitude?: number | null;
   serviceAreaLongitude?: number | null;
   serviceAreaRadiusKm?: number | null;
-  serviceAreaCityWide?: boolean;
-  workingHours?: ProviderWorkingHour[];
+  providerAddress?: string | null;
+  providerAddressType?: "HOME" | "BUSINESS";
 }

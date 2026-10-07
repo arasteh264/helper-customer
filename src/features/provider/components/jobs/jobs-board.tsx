@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   BriefcaseBusiness,
@@ -83,6 +83,55 @@ export function JobsBoard({
   const [query, setQuery] = useState("");
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const knownJobIds = useRef(new Set(initialJobs.map((job) => job.id)));
+  const pollErrorNotified = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    let loading = false;
+
+    const refresh = async () => {
+      if (!active || loading || document.visibilityState !== "visible") return;
+      loading = true;
+      try {
+        const latestJobs = await providerJobsApi.list(accessToken);
+        if (!active) return;
+        pollErrorNotified.current = false;
+        const newJobs = latestJobs.filter(
+          (job) => job.status === "new" && !knownJobIds.current.has(job.id),
+        );
+        latestJobs.forEach((job) => knownJobIds.current.add(job.id));
+        setJobs(latestJobs);
+        if (newJobs.length > 0) {
+          toast.info(
+            newJobs.length === 1
+              ? "درخواست کاری جدیدی برای شما ثبت شد."
+              : `${formatNumber(newJobs.length)} درخواست کاری جدید برای شما ثبت شد.`,
+          );
+        }
+      } catch (error) {
+        console.error("[JobsBoard] Failed to refresh jobs", error);
+        if (!pollErrorNotified.current) {
+          toast.error("دریافت درخواست‌های جدید ممکن نشد.");
+          pollErrorNotified.current = true;
+        }
+      } finally {
+        loading = false;
+      }
+    };
+
+    const interval = window.setInterval(() => void refresh(), 20_000);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") void refresh();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [accessToken]);
 
   const counts = useMemo(() => {
     const map = {} as Record<JobFilter, number>;
@@ -131,7 +180,9 @@ export function JobsBoard({
   const refreshJobs = async () => {
     setRefreshing(true);
     try {
-      setJobs(await providerJobsApi.list(accessToken));
+      const latestJobs = await providerJobsApi.list(accessToken);
+      latestJobs.forEach((job) => knownJobIds.current.add(job.id));
+      setJobs(latestJobs);
     } catch {
       toast.error("به‌روزرسانی درخواست‌ها انجام نشد.");
     } finally {
@@ -157,6 +208,7 @@ export function JobsBoard({
         await providerJobsApi[action](id, accessToken);
       }
       const refreshedJobs = await providerJobsApi.list(accessToken);
+      refreshedJobs.forEach((job) => knownJobIds.current.add(job.id));
       setJobs(refreshedJobs);
       toast.success(SUCCESS_MESSAGE[action]);
     } catch (error) {
@@ -165,6 +217,51 @@ export function JobsBoard({
           ? error.message
           : "ثبت تغییر انجام نشد؛ دوباره تلاش کنید.",
       );
+    } finally {
+      setPendingJobId(null);
+    }
+  };
+
+  const handleDisputeMessage = async (id: string, body: string) => {
+    if (pendingJobId) return false;
+    setPendingJobId(id);
+    try {
+      await providerJobsApi.addDisputeMessage(id, body, accessToken);
+      const refreshedJobs = await providerJobsApi.list(accessToken);
+      refreshedJobs.forEach((job) => knownJobIds.current.add(job.id));
+      setJobs(refreshedJobs);
+      toast.success("پاسخ شما به اختلاف ثبت شد.");
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError
+          ? error.message
+          : "ارسال پاسخ اختلاف انجام نشد.",
+      );
+      return false;
+    } finally {
+      setPendingJobId(null);
+    }
+  };
+
+  const handleNonPaymentDispute = async (id: string, description: string) => {
+    if (pendingJobId) return false;
+    setPendingJobId(id);
+    try {
+      await providerJobsApi.raiseNonPaymentDispute(id, description, accessToken);
+      const refreshedJobs = await providerJobsApi.list(accessToken);
+      refreshedJobs.forEach((job) => knownJobIds.current.add(job.id));
+      setJobs(refreshedJobs);
+      setTab("attention");
+      toast.success("اختلاف پرداخت برای بررسی ثبت شد.");
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof ApiError
+          ? error.message
+          : "ثبت اختلاف پرداخت انجام نشد.",
+      );
+      return false;
     } finally {
       setPendingJobId(null);
     }
@@ -302,6 +399,8 @@ export function JobsBoard({
                 <JobCard
                   job={job}
                   onAction={handleAction}
+                  onDisputeMessage={handleDisputeMessage}
+                  onRaiseNonPaymentDispute={handleNonPaymentDispute}
                   busy={pendingJobId === job.id}
                 />
               </li>

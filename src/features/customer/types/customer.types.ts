@@ -23,6 +23,31 @@ export type RequestStatus =
   | "disputed"
   | "cancelled";
 
+export type DisputeReason =
+  | "WORK_NOT_COMPLETED"
+  | "WORK_QUALITY"
+  | "PRICE_DISAGREEMENT"
+  | "PROVIDER_NO_SHOW"
+  | "CUSTOMER_NON_PAYMENT"
+  | "OTHER";
+
+export interface ServiceRequestDispute {
+  reason: DisputeReason | null;
+  description: string | null;
+  updatedAt: string | null;
+  resolved: boolean;
+  resolution: "PROVIDER" | "BUYER" | null;
+  resolutionNote: string | null;
+  messages: {
+    id: string;
+    body: string;
+    createdAt: string;
+    authorId: string;
+    authorName: string;
+    authorRole: string;
+  }[];
+}
+
 export interface RequestSpecialist {
   id: string;
   name: string;
@@ -60,6 +85,7 @@ export interface ServiceRequest {
   } | null;
   customerConfirmationDeadline?: string | null;
   wasPaid?: boolean;
+  dispute?: ServiceRequestDispute | null;
 }
 
 export type AddressType = "home" | "work" | "other";

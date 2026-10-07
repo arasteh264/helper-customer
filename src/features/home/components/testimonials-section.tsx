@@ -3,35 +3,25 @@ import { ArrowLeft, BadgeCheck, Star } from "lucide-react";
 
 import { Container } from "@/src/components/shared/container";
 import { SectionHeading } from "@/src/components/shared/section-heading";
-import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
+import type { PublicProvider } from "@/src/features/catalog/api/providers.api";
 
-export async function TestimonialsSection() {
-  let reviews: {
-    id: string;
-    providerId: string;
-    providerName: string;
-    customerName: string;
-    rating: number;
-    text: string;
-    service: string;
-  }[] = [];
-  let hasError = false;
+export function TestimonialsSection({
+  providers,
+}: {
+  providers: PublicProvider[];
+}) {
+  const reviews = providers
+    .flatMap((provider) =>
+      provider.reviews.map((review) => ({
+        ...review,
+        providerId: provider.id,
+        providerName: provider.name,
+      })),
+    )
+    .filter((review) => review.text.trim().length > 0)
+    .slice(0, 3);
 
-  try {
-    const page = await publicProvidersApi.listPage(1, 16);
-    reviews = page.items
-      .flatMap((provider) =>
-        provider.reviews.map((review) => ({
-          ...review,
-          providerId: provider.id,
-          providerName: provider.name,
-        })),
-      )
-      .filter((review) => review.text.trim().length > 0)
-      .slice(0, 3);
-  } catch {
-    hasError = true;
-  }
+  if (reviews.length === 0) return null;
 
   return (
     <section
@@ -46,8 +36,7 @@ export async function TestimonialsSection() {
           description="پیش از انتخاب، تجربه‌ی کسانی را ببینید که با این متخصص کار کرده‌اند."
         />
 
-        {reviews.length > 0 ? (
-          <ul className="mt-10 grid gap-4 md:grid-cols-3">
+        <ul className="mt-10 grid gap-4 md:grid-cols-3">
             {reviews.map((review) => (
               <li key={review.id}>
                 <article className="flex h-full flex-col rounded-2xl border border-foreground/[0.07] bg-card p-5 sm:p-6">
@@ -94,16 +83,6 @@ export async function TestimonialsSection() {
               </li>
             ))}
           </ul>
-        ) : (
-          <p
-            className="mx-auto mt-10 max-w-xl rounded-2xl border border-foreground/[0.07] bg-card px-6 py-8 text-center text-sm leading-7 text-foreground/60"
-            role={hasError ? "status" : undefined}
-          >
-            {hasError
-              ? "دریافت نظرها فعلاً ممکن نشد. می‌توانید نظرهای ثبت‌شده را در پروفایل متخصص‌ها ببینید."
-              : "هنوز نظری برای نمایش نداریم. با ثبت تجربه‌ی خودتان، به دیگران در انتخاب کمک کنید."}
-          </p>
-        )}
       </Container>
     </section>
   );

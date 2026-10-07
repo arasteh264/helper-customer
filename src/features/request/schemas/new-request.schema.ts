@@ -17,11 +17,10 @@ export const newRequestSchema = z
     urgency: z.enum(["asap", "this_week", "scheduled"]),
     scheduledAt: z.string().optional(),
     address: z.string().trim().min(8, "آدرس را دقیق‌تر وارد کنید").max(500),
+    plaque: z.string().trim().min(1, "شماره پلاک را وارد کنید").max(30),
+    unit: z.string().trim().max(30),
     latitude: z.number().min(-90).max(90).optional(),
     longitude: z.number().min(-180).max(180).optional(),
-    cityWide: z.boolean().optional(),
-    serviceRadiusKm: z.number().min(1).max(200).optional(),
-    prefersOutOfArea: z.boolean().optional(),
     hasBudget: z.boolean(),
     budgetMin: z.number().optional(),
     budgetMax: z.number().optional(),
@@ -34,6 +33,13 @@ export const newRequestSchema = z
     path: ["latitude"],
     message: "موقعیت مکانی کامل دریافت نشد",
   })
+  .refine(
+    (d) => d.latitude !== undefined && d.longitude !== undefined,
+    {
+      path: ["latitude"],
+      message: "موقعیت محل کار را روی نقشه مشخص کنید",
+    },
+  )
   .refine(
     (d) =>
       !d.hasBudget ||

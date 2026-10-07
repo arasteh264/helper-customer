@@ -1,8 +1,4 @@
-import {
-  ProviderProfile,
-  ProviderWorkingHour,
-  VerificationDoc,
-} from "../types/provider.types";
+import { VerificationDoc } from "../types/provider.types";
 
 export type CompletionItem = {
   id: string;
@@ -18,21 +14,25 @@ export type CompletionProviderInput = {
   skills?: Array<string | { name?: string }>;
   specialties?: Array<string | { name?: string }>;
   avatarUrl?: string | null;
+  providerAddress?: string | null;
 };
 
 export function getProfileCompletion(
   provider: CompletionProviderInput,
   verificationDocs: VerificationDoc[],
-  workingHours: ProviderWorkingHour[],
 ) {
   const docVerified = (type: string) =>
     verificationDocs.some((d) => d.type === type && d.status === "verified");
 
-  const skills = Array.isArray(provider.specialties)
-    ? provider.specialties
-    : Array.isArray(provider.skills)
-      ? provider.skills
-      : [];
+  const skills = [
+    ...(Array.isArray(provider.specialties) ? provider.specialties : []),
+    ...(Array.isArray(provider.skills) ? provider.skills : []),
+  ];
+  const uniqueSkills = new Set(
+    skills.map((skill) =>
+      typeof skill === "string" ? skill : (skill.name ?? ""),
+    ),
+  );
 
   const items: CompletionItem[] = [
     {
@@ -44,17 +44,13 @@ export function getProfileCompletion(
     },
     {
       id: "skills",
-      label: "افزودن حداقل ۳ تخصص",
+      label:
+        uniqueSkills.size > 0 && uniqueSkills.size < 3
+          ? `افزودن ${3 - uniqueSkills.size} تخصص دیگر`
+          : "افزودن حداقل ۳ تخصص",
       weight: 20,
-      done: skills.length >= 3,
+      done: uniqueSkills.size >= 3,
       anchor: "skills",
-    },
-    {
-      id: "working-hours",
-      label: "تعیین ساعات کاری",
-      weight: 20,
-      done: workingHours.some((w) => w.isActive),
-      anchor: "availability",
     },
     {
       id: "avatar",
@@ -69,6 +65,13 @@ export function getProfileCompletion(
       weight: 20,
       done: Boolean(provider.isVerified) || docVerified("NATIONAL_CARD"),
       anchor: "documents",
+    },
+    {
+      id: "private-address",
+      label: "ثبت نشانی محرمانه‌ی منزل یا محل کسب",
+      weight: 10,
+      done: (provider.providerAddress?.trim().length ?? 0) >= 5,
+      anchor: "private-address",
     },
   ];
 

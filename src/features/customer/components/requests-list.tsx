@@ -227,6 +227,15 @@ export function RequestsList({
                               />
                               {r.specialist.rating}
                             </p>
+                            {r.wasPaid && r.specialist.phone ? (
+                              <a
+                                href={`tel:${r.specialist.phone}`}
+                                className="mt-1 inline-flex text-xs text-primary hover:underline"
+                                dir="ltr"
+                              >
+                                {r.specialist.phone}
+                              </a>
+                            ) : null}
                           </div>
                         </div>
                       ) : r.status === "offers_received" ? (

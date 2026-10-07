@@ -20,12 +20,6 @@ export interface PublicProvider {
     groupId: string;
     groupName: string;
   }[];
-  workingHours: {
-    dayOfWeek: number;
-    isActive: boolean;
-    startTime: string;
-    endTime: string;
-  }[];
   portfolio: string[];
   reviews: {
     id: string;

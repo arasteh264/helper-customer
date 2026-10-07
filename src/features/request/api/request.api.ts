@@ -160,9 +160,38 @@ export const requestApi = {
     );
   },
 
-  dispute(requestId: string, accessToken: string) {
+  confirmDisputedCompletion(requestId: string, accessToken: string) {
+    return apiClient(
+      `/payments/service-requests/${requestId}/confirm-disputed-completion`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+      },
+    );
+  },
+
+  dispute(
+    requestId: string,
+    accessToken: string,
+    input: { reason: string; description: string },
+    editing = false,
+  ) {
     return apiClient(`/payments/service-requests/${requestId}/dispute`, {
+      method: editing ? "PATCH" : "POST",
+      data: input,
+      headers: authHeaders(accessToken),
+    });
+  },
+
+  addDisputeMessage(requestId: string, accessToken: string, body: string) {
+    return apiClient<{
+      id: string;
+      body: string;
+      createdAt: string;
+      author: { id: string; name: string; role: string };
+    }>(`/payments/service-requests/${requestId}/dispute/messages`, {
       method: "POST",
+      data: { body },
       headers: authHeaders(accessToken),
     });
   },
@@ -234,12 +263,15 @@ export const requestApi = {
         title: draft.title,
         description: draft.description,
         specialtyId: draft.categoryId,
-        address: draft.address,
+        address: [
+          draft.address.trim(),
+          `پلاک ${draft.plaque.trim()}`,
+          draft.unit.trim() ? `واحد ${draft.unit.trim()}` : "",
+        ]
+          .filter(Boolean)
+          .join("، "),
         latitude: draft.latitude,
         longitude: draft.longitude,
-        cityWide: !!draft.cityWide,
-        serviceRadiusKm: draft.serviceRadiusKm ?? 10,
-        prefersOutOfArea: !!draft.prefersOutOfArea,
         preferredTime:
           draft.urgency === "asap"
             ? "URGENT"

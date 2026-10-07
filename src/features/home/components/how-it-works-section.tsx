@@ -14,8 +14,8 @@ export function HowItWorksSection() {
         <SectionHeading
           align="center"
           eyebrow="مراحل کار"
-          title="هلپر چطور کار می‌کند؟"
-          description="فقط در چهار قدم ساده، از ثبت نیاز تا انجام کار."
+          title="از ثبت درخواست تا تأیید نهایی"
+          description="در هر مرحله می‌دانید چه چیزی در انتظار شماست و تصمیم بعدی با شماست."
         />
 
         <ol className="relative mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">

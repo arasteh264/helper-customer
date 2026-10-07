@@ -6,22 +6,11 @@ import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 import { ProfileHeader } from "@/src/features/specialist-profile/components/profile-header";
 import { ProfileAbout } from "@/src/features/specialist-profile/components/profile-about";
 import { ProfilePortfolio } from "@/src/features/specialist-profile/components/profile-portfolio";
-import { ProfileAvailability } from "@/src/features/specialist-profile/components/profile-availability.";
 import { BookingPanel } from "@/src/features/specialist-profile/components/booking-panel";
 import { ProfileReviews } from "@/src/features/specialist-profile/components/profile-reviews";
 import type { SpecialistProfile } from "@/src/features/specialist-profile/types/specialist-profile.types";
 
 export const metadata: Metadata = { title: "پروفایل متخصص | هلپر" };
-
-const DAYS = [
-  "شنبه",
-  "یکشنبه",
-  "دوشنبه",
-  "سه‌شنبه",
-  "چهارشنبه",
-  "پنجشنبه",
-  "جمعه",
-];
 
 export default async function SpecialistProfilePage({
   params,
@@ -68,9 +57,6 @@ export default async function SpecialistProfilePage({
       : [],
     portfolioTints: [],
     portfolioImages: provider.portfolio,
-    availableDays: provider.workingHours
-      .filter((hour) => hour.isActive)
-      .map((hour) => DAYS[hour.dayOfWeek] ?? ""),
     reviews: provider.reviews,
     hasFullProfile: true,
   };
@@ -88,7 +74,6 @@ export default async function SpecialistProfilePage({
               reviewsCount={profile.reviewsCount}
             />
             <ProfilePortfolio profile={profile} />
-            <ProfileAvailability workingHours={provider.workingHours} />
           </div>
           <BookingPanel profile={profile} />
         </div>

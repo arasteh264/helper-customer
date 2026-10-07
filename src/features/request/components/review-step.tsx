@@ -41,14 +41,15 @@ export function ReviewStep({
           </dt>
           <dd className="max-w-[65%] text-end text-sm font-medium leading-6 text-foreground">
             {draft.address || "—"}
+            <span className="mt-1 block text-xs font-normal text-foreground/60">
+              پلاک {draft.plaque || "—"}
+              {draft.unit.trim() ? ` · واحد ${draft.unit}` : ""}
+            </span>
             {(draft.latitude !== undefined && draft.longitude !== undefined) && (
               <span className="mt-1 flex items-center justify-end gap-1 text-xs font-normal text-primary">
                 <MapPinned size={13} /> موقعیت دقیق هم پیوست شده است
               </span>
             )}
-            <span className="mt-1 flex justify-end text-xs font-normal text-foreground/55">
-              {draft.cityWide ? "کار در کل شهر" : `تا شعاع ${draft.serviceRadiusKm ?? 10} کیلومتر`}
-            </span>
           </dd>
         </div>
         <div className="flex items-start justify-between gap-4 py-4">

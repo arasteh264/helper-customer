@@ -21,7 +21,6 @@ export const fullProfiles: Record<
       "from-sky-500/25 via-sky-500/10 to-transparent",
       "from-cyan-500/20 via-transparent to-transparent",
     ],
-    availableDays: ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه"],
     reviews: [
       { id: "r-1", customerName: "نگار مرادی", rating: 5, text: "سر وقت آمدند و نشتی را در کمتر از یک ساعت رفع کردند. خیلی مرتب و حرفه‌ای.", date: "2026-09-18T18:00:00+03:30" },
       { id: "r-2", customerName: "بهرام یزدانی", rating: 5, text: "آبگرمکن را تمیز نصب کردند و نکات نگهداری را هم توضیح دادند.", date: "2026-09-14T20:00:00+03:30" },
@@ -43,7 +42,6 @@ export const fullProfiles: Record<
       "from-rose-500/25 via-rose-500/10 to-transparent",
       "from-orange-500/20 via-transparent to-transparent",
     ],
-    availableDays: ["شنبه", "دوشنبه", "چهارشنبه", "پنجشنبه"],
     reviews: [
       { id: "r-1", customerName: "الهام ر.", rating: 5, text: "نقاش‌مان در یک آخر هفته نشیمن را کامل عوض کرد. رزرو و پرداخت هم خیلی راحت بود.", date: "2026-09-10T14:00:00+03:30" },
       { id: "r-2", customerName: "کیوان ش.", rating: 4, text: "کیفیت کار خوب بود، رنگ دقیقاً همانی شد که مشاوره داده بودند.", date: "2026-08-30T10:00:00+03:30" },
@@ -64,7 +62,6 @@ export const fullProfiles: Record<
       "from-amber-500/25 via-amber-500/10 to-transparent",
       "from-yellow-500/20 via-transparent to-transparent",
     ],
-    availableDays: ["یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه"],
     reviews: [
       { id: "r-1", customerName: "حامد ک.", rating: 5, text: "خیلی سریع مشکل قطعی برق رو پیدا و رفع کرد.", date: "2026-09-12T09:00:00+03:30" },
     ],
@@ -83,7 +80,6 @@ export const fullProfiles: Record<
     portfolioTints: [
       "from-sky-500/20 via-transparent to-transparent",
     ],
-    availableDays: ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه"],
     reviews: [
       { id: "r-1", customerName: "نازنین ک.", rating: 5, text: "خانه رو بی‌نقص تمیز کردن، حتی گوشه‌هایی که خودم یادم نبود.", date: "2026-09-19T11:00:00+03:30" },
       { id: "r-2", customerName: "آرمان ص.", rating: 5, text: "برای دفتر کار هم رزرو کردیم، عالی بود.", date: "2026-09-01T08:00:00+03:30" },
@@ -101,7 +97,6 @@ export const fullProfiles: Record<
     skills: ["حقوق ملکی", "تنظیم قرارداد", "دعاوی خانواده", "مشاوره‌ی حقوقی آنلاین"],
     serviceAreas: ["تهران"],
     portfolioTints: [],
-    availableDays: ["شنبه", "دوشنبه", "چهارشنبه"],
     reviews: [
       { id: "r-1", customerName: "فرهاد ن.", rating: 5, text: "توضیحات کامل و شفاف بود، پرونده رو به بهترین شکل پیش برد.", date: "2026-09-05T16:00:00+03:30" },
     ],

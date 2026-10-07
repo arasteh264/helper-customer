@@ -21,7 +21,7 @@ import { Button } from "@/src/components/ui/button";
 import { OtpInput, toEnglishDigits } from "./OtpInput";
 import { requestLoginOtp } from "../api/request-login-otp";
 import { verifyLoginOtp } from "../api/verify-login-otp";
-import { getSession } from "next-auth/react";
+import { getPostAuthRedirectPath } from "../utils/post-auth-redirect";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 120;
@@ -100,11 +100,8 @@ const verifyCode = async (code: string) => {
     return;
   }
 
-  const session = await getSession();
-  const nextRoute = session?.user?.role?.toUpperCase() === "PROVIDER" ? "/provider" : "/customer";
-
   toast.success("خوش آمدید");
-  router.push(nextRoute);
+  router.push(await getPostAuthRedirectPath());
   router.refresh();
 };
 

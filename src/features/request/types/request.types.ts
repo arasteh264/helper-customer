@@ -24,11 +24,10 @@ export interface NewRequestDraft {
   urgency: Urgency;
   scheduledAt?: string; // ISO، فقط وقتی urgency === "scheduled"
   address: string;
+  plaque: string;
+  unit: string;
   latitude?: number;
   longitude?: number;
-  cityWide?: boolean;
-  serviceRadiusKm?: number;
-  prefersOutOfArea?: boolean;
   hasBudget: boolean;
   budgetMin?: number;
   budgetMax?: number;
@@ -42,9 +41,8 @@ export const EMPTY_DRAFT: NewRequestDraft = {
   photoFiles: [],
   urgency: "this_week",
   address: "",
-  cityWide: false,
-  serviceRadiusKm: 10,
-  prefersOutOfArea: false,
+  plaque: "",
+  unit: "",
   hasBudget: false,
 };
 

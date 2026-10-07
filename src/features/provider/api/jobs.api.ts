@@ -42,4 +42,24 @@ export const providerJobsApi = {
       headers: authHeaders(accessToken),
     });
   },
+
+  addDisputeMessage(requestId: string, body: string, accessToken: string) {
+    return apiClient(`/providers/jobs/${requestId}/dispute/messages`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      data: { body },
+    });
+  },
+
+  raiseNonPaymentDispute(
+    requestId: string,
+    description: string,
+    accessToken: string,
+  ) {
+    return apiClient(`/providers/jobs/${requestId}/dispute`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      data: { description },
+    });
+  },
 };

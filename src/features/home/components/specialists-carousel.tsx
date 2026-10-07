@@ -25,7 +25,7 @@ export function SpecialistsCarousel({
 
   return (
     <div>
-      <div className="mb-4 hidden justify-end gap-2 md:flex">
+      <div className="mb-4 flex justify-end gap-2">
         <button
           type="button"
           onClick={() => scroll(-1)}
@@ -51,7 +51,7 @@ export function SpecialistsCarousel({
         {specialists.map((specialist) => (
           <div
             key={specialist.id}
-            className="w-[78%] shrink-0 snap-start sm:w-[46%] lg:w-[calc((100%-3rem)/4)]"
+            className="w-[82%] shrink-0 snap-start sm:w-[48%] lg:w-[calc((100%-3rem)/4)]"
           >
             <SpecialistCard specialist={specialist} />
           </div>
