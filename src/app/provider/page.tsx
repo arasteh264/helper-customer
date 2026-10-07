@@ -97,6 +97,7 @@ export default async function ProviderOverviewPage() {
       specialties: profile.specialties,
       skills: profile.skills,
       avatarUrl: profile.avatarUrl,
+      providerAddress: profile.providerAddress,
     },
     verificationDocs,
   );
