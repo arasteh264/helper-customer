@@ -13,9 +13,14 @@ export function ProfileReviews({
   reviewsCount: number;
 }) {
   return (
-    <div className="rounded-2xl border border-foreground/10 bg-card p-5 sm:p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-foreground">نظرات مشتریان</h2>
+    <section className="rounded-3xl border border-foreground/10 bg-card p-5 shadow-sm sm:p-7">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-foreground">نظر مشتریان</h2>
+          <p className="mt-1 text-xs text-foreground/50">
+            بازخوردهای ثبت‌شده پس از انجام کار
+          </p>
+        </div>
         {reviewsCount > 0 ? (
           <span className="flex items-center gap-1 text-sm font-medium text-foreground">
             <Star size={15} className="fill-amber-500 text-amber-500" />
@@ -32,7 +37,7 @@ export function ProfileReviews({
       </div>
 
       {reviews.length === 0 ? (
-        <p className="mt-6 rounded-xl bg-foreground/[0.03] px-4 py-8 text-center text-sm text-foreground/55">
+        <p className="mt-5 rounded-2xl border border-dashed border-foreground/10 bg-foreground/[0.025] px-4 py-9 text-center text-sm leading-7 text-foreground/55">
           هنوز نظری برای این متخصص ثبت نشده است.
         </p>
       ) : (
@@ -66,6 +71,6 @@ export function ProfileReviews({
           ))}
         </ul>
       )}
-    </div>
+    </section>
   );
 }

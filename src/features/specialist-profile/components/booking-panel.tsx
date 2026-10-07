@@ -7,41 +7,49 @@ export function BookingPanel({ profile }: { profile: SpecialistProfile }) {
   const requestHref = `/request?${params.toString()}`;
 
   return (
-    <aside className="hidden lg:block">
-      <div className="sticky top-24 rounded-2xl border border-foreground/10 bg-card p-5">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <BadgeCheck size={17} className="text-primary" />
-          متخصص تأییدشده
+    <>
+      <aside className="hidden lg:block">
+        <div className="sticky top-24 overflow-hidden rounded-3xl border border-foreground/10 bg-card shadow-sm">
+          <div className="bg-gradient-to-l from-primary/10 to-primary/[0.03] p-5">
+            <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <BadgeCheck size={18} className="text-primary" aria-hidden="true" />
+              شروع همکاری با متخصص
+            </div>
+            <p className="mt-2 text-xs leading-6 text-foreground/60">
+              درخواست را برای {profile.name.split(" ")[0]} ثبت کنید و جزئیات کار
+              را پیگیری کنید.
+            </p>
+          </div>
+          <div className="p-5">
+            <Link
+              href={requestHref}
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-primary px-3 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              ثبت درخواست برای این متخصص
+            </Link>
+            <div className="mt-4 space-y-3 border-t border-foreground/[0.07] pt-4">
+              <p className="flex items-start gap-2 text-xs leading-6 text-foreground/55">
+                <MapPin size={15} className="mt-0.5 shrink-0 text-primary" />
+                {profile.city}
+              </p>
+              <p className="flex items-start gap-2 text-xs leading-6 text-foreground/55">
+                <ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary" />
+                نشانی دقیق فقط برای انجام درخواست در اختیار متخصص منتخب قرار
+                می‌گیرد.
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="mt-3 text-sm leading-6 text-foreground/60">
-          درخواست خدمت را مستقیماً برای {profile.name.split(" ")[0]} بفرستید. پس
-          از پذیرش، اطلاعات تماس برای هماهنگی نمایش داده می‌شود.
-        </p>
-        <Link
-          href={requestHref}
-          className="mt-5 flex h-12 w-full items-center justify-center rounded-xl bg-primary px-3 text-center text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-        >
-          درخواست خدمت از این متخصص
-        </Link>
-        <p className="mt-4 flex items-start gap-2 text-xs leading-6 text-foreground/50">
-          <MapPin size={15} className="mt-0.5 shrink-0 text-primary" />
-          {profile.city}
-        </p>
-        <p className="mt-3 flex items-start gap-2 text-xs leading-6 text-foreground/50">
-          <ShieldCheck size={15} className="mt-0.5 shrink-0 text-primary" />
-          نشانی و موقعیت دقیق شما فقط پس از ارسال درخواست در اختیار متخصص منتخب
-          قرار می‌گیرد.
-        </p>
-      </div>
+      </aside>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-foreground/10 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-foreground/10 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl lg:hidden">
         <Link
           href={requestHref}
-          className="flex h-12 w-full items-center justify-center rounded-xl bg-primary px-3 text-center text-sm font-medium text-primary-foreground"
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-primary px-3 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
-          درخواست خدمت از {profile.name.split(" ")[0]}
+          ثبت درخواست برای {profile.name.split(" ")[0]}
         </Link>
       </div>
-    </aside>
+    </>
   );
 }

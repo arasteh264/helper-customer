@@ -9,6 +9,8 @@ import { ProfilePortfolio } from "@/src/features/specialist-profile/components/p
 import { BookingPanel } from "@/src/features/specialist-profile/components/booking-panel";
 import { ProfileReviews } from "@/src/features/specialist-profile/components/profile-reviews";
 import type { SpecialistProfile } from "@/src/features/specialist-profile/types/specialist-profile.types";
+import Link from "next/link";
+import { ChevronLeft, Home } from "lucide-react";
 
 export const metadata: Metadata = { title: "پروفایل متخصص | هلپر" };
 
@@ -62,10 +64,32 @@ export default async function SpecialistProfilePage({
   };
 
   return (
-    <div className="pb-24 pt-8 sm:pb-12 sm:pt-10">
-      <Container>
-        <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-          <div className="space-y-6">
+    <main className="min-h-screen pb-28 sm:pb-16">
+      <div className="border-b border-foreground/[0.06] bg-gradient-to-b from-primary/[0.045] to-transparent">
+        <Container className="py-5 sm:py-7">
+          <nav
+            aria-label="مسیر صفحه"
+            className="flex flex-wrap items-center gap-2 text-xs text-foreground/50"
+          >
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 transition-colors hover:text-primary"
+            >
+              <Home size={13} aria-hidden="true" />
+              خانه
+            </Link>
+            <ChevronLeft size={14} aria-hidden="true" />
+            <Link href="/specialists" className="transition-colors hover:text-primary">
+              متخصصان
+            </Link>
+            <ChevronLeft size={14} aria-hidden="true" />
+            <span className="font-medium text-foreground/75">{profile.name}</span>
+          </nav>
+        </Container>
+      </div>
+      <Container className="pt-5 sm:pt-7">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-7">
+          <div className="min-w-0 space-y-5 sm:space-y-6">
             <ProfileHeader profile={profile} />
             <ProfileAbout profile={profile} />
             <ProfileReviews
@@ -78,6 +102,6 @@ export default async function SpecialistProfilePage({
           <BookingPanel profile={profile} />
         </div>
       </Container>
-    </div>
+    </main>
   );
 }
