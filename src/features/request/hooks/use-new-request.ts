@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 import { requestApi } from "../api/request.api";
 import type { ProviderMatch } from "../api/request.api";
+import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
+import { formatNumber } from "@/src/utils/format";
 import { newRequestSchema } from "../schemas/new-request.schema";
 import {
   EMPTY_DRAFT,
@@ -45,11 +47,16 @@ function isStepComplete(step: WizardStepId, draft: NewRequestDraft) {
 
 export function useNewRequest(
   accessToken: string,
-  options: { preferredProviderId?: string } = {},
+  options: {
+    preferredProviderId?: string;
+    preferredProviderName?: string;
+    initialSpecialtyId?: string;
+  } = {},
 ) {
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<NewRequestDraft>(() => ({
     ...EMPTY_DRAFT,
+    categoryId: options.initialSpecialtyId ?? "",
   }));
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{
@@ -92,6 +99,33 @@ export function useNewRequest(
 
     setSubmitting(true);
     try {
+      if (options.preferredProviderId) {
+        const provider = await publicProvidersApi.getById(
+          options.preferredProviderId,
+          {
+            latitude: draft.latitude!,
+            longitude: draft.longitude!,
+          },
+        );
+        if (!provider.available) {
+          throw new Error(`${provider.name} در حال حاضر درخواست نمی‌پذیرد.`);
+        }
+        if (
+          !provider.hasServiceArea ||
+          typeof provider.serviceAreaRadiusKm !== "number" ||
+          provider.distanceKm == null
+        ) {
+          throw new Error(
+            `محدوده‌ی خدمت‌رسانی ${options.preferredProviderName ?? provider.name} ثبت نشده یا قابل بررسی نیست.`,
+          );
+        }
+        if (provider.distanceKm > provider.serviceAreaRadiusKm) {
+          throw new Error(
+            `این نشانی خارج از محدوده‌ی خدمت‌رسانی ${options.preferredProviderName ?? provider.name} است؛ محدوده تا شعاع ${formatNumber(provider.serviceAreaRadiusKm)} کیلومتر می‌باشد.`,
+          );
+        }
+      }
+
       const res = await requestApi.submit(draft, accessToken);
       const failures = await Promise.allSettled(
         draft.photoFiles.map((file) =>

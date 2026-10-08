@@ -10,6 +10,7 @@ export interface PublicProvider {
   verified: boolean;
   available: boolean;
   hasServiceArea: boolean;
+  serviceAreaRadiusKm: number | null;
   distanceKm?: number | null;
   avatarUrl: string | null;
   skills: { id: string; name: string }[];
@@ -68,9 +69,18 @@ export const publicProvidersApi = {
     return data;
   },
 
-  async getById(id: string) {
+  async getById(
+    id: string,
+    location?: { latitude: number; longitude: number },
+  ) {
+    const params = new URLSearchParams();
+    if (location) {
+      params.set("latitude", String(location.latitude));
+      params.set("longitude", String(location.longitude));
+    }
+    const query = params.size ? `?${params.toString()}` : "";
     const { data } = await apiClient<PublicProvider>(
-      `/public/providers/${id}`,
+      `/public/providers/${id}${query}`,
       {
         method: "GET",
       },
