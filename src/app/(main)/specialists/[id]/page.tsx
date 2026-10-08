@@ -37,10 +37,14 @@ export default async function SpecialistProfilePage({
   const profile: SpecialistProfile = {
     id: provider.id,
     name: provider.name,
+    specialties:
+      provider.specialties?.map(({ id, name }) => ({ id, name })) ?? [],
     headline: skills[0] ?? "متخصص خدمات",
     field: skills.join("، "),
     city: provider.hasServiceArea
-      ? "محدوده‌ی فعالیت ثبت شده"
+      ? typeof provider.serviceAreaRadiusKm === "number"
+        ? `شعاع خدمت‌رسانی ${provider.serviceAreaRadiusKm} کیلومتر`
+        : "محدوده‌ی فعالیت ثبت شده"
       : "محدوده مشخص نشده",
     avatar: provider.avatarUrl ?? undefined,
     verified: provider.verified,
@@ -55,8 +59,11 @@ export default async function SpecialistProfilePage({
       provider.bio ?? "این متخصص هنوز توضیحی درباره‌ی خدمات خود ثبت نکرده است.",
     skills,
     serviceAreas: provider.hasServiceArea
-      ? ["موقعیت تقریبی برای پیشنهاد نزدیک‌تر ثبت شده"]
+      ? typeof provider.serviceAreaRadiusKm === "number"
+        ? [`تا شعاع ${provider.serviceAreaRadiusKm} کیلومتر از مرکز ثبت‌شده`]
+        : ["محدوده‌ی فعالیت ثبت شده"]
       : [],
+    serviceAreaRadiusKm: provider.serviceAreaRadiusKm,
     portfolioTints: [],
     portfolioImages: provider.portfolio,
     reviews: provider.reviews,

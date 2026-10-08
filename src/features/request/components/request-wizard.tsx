@@ -15,13 +15,26 @@ import { SuccessScreen } from "./success-screen";
 export function RequestWizard({
   accessToken,
   preferredProviderId,
+  preferredProviderName,
+  providerSpecialties = [],
+  initialSpecialtyId,
 }: {
   accessToken: string;
   preferredProviderId?: string;
+  preferredProviderName?: string;
+  providerSpecialties?: { id: string; name: string }[];
+  initialSpecialtyId?: string;
 }) {
-  const [selectedSpecialtyName, setSelectedSpecialtyName] = useState("");
+  const initialSpecialty =
+    providerSpecialties.find(({ id }) => id === initialSpecialtyId) ??
+    providerSpecialties[0];
+  const [selectedSpecialtyName, setSelectedSpecialtyName] = useState(
+    initialSpecialty?.name ?? "",
+  );
   const wizard = useNewRequest(accessToken, {
     preferredProviderId,
+    preferredProviderName,
+    initialSpecialtyId: initialSpecialty?.id,
   });
   const categoryName = selectedSpecialtyName || wizard.draft.categoryId;
 
@@ -33,6 +46,7 @@ export function RequestWizard({
         accessToken={accessToken}
         matches={wizard.result.matches}
         initiallyInvitedProviderId={wizard.result.preferredProviderId}
+        initiallyInvitedProviderName={preferredProviderName}
       />
     );
   }
@@ -47,14 +61,50 @@ export function RequestWizard({
 
       <div className="mt-8 rounded-2xl border border-foreground/10 bg-card p-5 sm:p-8">
         {wizard.step === "category" && (
-          <SpecialtyStep
-            value={wizard.draft.categoryId}
-            accessToken={accessToken}
-            onChange={(categoryId, name) => {
-              setSelectedSpecialtyName(name);
-              wizard.update({ categoryId });
-            }}
-          />
+          providerSpecialties.length > 0 ? (
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                چه خدمتی از {preferredProviderName} می‌خواهید؟
+              </h2>
+              <p className="mt-1 text-sm text-foreground/55">
+                فقط تخصص‌هایی را می‌توانید انتخاب کنید که این متخصص ارائه می‌دهد.
+              </p>
+              <label
+                htmlFor="provider-specialty"
+                className="mt-5 block text-sm font-medium text-foreground"
+              >
+                زمینه‌ی خدمت
+              </label>
+              <select
+                id="provider-specialty"
+                value={wizard.draft.categoryId}
+                onChange={(event) => {
+                  const specialty = providerSpecialties.find(
+                    ({ id }) => id === event.target.value,
+                  );
+                  if (!specialty) return;
+                  setSelectedSpecialtyName(specialty.name);
+                  wizard.update({ categoryId: specialty.id });
+                }}
+                className="mt-2 h-12 w-full rounded-xl border border-foreground/15 bg-background px-3 text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+              >
+                {providerSpecialties.map((specialty) => (
+                  <option key={specialty.id} value={specialty.id}>
+                    {specialty.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <SpecialtyStep
+              value={wizard.draft.categoryId}
+              accessToken={accessToken}
+              onChange={(categoryId, name) => {
+                setSelectedSpecialtyName(name);
+                wizard.update({ categoryId });
+              }}
+            />
+          )
         )}
 
         {wizard.step === "details" && (

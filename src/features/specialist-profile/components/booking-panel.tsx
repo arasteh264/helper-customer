@@ -4,6 +4,9 @@ import type { SpecialistProfile } from "../types/specialist-profile.types";
 
 export function BookingPanel({ profile }: { profile: SpecialistProfile }) {
   const params = new URLSearchParams({ specialistId: profile.id });
+  if (profile.specialties?.[0]?.id) {
+    params.set("specialtyId", profile.specialties[0].id);
+  }
   const requestHref = `/request?${params.toString()}`;
 
   return (
@@ -16,8 +19,8 @@ export function BookingPanel({ profile }: { profile: SpecialistProfile }) {
               شروع همکاری با متخصص
             </div>
             <p className="mt-2 text-xs leading-6 text-foreground/60">
-              درخواست را برای {profile.name.split(" ")[0]} ثبت کنید و جزئیات کار
-              را پیگیری کنید.
+              درخواست را با تخصص {profile.specialties?.[0]?.name ?? profile.headline}
+              برای {profile.name} ثبت کنید.
             </p>
           </div>
           <div className="p-5">

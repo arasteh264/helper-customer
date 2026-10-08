@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { BadgeCheck, CheckCircle2, Loader2, MapPin, Star } from "lucide-react";
 import { requestApi, type ProviderMatch } from "../api/request.api";
@@ -13,29 +13,38 @@ export function SuccessScreen({
   accessToken,
   matches,
   initiallyInvitedProviderId,
+  initiallyInvitedProviderName,
 }: {
   code: string;
   requestId: string;
   accessToken: string;
   matches: ProviderMatch[];
   initiallyInvitedProviderId?: string;
+  initiallyInvitedProviderName?: string;
 }) {
   const [invitedProviderId, setInvitedProviderId] = useState<string>();
   const [sendingId, setSendingId] = useState<string | null>(null);
   const attemptedPreferredInvite = useRef(false);
 
-  const invite = async (provider: ProviderMatch) => {
-    setSendingId(provider.id);
-    try {
-      await requestApi.inviteProvider(requestId, provider.id, accessToken);
-      setInvitedProviderId(provider.id);
-      toast.success(`درخواست همکاری برای ${provider.name} ارسال شد`);
-    } catch {
-      toast.error("ارسال درخواست به متخصص انجام نشد. دوباره تلاش کنید.");
-    } finally {
-      setSendingId(null);
-    }
-  };
+  const invite = useCallback(
+    async (provider: Pick<ProviderMatch, "id" | "name">) => {
+      setSendingId(provider.id);
+      try {
+        await requestApi.inviteProvider(requestId, provider.id, accessToken);
+        setInvitedProviderId(provider.id);
+        toast.success(`درخواست همکاری برای ${provider.name} ارسال شد`);
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "ارسال درخواست به متخصص انجام نشد. دوباره تلاش کنید.",
+        );
+      } finally {
+        setSendingId(null);
+      }
+    },
+    [accessToken, requestId],
+  );
 
   useEffect(() => {
     if (attemptedPreferredInvite.current || !initiallyInvitedProviderId) return;
@@ -44,11 +53,21 @@ export function SuccessScreen({
       (provider) => provider.id === initiallyInvitedProviderId,
     );
 
-    if (!preferred) return;
-
     attemptedPreferredInvite.current = true;
-    void invite(preferred);
-  }, [accessToken, initiallyInvitedProviderId, matches, requestId]);
+    void invite(
+      preferred ?? {
+        id: initiallyInvitedProviderId,
+        name: initiallyInvitedProviderName ?? "متخصص منتخب",
+      },
+    );
+  }, [
+    accessToken,
+    initiallyInvitedProviderId,
+    initiallyInvitedProviderName,
+    invite,
+    matches,
+    requestId,
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl px-1 py-5">

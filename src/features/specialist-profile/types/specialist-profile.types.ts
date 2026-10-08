@@ -9,6 +9,7 @@ export interface ProfileReview {
 export interface SpecialistProfile {
   id: string;
   name: string;
+  specialties?: { id: string; name: string }[];
   headline: string;
   field: string;
   city: string;
@@ -24,6 +25,7 @@ export interface SpecialistProfile {
   bio: string;
   skills: string[];
   serviceAreas: string[];
+  serviceAreaRadiusKm?: number | null;
   /** به‌جای عکس واقعی، رنگ گرادیان هر نمونه‌کار (چون تصویر واقعی نداریم) */
   portfolioTints: string[];
   portfolioImages?: string[];

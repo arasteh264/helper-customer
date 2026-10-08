@@ -11,7 +11,7 @@ export function ProfileHeader({ profile }: { profile: SpecialistProfile }) {
           aria-hidden="true"
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-white/40 via-transparent to-transparent"
         />
-        <span className="absolute bottom-4 right-5 inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-background/85 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur">
+        <span className="absolute bottom-4 left-5 inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-background/85 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur">
           <ShieldCheck size={14} aria-hidden="true" />
           پروفایل متخصص هلپر
         </span>
@@ -24,7 +24,7 @@ export function ProfileHeader({ profile }: { profile: SpecialistProfile }) {
             <img
               src={profile.avatar}
               alt={`تصویر ${profile.name}`}
-              className="h-24 w-24 shrink-0 rounded-3xl border-4 border-card bg-card object-cover shadow-lg sm:h-28 sm:w-28"
+              className="h-24 w-24 shrink-0 rounded-3xl border-4 border-card bg-card object-cover object-top shadow-lg sm:h-28 sm:w-28"
             />
           ) : (
             <span className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl border-4 border-card bg-primary/10 text-3xl font-bold text-primary shadow-lg sm:h-28 sm:w-28">
