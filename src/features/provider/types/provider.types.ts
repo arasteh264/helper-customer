@@ -157,3 +157,18 @@ export interface UpdateProviderProfileValues {
   providerAddress?: string | null;
   providerAddressType?: "HOME" | "BUSINESS";
 }
+
+export interface ProviderOnboardingValues {
+  token: string;
+  name: string;
+  email: string;
+  password: string;
+  bio: string;
+  specialtyIds: string[];
+  skills: string[];
+  providerAddress: string;
+  providerAddressType: "HOME" | "BUSINESS";
+  serviceAreaLatitude: number | null;
+  serviceAreaLongitude: number | null;
+  serviceAreaRadiusKm: number;
+}
