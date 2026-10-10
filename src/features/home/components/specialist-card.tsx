@@ -28,14 +28,14 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-foreground/10 bg-card transition-all hover:border-primary/30 hover:shadow-xl hover:shadow-foreground/[0.07]">
-      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 sm:h-56">
+      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-primary/30 via-cyan-700/20 to-amber-300/30 sm:h-56">
         {image ? (
           <Image
             src={image}
             alt={name}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 78vw"
-            className="object-contain object-center transition-transform duration-500 group-hover:scale-[1.02]"
+            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
           <span className="absolute inset-0 flex items-center justify-center">
@@ -52,7 +52,7 @@ export function SpecialistCard({ specialist }: { specialist: Specialist }) {
           </span>
         )}
         {available && (
-          <span className="absolute bottom-3 right-3 rounded-full bg-green-700/90 px-2.5 py-1 text-[11px] font-medium text-white">
+          <span className="absolute bottom-3 right-3 rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground shadow-lg">
             آماده‌ی پذیرش کار
           </span>
         )}

@@ -5,6 +5,7 @@ import {
   Headset,
   Star,
   ArrowRight,
+  HandHelping,
 } from "lucide-react";
 import SpecialistsScene from "./specialists-scene";
 
@@ -21,8 +22,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="auth-shell flex min-h-screen flex-col bg-[#f5f1e9] lg:flex-row">
-      <aside className="auth-float relative order-2 hidden overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.18),_transparent_36%),linear-gradient(135deg,#1f7a5c_0%,#255c4b_52%,#1a453a_100%)] px-12 py-10 lg:flex lg:w-1/2 lg:flex-col lg:justify-between xl:w-[42%]">
+    <div className="auth-shell flex min-h-screen flex-col bg-background lg:flex-row">
+      <aside className="auth-float relative order-2 hidden overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.18),_transparent_36%),linear-gradient(135deg,#0b9b89_0%,#087c70_52%,#124d4b_100%)] px-12 py-10 lg:flex lg:w-1/2 lg:flex-col lg:justify-between xl:w-[42%]">
         <div
           aria-hidden
           className="auth-glow pointer-events-none absolute inset-0 opacity-[0.1]"
@@ -36,8 +37,8 @@ export default function AuthLayout({
         <div className="pointer-events-none absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-[#f3e5cb]/20 blur-3xl" />
 
         <div className="relative flex items-center gap-3 text-primary-foreground">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fffaf3] text-lg font-bold text-[#1d5d49] shadow-lg shadow-black/10">
-            H
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-primary shadow-lg shadow-black/10">
+            <HandHelping size={21} strokeWidth={2.4} aria-hidden="true" />
           </span>
           <span className="text-xl font-semibold">Helper</span>
         </div>
@@ -94,11 +95,11 @@ export default function AuthLayout({
         </div>
       </aside>
 
-      <main className="relative order-1 flex flex-1 flex-col bg-[#f5f1e9]">
+      <main className="relative order-1 flex flex-1 flex-col bg-background">
         <header className="flex items-center justify-between px-6 pt-6 sm:px-10">
           <div className="flex items-center gap-2 lg:hidden">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              H
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
+              <HandHelping size={17} strokeWidth={2.4} aria-hidden="true" />
             </span>
             <span className="text-lg font-semibold text-primary">Helper</span>
           </div>
@@ -114,7 +115,7 @@ export default function AuthLayout({
 
         <div className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
           <div className="w-full max-w-sm">
-            <div className="mb-6 flex items-center gap-2 rounded-2xl border border-[#e4d9c5] bg-[#fffaf2] px-4 py-3 text-xs text-[#3b544c] shadow-sm lg:hidden">
+            <div className="mb-6 flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/[0.05] px-4 py-3 text-xs text-foreground/75 shadow-sm lg:hidden">
               <ShieldCheck size={16} className="shrink-0 text-primary" />
               متخصصان تأییدشده، رزرو در کمتر از دو دقیقه
             </div>

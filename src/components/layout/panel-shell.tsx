@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
-import { ExternalLink, LogOut } from "lucide-react";
+import { ExternalLink, HandHelping, LogOut } from "lucide-react";
 import { ICONS, type IconKey } from "@/src/features/provider/lib/icons";
 import {
   notificationPreferencesApi,
@@ -116,8 +116,8 @@ export function PanelShell({
           href="/"
           className="flex h-16 items-center gap-2.5 border-b border-foreground/10 px-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-base font-bold text-primary-foreground">
-            H
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
+            <HandHelping size={19} strokeWidth={2.4} aria-hidden="true" />
           </span>
           <div className="leading-tight">
             <p className="text-base font-bold text-foreground">Helper</p>
@@ -203,8 +203,8 @@ export function PanelShell({
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-foreground/10 bg-background/85 px-4 backdrop-blur-xl lg:hidden">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              H
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
+              <HandHelping size={17} strokeWidth={2.4} aria-hidden="true" />
             </span>
             <span className="text-sm font-semibold text-foreground">
               {subtitle}
