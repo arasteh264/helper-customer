@@ -23,6 +23,26 @@ export interface ProviderMatch {
   distanceKm: number | null;
 }
 
+export interface ServiceRequestQuote {
+  id: string;
+  providerProfileId: string;
+  name: string;
+  rating: number;
+  reviews: number;
+  verified: boolean;
+  avatarUrl: string | null;
+  field: string;
+  distanceKm: number | null;
+  proposedPriceToman: number;
+  quoteNote: string;
+  estimatedHours: number | null;
+}
+
+export interface SubmittedRequest {
+  id: string;
+  status: "OPEN" | "PENDING_ADMIN_REVIEW" | string;
+}
+
 export type ServiceRequestPaymentStatus =
   | "PENDING"
   | "PAID"
@@ -243,6 +263,30 @@ export const requestApi = {
     return data;
   },
 
+  async getOffers(requestId: string, accessToken: string) {
+    const { data } = await apiClient<ServiceRequestQuote[]>(
+      `/service-requests/${requestId}/offers`,
+      { method: "GET", headers: authHeaders(accessToken) },
+    );
+    return data;
+  },
+
+  async selectOffer(
+    requestId: string,
+    providerProfileId: string,
+    accessToken: string,
+  ) {
+    const { data } = await apiClient<{ id: string; status: string }>(
+      `/service-requests/${requestId}/offers/select`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+        data: { providerProfileId },
+      },
+    );
+    return data;
+  },
+
   inviteProvider(
     requestId: string,
     providerProfileId: string,
@@ -256,7 +300,7 @@ export const requestApi = {
   },
 
   async submit(draft: NewRequestDraft, accessToken: string) {
-    const { data } = await apiClient<{ id: string }>("/service-requests", {
+    const { data } = await apiClient<SubmittedRequest>("/service-requests", {
       method: "POST",
       headers: authHeaders(accessToken),
       data: {
@@ -265,7 +309,7 @@ export const requestApi = {
         specialtyId: draft.categoryId,
         address: [
           draft.address.trim(),
-          `پلاک ${draft.plaque.trim()}`,
+          draft.plaque.trim() ? `پلاک ${draft.plaque.trim()}` : "",
           draft.unit.trim() ? `واحد ${draft.unit.trim()}` : "",
         ]
           .filter(Boolean)
@@ -275,9 +319,7 @@ export const requestApi = {
         preferredTime:
           draft.urgency === "asap"
             ? "URGENT"
-            : draft.urgency === "this_week"
-              ? "THIS_WEEK"
-              : "FLEXIBLE",
+            : "FLEXIBLE",
         scheduledAt: draft.scheduledAt
           ? new Date(draft.scheduledAt).toISOString()
           : undefined,

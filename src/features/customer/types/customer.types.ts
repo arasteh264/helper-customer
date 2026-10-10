@@ -14,6 +14,7 @@ export interface Customer {
 }
 
 export type RequestStatus =
+  | "awaiting_admin_review"
   | "awaiting_offers"
   | "awaiting_payment"
   | "offers_received"
@@ -53,6 +54,7 @@ export interface RequestSpecialist {
   name: string;
   field: string;
   rating: number;
+  avatarUrl?: string | null;
   phone?: string;
 }
 
@@ -69,6 +71,7 @@ export interface ServiceRequest {
   createdAt: string;
   scheduledAt?: string;
   status: RequestStatus;
+  adminReviewNote?: string | null;
   offersCount: number;
   budget?: { min: number; max: number };
   price?: number;

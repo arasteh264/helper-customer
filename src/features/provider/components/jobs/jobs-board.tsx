@@ -65,7 +65,7 @@ const TABS: {
 ];
 
 const SUCCESS_MESSAGE: Record<JobAction, string> = {
-  accept: "قیمت ثبت و کار پذیرفته شد",
+  quote: "پیشنهاد قیمت برای مشتری ارسال شد",
   reject: "درخواست رد شد",
   start: "کار شروع شد",
   complete: "کار تکمیل شد",
@@ -194,14 +194,20 @@ export function JobsBoard({
     id: string,
     action: JobAction,
     proposedPriceToman?: number,
+    quoteNote?: string,
+    estimatedHours?: number,
   ) => {
     if (action === "reject" && !window.confirm("این درخواست رد شود؟")) return;
 
     setPendingJobId(id);
     try {
-      if (action === "accept") {
-        if (!proposedPriceToman) return;
-        await providerJobsApi.accept(id, proposedPriceToman, accessToken);
+      if (action === "quote") {
+        if (!proposedPriceToman || !quoteNote) return;
+        await providerJobsApi.quote(
+          id,
+          { proposedPriceToman, quoteNote, estimatedHours },
+          accessToken,
+        );
       } else if (action === "reject") {
         await providerJobsApi.decline(id, accessToken);
       } else {

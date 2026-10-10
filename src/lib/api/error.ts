@@ -93,7 +93,11 @@ export function normalizeError(error: unknown): ApiError {
       ? data.code
       : mapStatusToCode(status, rawMessage);
 
-    return new ApiError(code, API_ERROR_MESSAGES[code], status);
+    return new ApiError(
+      code,
+      rawMessage?.trim() || API_ERROR_MESSAGES[code],
+      status,
+    );
   }
 
   return new ApiError(

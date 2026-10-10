@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { requestApi } from "../api/request.api";
@@ -34,7 +34,6 @@ function isStepComplete(step: WizardStepId, draft: NewRequestDraft) {
     case "address":
       return (
         draft.address.trim().length >= 8 &&
-        draft.plaque.trim().length > 0 &&
         draft.latitude !== undefined &&
         draft.longitude !== undefined
       );
@@ -59,11 +58,14 @@ export function useNewRequest(
     categoryId: options.initialSpecialtyId ?? "",
   }));
   const [submitting, setSubmitting] = useState(false);
+  const submitInProgress = useRef(false);
   const [result, setResult] = useState<{
     id: string;
     code: string;
     matches: ProviderMatch[];
+    status: string;
     preferredProviderId?: string;
+    preferredProviderName?: string;
   } | null>(null);
 
   const step = STEPS[stepIndex];
@@ -71,8 +73,11 @@ export function useNewRequest(
   const isLast = stepIndex === STEPS.length - 1;
   const isFirst = stepIndex === 0;
 
-  const update = (patch: Partial<NewRequestDraft>) =>
-    setDraft((prev) => ({ ...prev, ...patch }));
+  const update = useCallback(
+    (patch: Partial<NewRequestDraft>) =>
+      setDraft((prev) => ({ ...prev, ...patch })),
+    [],
+  );
 
   const goNext = () => {
     if (!canGoNext) return;
@@ -89,6 +94,8 @@ export function useNewRequest(
   };
 
   const submit = async () => {
+    if (submitInProgress.current || result) return;
+
     const parsed = newRequestSchema.safeParse(draft);
     if (!parsed.success) {
       toast.error(
@@ -97,6 +104,7 @@ export function useNewRequest(
       return;
     }
 
+    submitInProgress.current = true;
     setSubmitting(true);
     try {
       if (options.preferredProviderId) {
@@ -127,6 +135,14 @@ export function useNewRequest(
       }
 
       const res = await requestApi.submit(draft, accessToken);
+      setResult({
+        id: res.id,
+        code: `R-${res.id.slice(0, 8).toUpperCase()}`,
+        matches: [],
+        status: res.status,
+        preferredProviderId: options.preferredProviderId,
+        preferredProviderName: options.preferredProviderName,
+      });
       const failures = await Promise.allSettled(
         draft.photoFiles.map((file) =>
           requestApi.uploadPhoto(res.id, file, accessToken),
@@ -135,20 +151,6 @@ export function useNewRequest(
       if (failures.some((failure) => failure.status === "rejected")) {
         toast.error("درخواست ثبت شد، اما بارگذاری بعضی عکس‌ها انجام نشد.");
       }
-      let matches: ProviderMatch[] = [];
-      try {
-        matches = await requestApi.getMatches(res.id, accessToken);
-      } catch {
-        toast.error(
-          "درخواست ثبت شد؛ دریافت پیشنهاد متخصصان کمی بعد دوباره انجام می‌شود.",
-        );
-      }
-      setResult({
-        id: res.id,
-        code: `R-${res.id.slice(0, 8).toUpperCase()}`,
-        matches,
-        preferredProviderId: options.preferredProviderId,
-      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -156,6 +158,7 @@ export function useNewRequest(
           : "ثبت درخواست انجام نشد. لطفاً دوباره تلاش کنید.",
       );
     } finally {
+      submitInProgress.current = false;
       setSubmitting(false);
     }
   };

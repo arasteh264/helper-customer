@@ -183,16 +183,16 @@ export function RequestsList({
               const status = REQUEST_STATUS[r.status];
               return (
                 <li key={r.id}>
-                  <Link
-                    href={`/customer/requests/${r.id}`}
-                    className="block rounded-2xl border border-foreground/10 bg-card p-4 transition-colors hover:border-primary/30 hover:shadow-md hover:shadow-foreground/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:p-5"
-                  >
+                  <article className="rounded-2xl border border-foreground/10 bg-card p-4 transition-colors hover:border-primary/30 hover:shadow-md hover:shadow-foreground/[0.05] sm:p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-xs text-foreground/45">{r.code}</p>
-                        <h3 className="mt-0.5 text-base font-semibold text-foreground">
+                        <Link
+                          href={`/customer/requests/${r.id}`}
+                          className="mt-0.5 block text-base font-semibold text-foreground hover:text-primary hover:underline"
+                        >
                           {r.title}
-                        </h3>
+                        </Link>
                       </div>
                       <StatusBadge tone={status.tone}>
                         {status.label}
@@ -213,13 +213,29 @@ export function RequestsList({
                     <div className="mt-4 flex items-center justify-between gap-3 border-t border-foreground/10 pt-3.5">
                       {r.specialist ? (
                         <div className="flex items-center gap-2.5">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                            {r.specialist.name.charAt(0)}
-                          </span>
+                          <Link
+                            href={`/specialists/${encodeURIComponent(r.specialist.id)}`}
+                            aria-label={`مشاهده‌ی پروفایل ${r.specialist.name}`}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-xs font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
+                            {r.specialist.avatarUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={r.specialist.avatarUrl}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              r.specialist.name.charAt(0)
+                            )}
+                          </Link>
                           <div className="text-xs">
-                            <p className="font-medium text-foreground">
+                            <Link
+                              href={`/specialists/${encodeURIComponent(r.specialist.id)}`}
+                              className="font-medium text-foreground hover:text-primary hover:underline"
+                            >
                               {r.specialist.name}
-                            </p>
+                            </Link>
                             <p className="flex items-center gap-1 text-foreground/50">
                               <Star
                                 size={11}
@@ -262,7 +278,7 @@ export function RequestsList({
                         </p>
                       )}
                     </div>
-                  </Link>
+                  </article>
                 </li>
               );
             })}

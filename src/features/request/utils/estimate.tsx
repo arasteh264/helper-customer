@@ -10,13 +10,11 @@ export function estimatePriceRange(category: RepairCategory, urgency: Urgency) {
 }
 
 export const URGENCY_LABEL: Record<Urgency, string> = {
-  asap: "همین امروز",
-  this_week: "همین هفته",
+  asap: "فوری",
   scheduled: "زمان مشخص",
 };
 
 export const URGENCY_HINT: Record<Urgency, string> = {
   asap: "معمولاً ظرف ۱ تا ۳ ساعت متخصص پیدا می‌شود",
-  this_week: "زمان کافی برای مقایسه‌ی چند پیشنهاد دارید",
   scheduled: "برای تاریخ و ساعت دلخواه‌تان برنامه‌ریزی می‌کنیم",
 };

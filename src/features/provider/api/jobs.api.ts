@@ -14,11 +14,19 @@ export const providerJobsApi = {
     return data;
   },
 
-  accept(requestId: string, proposedPriceToman: number, accessToken: string) {
-    return apiClient(`/providers/jobs/${requestId}/accept`, {
+  quote(
+    requestId: string,
+    input: {
+      proposedPriceToman: number;
+      quoteNote: string;
+      estimatedHours?: number;
+    },
+    accessToken: string,
+  ) {
+    return apiClient(`/providers/jobs/${requestId}/quote`, {
       method: "POST",
       headers: authHeaders(accessToken),
-      data: { proposedPriceToman },
+      data: input,
     });
   },
 

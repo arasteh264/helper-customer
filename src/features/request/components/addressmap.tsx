@@ -80,7 +80,9 @@ export default function AddressMap({
     if (!map || latitude === undefined || longitude === undefined) return;
     const c = map.getCenter();
     if (Math.abs(c.lat - latitude) > EPS || Math.abs(c.lng - longitude) > EPS) {
-      map.setView([latitude, longitude], Math.max(map.getZoom(), 16));
+      map.flyTo([latitude, longitude], Math.max(map.getZoom(), 17), {
+        duration: 0.8,
+      });
     }
   }, [latitude, longitude]);
 

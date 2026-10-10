@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CalendarClock, MapPin, Phone, UserRound } from "lucide-react";
+import {
+  CalendarClock,
+  LoaderCircle,
+  MapPin,
+  Phone,
+  UserRound,
+} from "lucide-react";
 import { auth } from "@/src/auth";
 import { requestApi } from "@/src/features/request/api/request.api";
 import { RequestProgress } from "@/src/features/customer/components/request-progress";
@@ -19,6 +25,7 @@ import { Star } from "lucide-react";
 import { formatNumber } from "@/src/utils/format";
 import { ApiError } from "@/src/lib/api/error";
 import { RequestEditDialog } from "@/src/features/customer/components/request-edit-dialog";
+import { RequestDiscoveryPanel } from "@/src/features/customer/components/request-discovery-panel";
 
 export const metadata: Metadata = { title: "پیگیری درخواست | پنل مشتری" };
 
@@ -111,6 +118,27 @@ export default async function CustomerRequestDetailPage({
           <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
         </div>
         <RequestProgress status={request.status} />
+        {request.status === "awaiting_admin_review" ? (
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] p-4">
+            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <LoaderCircle size={18} className="animate-spin" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                درخواست شما در صف بررسی هلپر است
+              </p>
+              <p className="mt-1 text-xs leading-6 text-foreground/60">
+                پس از تأیید، درخواست برای متخصصان مناسب ارسال می‌شود. وضعیت این
+                صفحه را می‌توانید دوباره بررسی کنید.
+              </p>
+            </div>
+          </div>
+        ) : null}
+        {request.adminReviewNote ? (
+          <p className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2.5 text-xs leading-6 text-amber-900">
+            یادداشت بررسی هلپر: {request.adminReviewNote}
+          </p>
+        ) : null}
         {request.status === "awaiting_confirmation" &&
         request.customerConfirmationDeadline ? (
           <p className="mt-5 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2.5 text-xs leading-6 text-amber-900">
@@ -132,16 +160,18 @@ export default async function CustomerRequestDetailPage({
         accessToken={session.accessToken}
       />
 
-      <RequestChat
-        requestId={id}
-        accessToken={session.accessToken}
-        currentUserId={session.user.id}
-        currentUserRole={
-          session.user.role?.toUpperCase() === "PROVIDER"
-            ? "PROVIDER"
-            : "CUSTOMER"
-        }
-      />
+      {request.specialist ? (
+        <RequestChat
+          requestId={id}
+          accessToken={session.accessToken}
+          currentUserId={session.user.id}
+          currentUserRole={
+            session.user.role?.toUpperCase() === "PROVIDER"
+              ? "PROVIDER"
+              : "CUSTOMER"
+          }
+        />
+      ) : null}
 
       {request.specialist ? (
         <SectionCard
@@ -150,13 +180,29 @@ export default async function CustomerRequestDetailPage({
         >
           <div className="flex flex-col gap-4 rounded-xl border border-primary/15 bg-primary/4 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <UserRound size={20} />
-              </span>
+              <Link
+                href={`/specialists/${encodeURIComponent(request.specialist.id)}`}
+                aria-label={`مشاهده‌ی پروفایل ${request.specialist.name}`}
+                className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {request.specialist.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={request.specialist.avatarUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <UserRound size={20} />
+                )}
+              </Link>
               <div>
-                <p className="font-semibold text-foreground">
+                <Link
+                  href={`/specialists/${encodeURIComponent(request.specialist.id)}`}
+                  className="font-semibold text-foreground hover:text-primary hover:underline"
+                >
                   {request.specialist.name}
-                </p>
+                </Link>
                 <p className="mt-0.5 text-xs text-foreground/55">
                   {request.specialist.field}
                 </p>
@@ -178,11 +224,13 @@ export default async function CustomerRequestDetailPage({
           </div>
         </SectionCard>
       ) : (
-        <SectionCard title="در حال پیدا کردن متخصص">
-          <p className="text-sm leading-7 text-foreground/65">
-            درخواست برای متخصصان تأییدشده‌ی همین حوزه ارسال شده است. به‌محض
-            پذیرش، اطلاعات تماس و هماهنگی اینجا نمایش داده می‌شود.
-          </p>
+        <SectionCard title="پیگیری پیدا کردن متخصص">
+          <RequestDiscoveryPanel
+            requestId={request.id}
+            accessToken={session.accessToken}
+            initialStatus={request.status}
+            initialAdminReviewNote={request.adminReviewNote}
+          />
         </SectionCard>
       )}
 
