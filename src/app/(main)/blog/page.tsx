@@ -62,7 +62,7 @@ export default async function BlogPage({
   return (
     <div className="py-10 sm:py-14">
       <Container>
-        <div className="mb-8 rounded-3xl bg-[#f3f0e7] px-6 py-8 dark:bg-foreground/[0.03] sm:px-10 sm:py-10">
+        <div className="mb-8 rounded-3xl bg-secondary/70 px-6 py-8 sm:px-10 sm:py-10">
           <span className="text-sm font-semibold text-primary">مجله‌ی هلپر</span>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
             راهنمای انتخاب متخصص و نگهداری خانه

@@ -7,7 +7,7 @@ import { features } from "../api/data";
 
 export function WhyHelperSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-[#173b30] py-16 text-white sm:py-20">
+    <section className="relative isolate overflow-hidden bg-[#087c70] py-16 text-white sm:py-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-28 -top-28 -z-10 h-80 w-80 rounded-full bg-[#d99c5c]/20 blur-3xl"
@@ -36,7 +36,7 @@ export function WhyHelperSection() {
               className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 transition-colors hover:bg-white/[0.1] sm:p-6"
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d99c5c] text-[#173b30]">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-300 text-slate-950">
                   <Icon size={21} aria-hidden="true" />
                 </span>
                 <span className="text-xs font-semibold text-white/45">

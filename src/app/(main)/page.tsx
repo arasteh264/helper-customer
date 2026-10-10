@@ -5,18 +5,26 @@ import { CategoriesSection } from "@/src/features/home/components/categories-sec
 import { HowItWorksSection } from "@/src/features/home/components/how-it-works-section";
 import { SpecialistsSection } from "@/src/features/home/components/specialists-section";
 import { TestimonialsSection } from "@/src/features/home/components/testimonials-section";
-import { WhyHelperSection } from "@/src/features/home/components/why-helper-section";
 import { TrustFaqSection } from "@/src/features/home/components/trust-faq-section";
 import { CtaSection } from "@/src/features/home/components/cta-section";
 import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 import { blogServerApi } from "@/src/features/blog/api/blog.server";
 import { HomeBlogCarousel } from "@/src/features/home/components/home-blog-carousel";
+import { HomeMaintenanceCarousel } from "@/src/features/home/components/home-maintenance-carousel";
 import type { BlogArticleSummary } from "@/src/features/blog/types/blog.types";
 
 export const metadata: Metadata = {
-  title: "هلپر | پیدا کردن متخصص برای هر کاری",
+  title: "هلپر | خدمات خانه، تعمیرات و متخصصان قابل‌مقایسه",
   description:
-    "پروفایل متخصصان، تخصص و نظرهای ثبت‌شده را ببینید، قیمت را پیش از پرداخت بررسی کنید و درخواستتان را در هلپر پیگیری کنید.",
+    "برای تعمیرات و خدمات خانه متخصص پیدا کنید، پیشنهاد قیمت و پروفایل‌ها را مقایسه کنید و راهنماهای کاربردی نگهداری خانه را در هلپر بخوانید.",
+  keywords: [
+    "خدمات منزل",
+    "تعمیرات خانه",
+    "پیدا کردن متخصص",
+    "مقایسه قیمت متخصصان",
+    "نگهداری خانه",
+    "هلپر",
+  ],
 };
 
 export default async function HomePage() {
@@ -41,16 +49,16 @@ export default async function HomePage() {
 
   return (
     <main>
-      <HeroSection providers={providers} />
+      <HeroSection />
       <CategoriesSection />
-      <HowItWorksSection />
+      <HomeMaintenanceCarousel />
       <SpecialistsSection
         providers={providers}
         loadFailed={providerLoadFailed}
       />
+      <HowItWorksSection />
       <TestimonialsSection providers={providers} />
       <HomeBlogCarousel articles={blogArticles} />
-      <WhyHelperSection />
       <TrustFaqSection />
       <CtaSection />
     </main>

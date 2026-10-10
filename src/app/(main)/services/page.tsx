@@ -19,7 +19,7 @@ export default async function ServicesPage({
 
   return (
     <main className="pb-16">
-      <section className="border-b border-primary/10 bg-gradient-to-br from-[#e6f1ec] via-background to-[#f2eee4] py-12 sm:py-16">
+      <section className="border-b border-primary/10 bg-gradient-to-br from-primary/[0.13] via-background to-secondary py-12 sm:py-16">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-background/75 px-3 py-1.5 text-xs font-semibold text-primary">

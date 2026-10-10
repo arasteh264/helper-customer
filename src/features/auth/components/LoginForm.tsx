@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { HandHelping } from "lucide-react";
 import {
   Eye,
   EyeOff,
@@ -59,12 +60,12 @@ export function LoginForm() {
 
   return (
     <div className="auth-form-card w-full max-w-md">
-      <div className="overflow-hidden rounded-[1.75rem] border border-[#e5dacf] bg-[#fffdf9] shadow-[0_22px_55px_-28px_rgba(26,60,47,0.35)]">
-        <div className="border-b border-[#efe5d8] bg-[linear-gradient(180deg,rgba(31,122,92,0.08),rgba(255,255,255,0))] px-6 py-7 text-center sm:px-8">
-          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f7a5c] text-lg font-bold text-white shadow-lg shadow-primary/25">
-            H
+      <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_22px_55px_-28px_rgba(9,80,72,0.24)]">
+        <div className="border-b border-border bg-gradient-to-b from-primary/[0.08] to-transparent px-6 py-7 text-center sm:px-8">
+          <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+            <HandHelping size={23} strokeWidth={2.4} aria-hidden="true" />
           </span>
-          <h1 className="text-xl font-semibold tracking-tight text-[#173227]">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
             خوش آمدید
           </h1>
           <p className="mt-1.5 text-sm text-foreground/60">

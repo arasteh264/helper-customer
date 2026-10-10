@@ -43,7 +43,7 @@ export default async function SpecialistsPage() {
 
   return (
     <main className="pb-16">
-      <section className="relative isolate overflow-hidden border-b border-primary/10 bg-gradient-to-br from-[#e6f1ec] via-background to-[#f2eee4] py-12 sm:py-16">
+      <section className="relative isolate overflow-hidden border-b border-primary/10 bg-gradient-to-br from-primary/[0.13] via-background to-secondary py-12 sm:py-16">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -left-24 -top-32 -z-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl"

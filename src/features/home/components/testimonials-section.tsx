@@ -26,7 +26,7 @@ export function TestimonialsSection({
   return (
     <section
       id="testimonials"
-      className="scroll-mt-20 bg-[#f7f5ef] py-16 dark:bg-foreground/[0.025] sm:py-24"
+      className="scroll-mt-20 bg-secondary/55 py-16 sm:py-24"
     >
       <Container>
         <SectionHeading

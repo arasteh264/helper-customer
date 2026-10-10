@@ -66,7 +66,7 @@ export function ProviderStartButton({
       onClick={startProviderProfile}
       disabled={busy}
       className={[
-        "inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#fff9ee] px-6 text-sm font-semibold text-[#244d3d] transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary disabled:cursor-not-allowed disabled:opacity-70 sm:text-base",
+        "inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-primary transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary disabled:cursor-not-allowed disabled:opacity-70 sm:text-base",
         className,
       ].join(" ")}
     >
