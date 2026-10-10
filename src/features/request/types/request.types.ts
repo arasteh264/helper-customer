@@ -12,7 +12,7 @@ export interface RepairCategory {
   priceRange: { min: number; max: number };
 }
 
-export type Urgency = "asap" | "this_week" | "scheduled";
+export type Urgency = "asap" | "scheduled";
 
 export interface NewRequestDraft {
   categoryId: string;
@@ -39,7 +39,7 @@ export const EMPTY_DRAFT: NewRequestDraft = {
   description: "",
   photos: [],
   photoFiles: [],
-  urgency: "this_week",
+  urgency: "asap",
   address: "",
   plaque: "",
   unit: "",

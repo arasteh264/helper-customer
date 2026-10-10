@@ -13,7 +13,7 @@ import {
   toEnglishDigits,
 } from "@/src/utils/format";
 
-export type JobAction = "accept" | "reject" | "start" | "complete";
+export type JobAction = "quote" | "reject" | "start" | "complete";
 
 interface JobCardProps {
   job: Job;
@@ -21,6 +21,8 @@ interface JobCardProps {
     id: string,
     action: JobAction,
     proposedPriceToman?: number,
+    quoteNote?: string,
+    estimatedHours?: number,
   ) => void;
   onDisputeMessage: (id: string, body: string) => Promise<boolean>;
   onRaiseNonPaymentDispute: (id: string, description: string) => Promise<boolean>;
@@ -44,12 +46,18 @@ export function JobCard({
   busy = false,
 }: JobCardProps) {
   const [priceInput, setPriceInput] = useState("");
+  const [quoteNote, setQuoteNote] = useState(job.quoteNote ?? "");
+  const [hoursInput, setHoursInput] = useState(
+    job.estimatedHours?.toString() ?? "",
+  );
   const [disputeReply, setDisputeReply] = useState("");
   const [nonPaymentDescription, setNonPaymentDescription] = useState("");
   const [showNonPaymentForm, setShowNonPaymentForm] = useState(false);
-  const proposedPriceToman = Number(
-    toEnglishDigits(priceInput).replace(/\D/g, ""),
-  );
+  const estimatedHours = Number(toEnglishDigits(hoursInput).replace(",", "."));
+  const proposedPriceToman =
+    job.pricingMode === "HOURLY" && job.hourlyRateToman
+      ? Math.round(job.hourlyRateToman * estimatedHours)
+      : Number(toEnglishDigits(priceInput).replace(/\D/g, ""));
   const status = JOB_STATUS[job.status];
   const paymentStatusLabel = job.paymentStatus
     ? {
@@ -162,19 +170,66 @@ export function JobCard({
         <div className="flex items-center gap-2">
           {job.status === "new" && (
             <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
+              {job.quoteSubmitted ? (
+                <p className="text-xs leading-5 text-foreground/60">
+                  پیشنهاد ثبت‌شده:{" "}
+                  <span className="font-semibold text-foreground">
+                    {formatMoney(job.proposedPriceToman ?? job.price)}
+                  </span>
+                  {" · "}منتظر انتخاب مشتری
+                </p>
+              ) : null}
+              {job.pricingMode === "HOURLY" ? (
+                <label className="grid gap-1 text-xs text-foreground/60">
+                  ساعت تخمینی
+                  <Input
+                    inputMode="decimal"
+                    dir="ltr"
+                    value={hoursInput}
+                    onChange={(event) =>
+                      setHoursInput(
+                        toEnglishDigits(event.target.value).replace(/[^\d.]/g, ""),
+                      )
+                    }
+                    className="h-10 w-full min-w-36 rounded-lg px-3 text-sm"
+                    aria-label="ساعت تخمینی انجام کار"
+                  />
+                  {job.hourlyRateToman ? (
+                    <span>
+                      مبلغ کل تخمینی:{" "}
+                      {estimatedHours > 0
+                        ? formatMoney(proposedPriceToman)
+                        : "ساعت را وارد کنید"}
+                    </span>
+                  ) : null}
+                </label>
+              ) : (
+                <label className="grid gap-1 text-xs text-foreground/60">
+                  مبلغ پیشنهادی (تومان)
+                  <Input
+                    inputMode="numeric"
+                    dir="ltr"
+                    value={priceInput}
+                    onChange={(event) =>
+                      setPriceInput(
+                        toEnglishDigits(event.target.value).replace(/\D/g, ""),
+                      )
+                    }
+                    className="h-10 w-full min-w-36 rounded-lg px-3 text-sm"
+                    aria-label="مبلغ پیشنهادی به تومان"
+                  />
+                </label>
+              )}
               <label className="grid gap-1 text-xs text-foreground/60">
-                مبلغ قطعی (تومان)
-                <Input
-                  inputMode="numeric"
-                  dir="ltr"
-                  value={priceInput}
-                  onChange={(event) =>
-                    setPriceInput(
-                      toEnglishDigits(event.target.value).replace(/\D/g, ""),
-                    )
-                  }
-                  className="h-10 w-full min-w-36 rounded-lg px-3 text-sm"
-                  aria-label="مبلغ پیشنهادی قطعی به تومان"
+                توضیحات پیشنهاد
+                <textarea
+                  value={quoteNote}
+                  onChange={(event) => setQuoteNote(event.target.value)}
+                  maxLength={1000}
+                  rows={2}
+                  className="min-h-10 w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm"
+                  aria-label="توضیحات پیشنهاد قیمت"
+                  placeholder="شرح هزینه و خدماتی که ارائه می‌کنید"
                 />
               </label>
               <Button
@@ -187,10 +242,27 @@ export function JobCard({
               </Button>
               <Button
                 type="button"
-                disabled={busy || proposedPriceToman <= 0}
-                onClick={() => onAction(job.id, "accept", proposedPriceToman)}
+                disabled={
+                  busy ||
+                  proposedPriceToman <= 0 ||
+                  quoteNote.trim().length < 5 ||
+                  (job.pricingMode === "HOURLY" && estimatedHours <= 0)
+                }
+                onClick={() =>
+                  onAction(
+                    job.id,
+                    "quote",
+                    proposedPriceToman,
+                    quoteNote,
+                    job.pricingMode === "HOURLY" ? estimatedHours : undefined,
+                  )
+                }
               >
-                {busy ? "در حال ثبت…" : "ثبت قیمت و پذیرش"}
+                {busy
+                  ? "در حال ثبت…"
+                  : job.quoteSubmitted
+                    ? "ویرایش پیشنهاد"
+                    : "ارسال پیشنهاد قیمت"}
               </Button>
             </div>
           )}

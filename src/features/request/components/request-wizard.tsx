@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 import { useNewRequest } from "../hooks/use-new-request";
@@ -31,6 +31,8 @@ export function RequestWizard({
   const [selectedSpecialtyName, setSelectedSpecialtyName] = useState(
     initialSpecialty?.name ?? "",
   );
+  const stepContentRef = useRef<HTMLDivElement>(null);
+  const previousStepRef = useRef(0);
   const wizard = useNewRequest(accessToken, {
     preferredProviderId,
     preferredProviderName,
@@ -38,15 +40,28 @@ export function RequestWizard({
   });
   const categoryName = selectedSpecialtyName || wizard.draft.categoryId;
 
+  useEffect(() => {
+    if (previousStepRef.current === wizard.stepIndex) return;
+    previousStepRef.current = wizard.stepIndex;
+    stepContentRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    stepContentRef.current
+      ?.querySelector<HTMLElement>("input:not([type='file']), textarea, select, button")
+      ?.focus({ preventScroll: true });
+  }, [wizard.stepIndex]);
+
   if (wizard.result) {
     return (
       <SuccessScreen
         code={wizard.result.code}
         requestId={wizard.result.id}
+        initialStatus={wizard.result.status}
         accessToken={accessToken}
         matches={wizard.result.matches}
         initiallyInvitedProviderId={wizard.result.preferredProviderId}
-        initiallyInvitedProviderName={preferredProviderName}
+        initiallyInvitedProviderName={wizard.result.preferredProviderName}
       />
     );
   }
@@ -59,7 +74,11 @@ export function RequestWizard({
         onStepClick={wizard.goToStep}
       />
 
-      <div className="mt-8 rounded-2xl border border-foreground/10 bg-card p-5 sm:p-8">
+      <div
+        ref={stepContentRef}
+        tabIndex={-1}
+        className="mt-8 scroll-mt-24 rounded-2xl border border-foreground/10 bg-card p-5 outline-none focus-visible:ring-2 focus-visible:ring-primary sm:p-8"
+      >
         {wizard.step === "category" && (
           providerSpecialties.length > 0 ? (
             <div>

@@ -56,6 +56,12 @@ export interface Job {
   scheduledAt: string; // ISO
   price: number; // تومان
   proposedPriceToman?: number;
+  quoteNote?: string | null;
+  quoteSubmitted?: boolean;
+  pricingMode?: "QUOTE" | "HOURLY";
+  hourlyRateToman?: number | null;
+  hourlyUnitLabel?: string | null;
+  estimatedHours?: number | null;
   paymentStatus?: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
   customerConfirmed?: boolean;
   customerConfirmedAt?: string | null;

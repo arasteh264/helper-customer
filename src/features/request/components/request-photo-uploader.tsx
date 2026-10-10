@@ -22,30 +22,44 @@ export function RequestPhotoUploader({
   const localUrls = useRef(new Set<string>());
 
   useEffect(() => {
+    const urls = localUrls.current;
     return () => {
-      localUrls.current.forEach((url) => URL.revokeObjectURL(url));
+      urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
 
   const onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+    const selectedFiles = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (files.length === 0) return;
+    if (selectedFiles.length === 0) return;
 
-    const room = MAX_ITEMS - photos.length;
-    if (room <= 0) {
+    if (photos.length >= MAX_ITEMS) {
       toast.error(`حداکثر ${MAX_ITEMS} عکس می‌توانید اضافه کنید`);
       return;
     }
 
     const next: string[] = [];
     const nextFiles: File[] = [];
-    for (const file of files.slice(0, room)) {
+    const knownFiles = new Set(
+      files.map((file) =>
+        JSON.stringify([file.name, file.size, file.lastModified]),
+      ),
+    );
+    for (const file of selectedFiles) {
+      if (photos.length + next.length >= MAX_ITEMS) break;
+      const fingerprint = JSON.stringify([
+        file.name,
+        file.size,
+        file.lastModified,
+      ]);
+      if (knownFiles.has(fingerprint)) continue;
+
       const error = validateFile(file, FILE_RULES.avatar);
       if (error) {
         toast.error(error);
         continue;
       }
+      knownFiles.add(fingerprint);
       const url = URL.createObjectURL(file);
       localUrls.current.add(url);
       next.push(url);

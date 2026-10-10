@@ -14,10 +14,10 @@ export const newRequestSchema = z
       .min(20, "توضیحات را کامل‌تر بنویسید (حداقل ۲۰ کاراکتر)")
       .max(1000, "حداکثر ۱۰۰۰ کاراکتر"),
     photos: z.array(z.string()).max(6, "حداکثر ۶ عکس"),
-    urgency: z.enum(["asap", "this_week", "scheduled"]),
+    urgency: z.enum(["asap", "scheduled"]),
     scheduledAt: z.string().optional(),
     address: z.string().trim().min(8, "آدرس را دقیق‌تر وارد کنید").max(500),
-    plaque: z.string().trim().min(1, "شماره پلاک را وارد کنید").max(30),
+    plaque: z.string().trim().max(30),
     unit: z.string().trim().max(30),
     latitude: z.number().min(-90).max(90).optional(),
     longitude: z.number().min(-180).max(180).optional(),

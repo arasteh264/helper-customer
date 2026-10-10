@@ -12,6 +12,10 @@ export const REQUEST_STATUS: Record<
   RequestStatus,
   { label: string; tone: BadgeTone }
 > = {
+  awaiting_admin_review: {
+    label: "در انتظار بررسی هلپر",
+    tone: "warning",
+  },
   awaiting_offers: { label: "منتظر پیشنهاد", tone: "info" },
   awaiting_payment: { label: "در انتظار پرداخت", tone: "warning" },
   offers_received: {
@@ -28,7 +32,7 @@ export const REQUEST_STATUS: Record<
 /** مراحل نمایش‌داده‌شده در نوار پیشرفت هر درخواست */
 export const REQUEST_STEPS = [
   "ثبت درخواست",
-  "دریافت پیشنهاد",
+  "بررسی و یافتن متخصص",
   "انجام کار",
   "تکمیل",
 ];
@@ -36,8 +40,10 @@ export const REQUEST_STEPS = [
 /** شماره‌ی مرحله‌ی فعلی (۰ تا ۳) */
 export function getRequestStep(status: RequestStatus): number {
   switch (status) {
+    case "awaiting_admin_review":
+      return 1;
     case "awaiting_offers":
-      return 0;
+      return 1;
     case "awaiting_payment":
       return 1;
     case "offers_received":
@@ -45,7 +51,7 @@ export function getRequestStep(status: RequestStatus): number {
     case "in_progress":
     case "awaiting_confirmation":
     case "disputed":
-      return 2;
+      return 3;
     case "completed":
       return 3;
     default:
