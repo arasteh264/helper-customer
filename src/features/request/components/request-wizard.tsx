@@ -18,25 +18,30 @@ export function RequestWizard({
   preferredProviderName,
   providerSpecialties = [],
   initialSpecialtyId,
+  initialSpecialtyName,
+  initialGroupName,
 }: {
   accessToken: string;
   preferredProviderId?: string;
   preferredProviderName?: string;
   providerSpecialties?: { id: string; name: string }[];
   initialSpecialtyId?: string;
+  initialSpecialtyName?: string;
+  initialGroupName?: string;
 }) {
   const initialSpecialty =
     providerSpecialties.find(({ id }) => id === initialSpecialtyId) ??
     providerSpecialties[0];
   const [selectedSpecialtyName, setSelectedSpecialtyName] = useState(
-    initialSpecialty?.name ?? "",
+    initialSpecialty?.name ?? initialSpecialtyName ?? "",
   );
   const stepContentRef = useRef<HTMLDivElement>(null);
   const previousStepRef = useRef(0);
   const wizard = useNewRequest(accessToken, {
     preferredProviderId,
     preferredProviderName,
-    initialSpecialtyId: initialSpecialty?.id,
+    initialSpecialtyId: initialSpecialty?.id ?? initialSpecialtyId,
+    skipCategoryStep: !preferredProviderId && !!initialSpecialtyId,
   });
   const categoryName = selectedSpecialtyName || wizard.draft.categoryId;
 
@@ -74,10 +79,24 @@ export function RequestWizard({
         onStepClick={wizard.goToStep}
       />
 
+      {initialGroupName && initialSpecialtyId && selectedSpecialtyName && (
+        <div className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/[0.045] px-4 py-3 text-sm">
+          <span className="text-foreground/60">خدمت انتخاب‌شده:</span>
+          <span className="font-semibold text-foreground">
+            {selectedSpecialtyName}
+          </span>
+          {initialGroupName && (
+            <span className="text-xs text-foreground/50">
+              از گروه {initialGroupName}
+            </span>
+          )}
+        </div>
+      )}
+
       <div
         ref={stepContentRef}
         tabIndex={-1}
-        className="mt-8 scroll-mt-24 rounded-2xl border border-foreground/10 bg-card p-5 outline-none focus-visible:ring-2 focus-visible:ring-primary sm:p-8"
+        className="mt-5 scroll-mt-24 rounded-2xl border border-foreground/10 bg-card p-5 outline-none focus-visible:ring-2 focus-visible:ring-primary sm:mt-8 sm:p-8"
       >
         {wizard.step === "category" && (
           providerSpecialties.length > 0 ? (

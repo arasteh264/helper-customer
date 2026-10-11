@@ -24,6 +24,7 @@ export async function uploadVerificationDocument(
   type: string,
   file: File,
   accessToken?: string,
+  onProgress?: (progress: number) => void,
 ): Promise<VerificationDocResponse> {
   const formData = new FormData();
   formData.append("file", file);
@@ -36,6 +37,11 @@ export async function uploadVerificationDocument(
       headers: {
         "Content-Type": undefined,
         ...(authHeaders(accessToken) ?? {}),
+      },
+      onUploadProgress: (event) => {
+        if (event.total) {
+          onProgress?.(Math.round((event.loaded / event.total) * 100));
+        }
       },
     },
   );

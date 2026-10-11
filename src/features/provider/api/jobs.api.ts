@@ -30,10 +30,15 @@ export const providerJobsApi = {
     });
   },
 
-  decline(requestId: string, accessToken: string) {
+  decline(
+    requestId: string,
+    input: { reason: string; note?: string },
+    accessToken: string,
+  ) {
     return apiClient(`/providers/jobs/${requestId}/decline`, {
       method: "POST",
       headers: authHeaders(accessToken),
+      data: input,
     });
   },
 

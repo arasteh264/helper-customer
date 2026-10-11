@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Clock, Coins, Zap } from "lucide-react";
 
 import type { NewRequestDraft, Urgency } from "../types/request.types";
 import { URGENCY_HINT, URGENCY_LABEL } from "../utils/estimate";
-import { toEnglishDigits } from "@/src/utils/format";
+import { formatWithCommas, toEnglishDigits } from "@/src/utils/format";
 import { Input } from "@/src/components/ui/input";
 
 const persianPartsFormatter = new Intl.DateTimeFormat(
@@ -330,7 +330,7 @@ export function ScheduleStep({
                 inputMode="numeric"
                 dir="ltr"
                 placeholder="حداقل"
-                value={draft.budgetMin ?? ""}
+                value={formatWithCommas(String(draft.budgetMin ?? ""))}
                 onChange={(e) =>
                   onChange({
                     budgetMin:
@@ -353,7 +353,7 @@ export function ScheduleStep({
                 inputMode="numeric"
                 dir="ltr"
                 placeholder="حداکثر"
-                value={draft.budgetMax ?? ""}
+                value={formatWithCommas(String(draft.budgetMax ?? ""))}
                 onChange={(e) =>
                   onChange({
                     budgetMax:

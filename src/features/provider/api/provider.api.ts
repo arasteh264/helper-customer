@@ -4,6 +4,7 @@ import {
   ProviderSkill,
   ProviderSpecialty,
   ProviderSpecialtyGroup,
+  ProviderOnboardingValues,
   UpdateProviderProfileValues,
 } from "../types/provider.types";
 
@@ -11,6 +12,20 @@ const authHeaders = (accessToken?: string) =>
   accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
 
 export const providerApi = {
+  completeOnboarding: async (values: ProviderOnboardingValues) => {
+    const { data } = await apiClient<{
+      message: string;
+      accessToken: string;
+    }>(
+      "/providers/onboarding/complete",
+      {
+        method: "POST",
+        data: values,
+      },
+    );
+    return data;
+  },
+
   createProfile: async (bio?: string, accessToken?: string) => {
     const { data } = await apiClient<ProviderProfile>("/providers/profile", {
       method: "POST",

@@ -24,7 +24,10 @@ export const specialistRegisterSchema = z.object({
 
   terms: z
     .boolean()
-    .refine((v) => v === true, "برای ادامه باید قوانین را بپذیرید"),
+    .refine(
+      (v) => v === true,
+      "برای ادامه باید شرایط همکاری متخصصان هلپر و حریم خصوصی را بپذیرید",
+    ),
 });
 
 export type SpecialistRegisterValues = z.infer<typeof specialistRegisterSchema>;

@@ -9,6 +9,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 
 import { formatMoney, maskSheba, toEnglishDigits } from "../../utils/format";
+import { formatWithCommas } from "@/src/utils/format";
 import { BankAccount } from "../../types/types";
 import { walletApi } from "../../api/wallet.api";
 import { useRouter } from "next/navigation";
@@ -114,7 +115,7 @@ export function WithdrawDialog({
             autoFocus
             autoComplete="off"
             placeholder="مثلاً 2000000"
-            value={amount}
+            value={formatWithCommas(amount)}
             onChange={(e) =>
               setAmount(toEnglishDigits(e.target.value).replace(/\D/g, ""))
             }

@@ -8,6 +8,7 @@ import { JobsBoard } from "@/src/features/provider/components/jobs/jobs-board";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { providerJobsApi } from "@/src/features/provider/api/jobs.api";
+import { walletApi } from "@/src/features/provider/api/wallet.api";
 
 export const metadata: Metadata = { title: "کارها | پنل متخصص" };
 
@@ -46,13 +47,27 @@ export default async function ProviderJobsPage() {
     );
   }
 
+  let commissionRate: number | null = null;
+  let commissionRateError = false;
+  try {
+    commissionRate = (await walletApi.getSummary(session.accessToken)).commissionRate;
+  } catch (error) {
+    console.error("Failed to load provider commission rate for job quotes.", error);
+    commissionRateError = true;
+  }
+
   return (
     <>
       <PageHeader
         title="درخواست‌های کاری"
         description="درخواست‌های متناسب با تخصص خود را بررسی و مدیریت کنید."
       />
-      <JobsBoard initialJobs={jobs} accessToken={session.accessToken} />
+      <JobsBoard
+        initialJobs={jobs}
+        accessToken={session.accessToken}
+        commissionRate={commissionRate}
+        commissionRateError={commissionRateError}
+      />
     </>
   );
 }

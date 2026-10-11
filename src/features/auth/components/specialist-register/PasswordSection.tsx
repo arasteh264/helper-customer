@@ -62,11 +62,23 @@ export function PasswordSection() {
         )}
       </div>
 
-      <div className="space-y-2 rounded-xl bg-foreground/[0.03] p-3">
-        <label className="flex cursor-pointer items-start gap-2.5 text-sm leading-6 text-foreground/70">
+      <div className="space-y-3 rounded-2xl border border-primary/15 bg-primary/[0.035] p-4">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">
+            پیش از شروع همکاری با هلپر
+          </h3>
+          <ul className="mt-2 space-y-1.5 text-xs leading-6 text-foreground/65">
+            <li>قیمت و محدوده‌ی کار را در پیشنهاد خود شفاف اعلام کنید.</li>
+            <li>شروع کار پس از انتخاب شما توسط مشتری و هماهنگی انجام می‌شود.</li>
+            <li>اطلاعات و نشانی مشتری را محرمانه نگه دارید.</li>
+          </ul>
+        </div>
+
+        <label className="flex cursor-pointer items-start gap-2.5 border-t border-primary/10 pt-3 text-sm leading-6 text-foreground/75">
           <input
             type="checkbox"
             aria-invalid={!!errors.terms}
+            aria-describedby={errors.terms ? "terms-error" : undefined}
             className="mt-1 h-4 w-4 shrink-0 cursor-pointer rounded border-foreground/25 accent-primary"
             {...register("terms")}
           />
@@ -76,7 +88,7 @@ export function PasswordSection() {
               onClick={() => setLegalType("terms")}
               className="font-medium text-primary hover:underline"
             >
-              قوانین و مقررات
+              شرایط همکاری متخصصان هلپر
             </button>{" "}
             و{" "}
             <button
@@ -86,7 +98,7 @@ export function PasswordSection() {
             >
               حریم خصوصی
             </button>{" "}
-            را می‌پذیرم
+            را خوانده‌ام و می‌پذیرم.
           </span>
         </label>
         <FieldError id="terms-error" message={errors.terms?.message} />
