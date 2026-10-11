@@ -263,17 +263,6 @@ export function MobileMenu({
                   خروج
                 </button>
               </div>
-              {user.role?.toUpperCase() !== "PROVIDER" ? (
-                <Link
-                  href="/become-provider"
-                  className="block text-center text-sm text-foreground/60 transition-colors hover:text-primary"
-                >
-                  متخصص هستید؟{" "}
-                  <span className="font-medium text-primary">
-                    همکاری با هلپر
-                  </span>
-                </Link>
-              ) : null}
             </>
           ) : (
             <>
@@ -285,13 +274,6 @@ export function MobileMenu({
                   ثبت‌نام
                 </ButtonLink>
               </div>
-              <Link
-                href="/become-provider"
-                className="block text-center text-sm text-foreground/60 transition-colors hover:text-primary"
-              >
-                متخصص هستید؟{" "}
-                <span className="font-medium text-primary">همکاری با هلپر</span>
-              </Link>
             </>
           )}
         </div>

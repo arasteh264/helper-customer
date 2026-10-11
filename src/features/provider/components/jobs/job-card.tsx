@@ -10,6 +10,8 @@ import { JOB_STATUS } from "../../utils/job-status";
 import {
   formatDateTime,
   formatMoney,
+  formatNumber,
+  formatWithCommas,
   toEnglishDigits,
 } from "@/src/utils/format";
 
@@ -23,9 +25,12 @@ interface JobCardProps {
     proposedPriceToman?: number,
     quoteNote?: string,
     estimatedHours?: number,
+    declineReason?: string,
+    declineNote?: string,
   ) => void;
   onDisputeMessage: (id: string, body: string) => Promise<boolean>;
   onRaiseNonPaymentDispute: (id: string, description: string) => Promise<boolean>;
+  commissionRate: number | null;
   busy?: boolean;
 }
 
@@ -43,6 +48,7 @@ export function JobCard({
   onAction,
   onDisputeMessage,
   onRaiseNonPaymentDispute,
+  commissionRate,
   busy = false,
 }: JobCardProps) {
   const [priceInput, setPriceInput] = useState("");
@@ -53,11 +59,22 @@ export function JobCard({
   const [disputeReply, setDisputeReply] = useState("");
   const [nonPaymentDescription, setNonPaymentDescription] = useState("");
   const [showNonPaymentForm, setShowNonPaymentForm] = useState(false);
+  const [showDeclineForm, setShowDeclineForm] = useState(false);
+  const [declineReason, setDeclineReason] = useState("NOT_MY_SPECIALTY");
+  const [declineNote, setDeclineNote] = useState("");
   const estimatedHours = Number(toEnglishDigits(hoursInput).replace(",", "."));
   const proposedPriceToman =
     job.pricingMode === "HOURLY" && job.hourlyRateToman
       ? Math.round(job.hourlyRateToman * estimatedHours)
       : Number(toEnglishDigits(priceInput).replace(/\D/g, ""));
+  const platformCommission =
+    commissionRate == null
+      ? null
+      : Math.round((proposedPriceToman * commissionRate) / 100);
+  const providerNet =
+    platformCommission == null
+      ? null
+      : proposedPriceToman - platformCommission;
   const status = JOB_STATUS[job.status];
   const paymentStatusLabel = job.paymentStatus
     ? {
@@ -167,11 +184,11 @@ export function JobCard({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="w-full">
           {job.status === "new" && (
-            <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-end">
+            <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
               {job.quoteSubmitted ? (
-                <p className="text-xs leading-5 text-foreground/60">
+                <p className="sm:col-span-3 text-xs leading-5 text-foreground/60">
                   پیشنهاد ثبت‌شده:{" "}
                   <span className="font-semibold text-foreground">
                     {formatMoney(job.proposedPriceToman ?? job.price)}
@@ -195,7 +212,7 @@ export function JobCard({
                     aria-label="ساعت تخمینی انجام کار"
                   />
                   {job.hourlyRateToman ? (
-                    <span>
+                    <span className="text-xs">
                       مبلغ کل تخمینی:{" "}
                       {estimatedHours > 0
                         ? formatMoney(proposedPriceToman)
@@ -204,12 +221,12 @@ export function JobCard({
                   ) : null}
                 </label>
               ) : (
-                <label className="grid gap-1 text-xs text-foreground/60">
+                <label className="grid gap-1 text-xs text-foreground/60 sm:w-48">
                   مبلغ پیشنهادی (تومان)
                   <Input
                     inputMode="numeric"
                     dir="ltr"
-                    value={priceInput}
+                    value={formatWithCommas(priceInput)}
                     onChange={(event) =>
                       setPriceInput(
                         toEnglishDigits(event.target.value).replace(/\D/g, ""),
@@ -218,25 +235,62 @@ export function JobCard({
                     className="h-10 w-full min-w-36 rounded-lg px-3 text-sm"
                     aria-label="مبلغ پیشنهادی به تومان"
                   />
+                  {proposedPriceToman > 0 ? (
+                    <span className="text-[11px] leading-5 text-foreground/55">
+                      مبلغ پیشنهادی شما: {formatMoney(proposedPriceToman)}
+                    </span>
+                  ) : null}
                 </label>
               )}
-              <label className="grid gap-1 text-xs text-foreground/60">
-                توضیحات پیشنهاد
+              {proposedPriceToman > 0 ? (
+                <div className="flex flex-wrap gap-x-4 gap-y-1 rounded-lg bg-primary/[0.04] px-3 py-2 text-xs sm:col-span-3">
+                  {commissionRate == null ||
+                  platformCommission == null ||
+                  providerNet == null ? (
+                    <span className="text-amber-800">
+                      نرخ کمیسیون برای محاسبه‌ی سهم خالص در دسترس نیست.
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-foreground/60">
+                        کارمزد هلپر ({formatNumber(commissionRate)}٪): {formatMoney(platformCommission)}
+                      </span>
+                      <span className="font-semibold text-foreground">
+                        مبلغ باقی‌مانده برای شما: {formatMoney(providerNet)}
+                      </span>
+                    </>
+                  )}
+                </div>
+              ) : null}
+              <label className="grid min-w-0 gap-1.5 text-xs text-foreground/65 sm:col-span-3">
+                <span className="font-semibold text-foreground">
+                  شرح خدمات و هزینه
+                </span>
+                <span className="text-[11px] leading-5 text-foreground/50">
+                  مشخص کنید این مبلغ شامل چه کارهایی است و هزینه‌ی بازدید یا
+                  قطعات چگونه محاسبه می‌شود.
+                </span>
                 <textarea
                   value={quoteNote}
                   onChange={(event) => setQuoteNote(event.target.value)}
                   maxLength={1000}
-                  rows={2}
-                  className="min-h-10 w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm"
+                  rows={4}
+                  className="min-h-28 w-full resize-y rounded-xl border border-foreground/15 bg-background px-3.5 py-3 text-sm leading-7 text-foreground outline-none transition-colors placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
                   aria-label="توضیحات پیشنهاد قیمت"
-                  placeholder="شرح هزینه و خدماتی که ارائه می‌کنید"
+                  placeholder="مثلاً: این مبلغ شامل عیب‌یابی و اجرت تعمیر است. هزینه‌ی قطعه در صورت نیاز جداگانه و پس از هماهنگی اعلام می‌شود. زمان تقریبی انجام کار حدود یک ساعت است."
                 />
+                <span className="text-end text-[11px] text-foreground/45">
+                  {new Intl.NumberFormat("fa-IR").format(quoteNote.length)} از
+                  ۱۰۰۰ نویسه
+                </span>
               </label>
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 disabled={busy}
-                onClick={() => onAction(job.id, "reject")}
+                onClick={() => setShowDeclineForm((shown) => !shown)}
+                className="w-fit"
               >
                 رد درخواست
               </Button>
@@ -244,6 +298,7 @@ export function JobCard({
                 type="button"
                 disabled={
                   busy ||
+                  commissionRate == null ||
                   proposedPriceToman <= 0 ||
                   quoteNote.trim().length < 5 ||
                   (job.pricingMode === "HOURLY" && estimatedHours <= 0)
@@ -257,6 +312,7 @@ export function JobCard({
                     job.pricingMode === "HOURLY" ? estimatedHours : undefined,
                   )
                 }
+                className="w-full sm:w-auto"
               >
                 {busy
                   ? "در حال ثبت…"
@@ -296,6 +352,71 @@ export function JobCard({
           )}
         </div>
       </div>
+      {showDeclineForm && job.status === "new" ? (
+        <div className="mt-2 flex flex-wrap items-end gap-2 rounded-lg bg-foreground/[0.03] p-2">
+          <label className="grid min-w-44 gap-1 text-xs">
+            علت رد
+            <select
+              value={declineReason}
+              onChange={(event) => setDeclineReason(event.target.value)}
+              className="h-9 rounded-lg border border-foreground/15 bg-background px-2 text-xs"
+              disabled={busy}
+            >
+              <option value="NOT_MY_SPECIALTY">خارج از تخصص من است</option>
+              <option value="OUT_OF_SERVICE_AREA">خارج از محدوده‌ی خدمت‌رسانی من است</option>
+              <option value="SCHEDULE_UNAVAILABLE">در زمان درخواستی امکان انجام ندارم</option>
+              <option value="REQUEST_DETAILS_INSUFFICIENT">جزئیات درخواست کافی نیست</option>
+              <option value="PRICE_OR_BUDGET">شرایط یا بودجه‌ی درخواست مناسب نیست</option>
+              <option value="OTHER">سایر</option>
+            </select>
+          </label>
+          {declineReason === "OTHER" ? (
+            <label className="grid min-w-48 flex-1 gap-1 text-xs">
+              توضیح
+              <textarea
+                value={declineNote}
+                onChange={(event) => setDeclineNote(event.target.value)}
+                minLength={5}
+                maxLength={500}
+                rows={1}
+                className="min-h-9 w-full resize-y rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-xs leading-5"
+                placeholder="علت را کوتاه بنویسید"
+                disabled={busy}
+              />
+            </label>
+          ) : null}
+          <div className="ms-auto flex gap-1.5">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={busy}
+              onClick={() => setShowDeclineForm(false)}
+            >
+              انصراف
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              disabled={busy || (declineReason === "OTHER" && declineNote.trim().length < 5)}
+              onClick={() =>
+                onAction(
+                  job.id,
+                  "reject",
+                  undefined,
+                  undefined,
+                  undefined,
+                  declineReason,
+                  declineReason === "OTHER" ? declineNote.trim() : undefined,
+                )
+              }
+            >
+              تأیید رد درخواست
+            </Button>
+          </div>
+        </div>
+      ) : null}
       {showNonPaymentForm ? (
         <div className="mt-4 space-y-3 rounded-lg border border-destructive/20 p-3">
           <p className="text-sm font-medium">دلیل: مشتری هزینه‌ی توافق‌شده را پرداخت نکرده است</p>

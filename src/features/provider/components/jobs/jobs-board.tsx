@@ -74,9 +74,13 @@ const SUCCESS_MESSAGE: Record<JobAction, string> = {
 export function JobsBoard({
   initialJobs,
   accessToken,
+  commissionRate,
+  commissionRateError,
 }: {
   initialJobs: Job[];
   accessToken: string;
+  commissionRate: number | null;
+  commissionRateError: boolean;
 }) {
   const [jobs, setJobs] = useState(initialJobs);
   const [tab, setTab] = useState<JobFilter>("new");
@@ -196,9 +200,9 @@ export function JobsBoard({
     proposedPriceToman?: number,
     quoteNote?: string,
     estimatedHours?: number,
+    declineReason?: string,
+    declineNote?: string,
   ) => {
-    if (action === "reject" && !window.confirm("این درخواست رد شود؟")) return;
-
     setPendingJobId(id);
     try {
       if (action === "quote") {
@@ -209,7 +213,12 @@ export function JobsBoard({
           accessToken,
         );
       } else if (action === "reject") {
-        await providerJobsApi.decline(id, accessToken);
+        if (!declineReason) return;
+        await providerJobsApi.decline(
+          id,
+          { reason: declineReason, note: declineNote },
+          accessToken,
+        );
       } else {
         await providerJobsApi[action](id, accessToken);
       }
@@ -337,6 +346,12 @@ export function JobsBoard({
         </button>
       </div>
 
+      {commissionRateError ? (
+        <p className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-800" role="status">
+          دریافت نرخ کارمزد پلتفرم انجام نشد؛ برای نمایش مبلغ خالص، صفحه را تازه‌سازی کنید.
+        </p>
+      ) : null}
+
       <div
         role="tablist"
         aria-label="وضعیت کارها"
@@ -407,6 +422,7 @@ export function JobsBoard({
                   onAction={handleAction}
                   onDisputeMessage={handleDisputeMessage}
                   onRaiseNonPaymentDispute={handleNonPaymentDispute}
+                  commissionRate={commissionRate}
                   busy={pendingJobId === job.id}
                 />
               </li>

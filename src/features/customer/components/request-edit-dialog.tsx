@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,7 +20,10 @@ import {
   editRequestSchema,
   type EditRequestValues,
 } from "@/src/features/request/schemas/edit-request.schema";
-import { toEnglishDigits } from "@/src/utils/format";
+import {
+  formatWithCommas,
+  toEnglishDigits,
+} from "@/src/utils/format";
 
 const AddressMap = dynamic(
   () => import("@/src/features/request/components/addressmap"),
@@ -59,6 +62,8 @@ export function RequestEditDialog({
     register,
     handleSubmit,
     reset,
+    setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<EditRequestValues>({
     resolver: zodResolver(editRequestSchema),
@@ -71,6 +76,8 @@ export function RequestEditDialog({
       budgetMax: request.budget ? String(request.budget.max) : "",
     },
   });
+  const budgetMin = useWatch({ control, name: "budgetMin" });
+  const budgetMax = useWatch({ control, name: "budgetMax" });
 
   const openEditor = () => {
     reset({
@@ -235,7 +242,14 @@ export function RequestEditDialog({
                 dir="ltr"
                 inputMode="numeric"
                 error={!!errors.budgetMin}
-                {...register("budgetMin", { setValueAs: toEnglishDigits })}
+                value={formatWithCommas(budgetMin ?? "")}
+                onChange={(event) =>
+                  setValue(
+                    "budgetMin",
+                    toEnglishDigits(event.currentTarget.value).replace(/\D/g, ""),
+                    { shouldDirty: true, shouldValidate: true },
+                  )
+                }
               />
               {errors.budgetMin && (
                 <p className="text-xs text-destructive">
@@ -252,7 +266,14 @@ export function RequestEditDialog({
                 dir="ltr"
                 inputMode="numeric"
                 error={!!errors.budgetMax}
-                {...register("budgetMax", { setValueAs: toEnglishDigits })}
+                value={formatWithCommas(budgetMax ?? "")}
+                onChange={(event) =>
+                  setValue(
+                    "budgetMax",
+                    toEnglishDigits(event.currentTarget.value).replace(/\D/g, ""),
+                    { shouldDirty: true, shouldValidate: true },
+                  )
+                }
               />
               {errors.budgetMax && (
                 <p className="text-xs text-destructive">

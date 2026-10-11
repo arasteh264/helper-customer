@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/src/components/shared/container";
+import { specialistTerms } from "@/src/features/auth/data/specialist-terms";
 
 export const metadata: Metadata = {
   title: "قوانین و مقررات | هلپر",
@@ -12,7 +13,7 @@ const terms = [
   {
     title: "تعریف خدمات و مسئولیت‌ها",
     body:
-      "هلپر تنها واسطه‌ای برای معرفی متخصصان، سرویس‌دهندگان و کاربران است و مسئولیتی در قبال کیفیت، نتیجه یا زمان انجام خدمات ندارد مگر آن‌که صراحتاً در قرارداد یا پیام‌های رسمی‌ آن، به‌صورت مشخص اعلام شده باشد.",
+      "هلپر بستر ثبت درخواست، دریافت و مقایسه‌ی پیشنهاد متخصصان و پیگیری هماهنگی‌ها را فراهم می‌کند. متخصص مسئول ارائه‌ی خدمت در حدود مهارت و توافق خود است و مشتری نیز پیش از انتخاب، پیشنهاد و شرایط انجام کار را بررسی می‌کند.",
   },
   {
     title: "ثبت سفارش و هماهنگی",
@@ -22,7 +23,7 @@ const terms = [
   {
     title: "پرداخت و هزینه‌ها",
     body:
-      "هزینه خدمات، بر اساس نوع خدمت، نرخ متخصص، زمان و شرایط اعلام‌شده در پنل درخواست محاسبه می‌شود. پرداخت فقط از مسیرهای رسمی درون پلتفرم انجام می‌شود و هر نوع پرداخت خارج از سیستم، به‌صورت غیرقانونی و مسئولیت‌پذیر تلقی می‌شود.",
+      "مبلغ پیشنهادی متخصص و شرایط پرداخت باید پیش از شروع کار برای مشتری روشن باشد. کارمزدها یا هزینه‌های قابل‌اعمال هلپر از مسیرهای رسمی پلتفرم اعلام می‌شوند. طرفین باید رسیدها و توافق‌های مالی را نگه دارند و از معرفی پرداخت خارج از پلتفرم به‌عنوان پرداخت ثبت‌شده در هلپر خودداری کنند.",
   },
   {
     title: "حق‌کپی و محتوای منتشرشده",
@@ -72,6 +73,34 @@ export default function TermsPage() {
               </section>
             ))}
           </div>
+
+          <section
+            id="specialist-cooperation"
+            className="mt-8 scroll-mt-24 border-t border-foreground/10 pt-8"
+          >
+            <h2 className="text-xl font-bold text-foreground sm:text-2xl">
+              شرایط همکاری متخصصان هلپر
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-foreground/60">
+              این بخش هنگام ثبت‌نام متخصص نمایش داده می‌شود و پذیرش آن برای
+              ارسال فرم ثبت‌نام الزامی است.
+            </p>
+            <div className="mt-5 space-y-4">
+              {specialistTerms.map((item) => (
+                <section
+                  key={item.title}
+                  className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-5"
+                >
+                  <h3 className="text-base font-bold text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-8 text-foreground/70">
+                    {item.body}
+                  </p>
+                </section>
+              ))}
+            </div>
+          </section>
 
           <div className="mt-8 rounded-2xl border border-primary/15 bg-primary/5 p-5 text-sm leading-8 text-foreground/75">
             در صورت بروز اختلاف، قوانین جمهوری اسلامی ایران و مقررات مرتبط با خدمات آنلاین و تجارت الکترونیکی حاکم خواهد بود. برای دریافت اطلاعات بیشتر، با پشتیبانی هلپر در تماس باشید.

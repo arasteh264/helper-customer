@@ -50,8 +50,12 @@ export function useNewRequest(
     preferredProviderId?: string;
     preferredProviderName?: string;
     initialSpecialtyId?: string;
+    skipCategoryStep?: boolean;
   } = {},
 ) {
+  const steps = options.skipCategoryStep
+    ? STEPS.filter((step) => step !== "category")
+    : STEPS;
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<NewRequestDraft>(() => ({
     ...EMPTY_DRAFT,
@@ -68,26 +72,26 @@ export function useNewRequest(
     preferredProviderName?: string;
   } | null>(null);
 
-  const step = STEPS[stepIndex];
+  const step = steps[stepIndex];
   const canGoNext = isStepComplete(step, draft);
-  const isLast = stepIndex === STEPS.length - 1;
+  const isLast = stepIndex === steps.length - 1;
   const isFirst = stepIndex === 0;
 
   const update = useCallback(
     (patch: Partial<NewRequestDraft>) =>
       setDraft((prev) => ({ ...prev, ...patch })),
-    [],
+    [setDraft],
   );
 
   const goNext = () => {
     if (!canGoNext) return;
-    setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
+    setStepIndex((i) => Math.min(i + 1, steps.length - 1));
   };
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0));
   const goToStep = (id: WizardStepId) => {
-    const target = STEPS.indexOf(id);
+    const target = steps.indexOf(id);
     // فقط اجازه‌ی رفتن به مراحلی که پیش‌نیازشان کامل است
-    const reachable = STEPS.slice(0, target).every((s) =>
+    const reachable = steps.slice(0, target).every((s) =>
       isStepComplete(s, draft),
     );
     if (reachable) setStepIndex(target);
@@ -164,12 +168,12 @@ export function useNewRequest(
   };
 
   const progress = useMemo(
-    () => Math.round(((stepIndex + 1) / STEPS.length) * 100),
-    [stepIndex],
+    () => Math.round(((stepIndex + 1) / steps.length) * 100),
+    [stepIndex, steps.length],
   );
 
   return {
-    steps: STEPS,
+    steps,
     step,
     stepIndex,
     progress,

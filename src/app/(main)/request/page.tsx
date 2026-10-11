@@ -12,7 +12,12 @@ export const metadata: Metadata = { title: "ثبت درخواست تعمیرات
 export default async function NewRequestPage({
   searchParams,
 }: {
-  searchParams: Promise<{ specialistId?: string; specialtyId?: string }>;
+  searchParams: Promise<{
+    specialistId?: string;
+    specialtyId?: string;
+    specialtyName?: string;
+    groupName?: string;
+  }>;
 }) {
   const query = await searchParams;
   const callbackParams = new URLSearchParams();
@@ -21,6 +26,12 @@ export default async function NewRequestPage({
   }
   if (query.specialtyId) {
     callbackParams.set("specialtyId", query.specialtyId);
+  }
+  if (query.specialtyName) {
+    callbackParams.set("specialtyName", query.specialtyName);
+  }
+  if (query.groupName) {
+    callbackParams.set("groupName", query.groupName);
   }
   const callbackUrl = `/request${callbackParams.size ? `?${callbackParams}` : ""}`;
   const session = await auth();
@@ -43,6 +54,13 @@ export default async function NewRequestPage({
     preferredProvider?.specialties?.find(
       ({ id }) => id === query.specialtyId,
     ) ?? preferredProvider?.specialties?.[0];
+  const initialSpecialtyId =
+    preferredSpecialty?.id ??
+    (query.specialtyId && query.specialtyName
+      ? query.specialtyId
+      : undefined);
+  const initialSpecialtyName =
+    preferredSpecialty?.name ?? query.specialtyName;
 
   return (
     <div className="min-h-screen bg-foreground/[0.02] py-8 sm:py-12">
@@ -54,7 +72,9 @@ export default async function NewRequestPage({
           <p className="mt-2 text-sm leading-7 text-foreground/60">
             {preferredProvider
               ? `جزئیات خدمت ${preferredSpecialty?.name ?? "موردنیاز"} را وارد کنید تا درخواست برای ${preferredProvider.name} ارسال شود.`
-              : "مشکل‌تان را توضیح دهید تا نزدیک‌ترین متخصصان تأییدشده برایتان پیشنهاد بدهند."}
+              : initialSpecialtyName
+                ? `خدمت ${initialSpecialtyName} از گروه ${query.groupName ?? "خدمات"} انتخاب شده است؛ جزئیات درخواست را تکمیل کنید.`
+                : "مشکل‌تان را توضیح دهید تا نزدیک‌ترین متخصصان تأییدشده برایتان پیشنهاد بدهند."}
           </p>
         </div>
 
@@ -63,7 +83,9 @@ export default async function NewRequestPage({
           preferredProviderId={preferredProvider?.id}
           preferredProviderName={preferredProvider?.name}
           providerSpecialties={preferredProvider?.specialties}
-          initialSpecialtyId={preferredSpecialty?.id}
+          initialSpecialtyId={initialSpecialtyId}
+          initialSpecialtyName={initialSpecialtyName}
+          initialGroupName={query.groupName}
         />
       </Container>
     </div>

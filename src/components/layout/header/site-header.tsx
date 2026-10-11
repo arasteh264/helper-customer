@@ -106,11 +106,6 @@ export function SiteHeader({
                     ? "پنل متخصص"
                     : "پنل مشتری"}
                 </ButtonLink>
-                {user.role?.toUpperCase() !== "PROVIDER" ? (
-                  <ButtonLink href="/become-provider" variant="ghost">
-                    همکاری با هلپر
-                  </ButtonLink>
-                ) : null}
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: "/" })}

@@ -62,6 +62,8 @@ export interface Job {
   hourlyRateToman?: number | null;
   hourlyUnitLabel?: string | null;
   estimatedHours?: number | null;
+  declineReason?: string | null;
+  declineNote?: string | null;
   paymentStatus?: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
   customerConfirmed?: boolean;
   customerConfirmedAt?: string | null;
