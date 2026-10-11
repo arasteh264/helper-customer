@@ -11,10 +11,7 @@ import {
 
 import { formatNumber } from "@/src/utils/format";
 import type { DirectorySpecialist } from "../types/catalog.types";
-import {
-  getCategorySvgKey,
-  type CatalogCategory,
-} from "../utils/category-mapping";
+import type { CatalogCategory } from "../utils/category-mapping";
 import { SpecialistCard } from "@/src/features/home/components/specialist-card";
 import { CategorySvgIcon } from "@/src/features/catalog/components/category-svg-icon";
 import type { Specialty } from "@/src/features/request/types/specialty.types";
@@ -148,38 +145,37 @@ export function CategoryPage({
             ثبت کنید و نیاز خود را توضیح دهید.
           </p>
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-2.5 sm:grid-cols-2">
             {specialties.map((specialty) => (
               <li
                 key={specialty.id}
-                className="overflow-hidden rounded-2xl border border-foreground/10 bg-card transition-colors hover:border-primary/30"
+                className="rounded-xl border border-foreground/10 bg-card transition-colors hover:border-primary/30 hover:bg-primary/[0.015]"
               >
-                {specialty.icon ? (
-                  <div className="relative aspect-[16/9] overflow-hidden bg-primary/5">
-                    <Image
-                      src={specialty.icon}
-                      alt={specialty.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
-                ) : null}
-                <div className="flex items-start gap-3 p-4">
-                  {!specialty.icon ? (
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Check size={16} />
+                <div className="flex min-h-24 items-center gap-3 p-3">
+                  {specialty.icon ? (
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-primary/5 sm:h-[4.5rem] sm:w-[4.5rem]">
+                      <Image
+                        src={specialty.icon}
+                        alt=""
+                        fill
+                        sizes="72px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Check size={18} />
                     </span>
-                  ) : null}
+                  )}
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-foreground">{specialty.name}</h3>
-                    <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-foreground/55">
+                    <h3 className="text-sm font-semibold leading-6 text-foreground sm:text-base">{specialty.name}</h3>
+                    <p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] text-foreground/55 sm:text-xs">
                       <Users size={13} />
                       {specialty.activeProvidersCount > 0
                         ? `${fa.format(specialty.activeProvidersCount)} متخصص فعال`
                         : "هنوز متخصص فعالی ثبت نشده"}
                     </p>
-                    <p className="mt-2 inline-flex items-start gap-1.5 text-xs leading-6 text-foreground/50">
+                    <p className="mt-1 inline-flex items-start gap-1.5 text-[11px] leading-5 text-foreground/50 sm:text-xs">
                       {specialty.pricingMode === "HOURLY" ? (
                         <Clock3 size={13} className="mt-0.5 shrink-0" />
                       ) : null}
