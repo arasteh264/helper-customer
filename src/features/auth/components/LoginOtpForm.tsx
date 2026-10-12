@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -20,8 +19,8 @@ import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { OtpInput, toEnglishDigits } from "./OtpInput";
 import { requestLoginOtp } from "../api/request-login-otp";
-import { verifyLoginOtp } from "../api/verify-login-otp";
-import { getPostAuthRedirectPath } from "../utils/post-auth-redirect";
+import { ProviderPortalChooser } from "./provider-portal-chooser";
+import { usePostAuthNavigation } from "../hooks/use-post-auth-navigation";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 120;
@@ -41,7 +40,8 @@ const formatTime = (total: number) => {
 type Step = "mobile" | "code";
 
 export function LoginOtpForm() {
-  const router = useRouter();
+  const { portalChooserOpen, continueAfterLogin, choosePortal } =
+    usePostAuthNavigation();
 
   const [step, setStep] = useState<Step>("mobile");
   const [mobile, setMobile] = useState("");
@@ -101,8 +101,7 @@ const verifyCode = async (code: string) => {
   }
 
   toast.success("خوش آمدید");
-  router.push(await getPostAuthRedirectPath());
-  router.refresh();
+  await continueAfterLogin();
 };
 
   const editMobile = () => {
@@ -112,6 +111,7 @@ const verifyCode = async (code: string) => {
   };
 
   return (
+    <>
     <div className="w-full max-w-md">
       <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-card shadow-xl shadow-foreground/[0.06]">
         <div className="border-b border-foreground/5 bg-gradient-to-b from-primary/[0.06] to-transparent px-6 py-7 text-center sm:px-8">
@@ -281,5 +281,10 @@ const verifyCode = async (code: string) => {
         کد تأیید را به هیچ‌کس ندهید
       </p>
     </div>
+    <ProviderPortalChooser
+      open={portalChooserOpen}
+      onChoose={(mode) => void choosePortal(mode)}
+    />
+    </>
   );
 }

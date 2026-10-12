@@ -47,6 +47,7 @@ function getRequestHref(specialty: Specialty, groupName: string) {
     specialtyName: specialty.name,
     groupName,
   });
+  if (specialty.slug) params.set("specialtySlug", specialty.slug);
   return `/request?${params.toString()}`;
 }
 

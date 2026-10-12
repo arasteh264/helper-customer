@@ -16,6 +16,7 @@ export default async function NewRequestPage({
     specialistId?: string;
     specialtyId?: string;
     specialtyName?: string;
+    specialtySlug?: string;
     groupName?: string;
   }>;
 }) {
@@ -29,6 +30,9 @@ export default async function NewRequestPage({
   }
   if (query.specialtyName) {
     callbackParams.set("specialtyName", query.specialtyName);
+  }
+  if (query.specialtySlug) {
+    callbackParams.set("specialtySlug", query.specialtySlug);
   }
   if (query.groupName) {
     callbackParams.set("groupName", query.groupName);
@@ -85,6 +89,9 @@ export default async function NewRequestPage({
           providerSpecialties={preferredProvider?.specialties}
           initialSpecialtyId={initialSpecialtyId}
           initialSpecialtyName={initialSpecialtyName}
+          initialSpecialtySlug={
+            preferredSpecialty?.slug ?? query.specialtySlug
+          }
           initialGroupName={query.groupName}
         />
       </Container>

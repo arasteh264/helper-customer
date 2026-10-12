@@ -27,6 +27,12 @@ export function RequestDiscoveryPanel({
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
+  const [acceptedQuote, setAcceptedQuote] = useState<{
+    totalPriceToman?: number;
+    laborPriceToman?: number;
+    note?: string;
+    items: ServiceRequestQuote["items"];
+  } | null>(null);
   const [adminReviewNote, setAdminReviewNote] = useState(
     initialAdminReviewNote ?? null,
   );
@@ -44,6 +50,14 @@ export function RequestDiscoveryPanel({
     try {
       const request = await requestApi.getMyRequest(requestId, accessToken);
       setStatus(request.status);
+      if (request.providerQuoteItems) {
+        setAcceptedQuote({
+          totalPriceToman: request.priceToman ?? request.price,
+          laborPriceToman: request.providerLaborPriceToman,
+          note: request.providerQuoteNote,
+          items: request.providerQuoteItems,
+        });
+      }
       setAdminReviewNote(request.adminReviewNote ?? null);
       if (request.status === "awaiting_offers") {
         const [providers, quotes] = await Promise.all([
@@ -154,6 +168,45 @@ export function RequestDiscoveryPanel({
         <h3 className="font-semibold text-foreground">
           پیشنهاد متخصص انتخاب شد
         </h3>
+        {acceptedQuote ? (
+          <div className="mt-3 space-y-2 rounded-xl border border-primary/10 bg-card p-3 text-sm">
+            {acceptedQuote.note ? (
+              <p className="leading-6 text-foreground/65">{acceptedQuote.note}</p>
+            ) : null}
+            {acceptedQuote.items.length ? (
+              <ul className="space-y-1.5 text-xs text-foreground/65">
+                {acceptedQuote.items.map((item, index) => (
+                  <li
+                    key={`${item.name}-${index}`}
+                    className="flex flex-wrap justify-between gap-2"
+                  >
+                    <span>
+                      {item.name} ·{" "}
+                      {item.supplyMode === "CUSTOMER"
+                        ? "تهیه با مشتری"
+                        : item.supplyMode === "PROVIDER_INCLUDED"
+                          ? "تهیه با متخصص، داخل اجرت"
+                          : "تهیه با متخصص"}
+                    </span>
+                    {item.amountToman > 0 ? formatMoney(item.amountToman) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {acceptedQuote.laborPriceToman !== undefined ? (
+              <div className="flex justify-between border-t border-foreground/10 pt-2 text-xs">
+                <span>اجرت متخصص</span>
+                <span>{formatMoney(acceptedQuote.laborPriceToman)}</span>
+              </div>
+            ) : null}
+            {acceptedQuote.totalPriceToman !== undefined ? (
+              <div className="flex justify-between font-semibold">
+                <span>مبلغ کل</span>
+                <span>{formatMoney(acceptedQuote.totalPriceToman)}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <p className="mt-2 text-sm leading-6 text-foreground/60">
           گفت‌وگو برای هماهنگی فعال است. برای ادامه، صفحه را تازه‌سازی کنید.
         </p>
@@ -257,6 +310,42 @@ export function RequestDiscoveryPanel({
               <p className="mt-4 rounded-xl bg-muted/40 p-3 text-sm leading-6 text-foreground/70">
                 {offer.quoteNote}
               </p>
+              {offer.items.length ? (
+                <div className="mt-3 rounded-xl border border-foreground/10 p-3">
+                  <h4 className="text-xs font-semibold text-foreground">
+                    ریز هزینه و تأمین اقلام
+                  </h4>
+                  <ul className="mt-2 space-y-2 text-xs text-foreground/65">
+                    {offer.items.map((item, index) => (
+                      <li
+                        key={`${item.name}-${index}`}
+                        className="flex flex-wrap justify-between gap-2"
+                      >
+                        <span>
+                          {item.name} ·{" "}
+                          {item.supplyMode === "CUSTOMER"
+                            ? "تهیه با مشتری"
+                            : item.supplyMode === "PROVIDER_INCLUDED"
+                              ? "تهیه با متخصص، داخل اجرت"
+                              : "تهیه با متخصص"}
+                        </span>
+                        {item.amountToman > 0 ? (
+                          <span>
+                            {formatMoney(item.amountToman)}
+                            {item.supplyMode === "PROVIDER_INCLUDED"
+                              ? " (اطلاعاتی)"
+                              : ""}
+                          </span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-3 flex justify-between border-t border-foreground/10 pt-2 text-xs">
+                    <span>اجرت متخصص</span>
+                    <span>{formatMoney(offer.laborPriceToman)}</span>
+                  </div>
+                </div>
+              ) : null}
               {offer.estimatedHours ? (
                 <p className="mt-2 text-xs text-foreground/50">
                   زمان تخمینی: {formatNumber(offer.estimatedHours)} ساعت

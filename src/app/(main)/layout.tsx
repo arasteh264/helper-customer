@@ -1,4 +1,5 @@
 import { auth } from "../../auth";
+import { cookies } from "next/headers";
 import { SiteHeader } from "../../components/layout/header/site-header";
 import { SiteFooter } from "../../components/layout/footer/site-footer";
 import { requestApi } from "@/src/features/request/api/request.api";
@@ -15,6 +16,15 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const portalModeCookie = (await cookies()).get("helper-portal-mode")?.value;
+  const normalizedPortalMode = portalModeCookie?.toUpperCase();
+  const isProvider = session?.user.role?.toUpperCase() === "PROVIDER";
+  const portalMode =
+    isProvider && normalizedPortalMode === "CUSTOMER"
+      ? "CUSTOMER"
+      : isProvider
+        ? "PROVIDER"
+        : "CUSTOMER";
   let serviceItems: ServiceMenuItem[] = [];
   try {
     serviceItems = (await requestApi.getSpecialtyGroups()).map((group) => {
@@ -41,6 +51,7 @@ export default async function MainLayout({
                 name: session.user.name ?? "کاربر",
                 role: session.user.role,
                 image: session.user.image,
+                portalMode,
               }
             : null
         }

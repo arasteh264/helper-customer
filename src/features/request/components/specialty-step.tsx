@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, RotateCcw, Wrench } from "lucide-react";
+import { AlertCircle, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { getCategorySvgKey } from "@/src/features/catalog/utils/category-mapping";
@@ -17,7 +17,12 @@ export function SpecialtyStep({
   accessToken,
 }: {
   value: string;
-  onChange: (id: string, name: string) => void;
+  onChange: (
+    id: string,
+    name: string,
+    slug: string | undefined,
+    groupName: string,
+  ) => void;
   accessToken: string;
 }) {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
@@ -51,7 +56,13 @@ export function SpecialtyStep({
   };
 
   const handleSpecialtySelect = (specialty: Specialty) => {
-    onChange(specialty.id, specialty.name);
+    if (!selectedGroup) return;
+    onChange(
+      specialty.id,
+      specialty.name,
+      specialty.slug,
+      selectedGroup.name,
+    );
   };
 
   if (groupsError) {

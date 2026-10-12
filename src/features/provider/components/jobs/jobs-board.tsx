@@ -17,7 +17,7 @@ import { providerJobsApi } from "../../api/jobs.api";
 
 import { formatNumber } from "../../utils/format";
 import { JobCard, type JobAction } from "./job-card";
-import { Job, JobStatus } from "../../types/types";
+import type { Job, JobStatus, QuoteItem } from "../../types/types";
 
 type JobFilter = "new" | "active" | "attention" | "completed" | "archive";
 
@@ -202,6 +202,7 @@ export function JobsBoard({
     estimatedHours?: number,
     declineReason?: string,
     declineNote?: string,
+    items?: QuoteItem[],
   ) => {
     setPendingJobId(id);
     try {
@@ -209,7 +210,7 @@ export function JobsBoard({
         if (!proposedPriceToman || !quoteNote) return;
         await providerJobsApi.quote(
           id,
-          { proposedPriceToman, quoteNote, estimatedHours },
+          { proposedPriceToman, quoteNote, estimatedHours, items },
           accessToken,
         );
       } else if (action === "reject") {

@@ -19,14 +19,21 @@ export function RequestWizard({
   providerSpecialties = [],
   initialSpecialtyId,
   initialSpecialtyName,
+  initialSpecialtySlug,
   initialGroupName,
 }: {
   accessToken: string;
   preferredProviderId?: string;
   preferredProviderName?: string;
-  providerSpecialties?: { id: string; name: string }[];
+  providerSpecialties?: {
+    id: string;
+    name: string;
+    slug?: string;
+    groupName?: string;
+  }[];
   initialSpecialtyId?: string;
   initialSpecialtyName?: string;
+  initialSpecialtySlug?: string;
   initialGroupName?: string;
 }) {
   const initialSpecialty =
@@ -34,6 +41,12 @@ export function RequestWizard({
     providerSpecialties[0];
   const [selectedSpecialtyName, setSelectedSpecialtyName] = useState(
     initialSpecialty?.name ?? initialSpecialtyName ?? "",
+  );
+  const [selectedSpecialtySlug, setSelectedSpecialtySlug] = useState(
+    initialSpecialty?.slug ?? initialSpecialtySlug ?? "",
+  );
+  const [selectedGroupName, setSelectedGroupName] = useState(
+    initialSpecialty?.groupName ?? initialGroupName ?? "",
   );
   const stepContentRef = useRef<HTMLDivElement>(null);
   const previousStepRef = useRef(0);
@@ -122,6 +135,8 @@ export function RequestWizard({
                   );
                   if (!specialty) return;
                   setSelectedSpecialtyName(specialty.name);
+                  setSelectedSpecialtySlug(specialty.slug ?? "");
+                  setSelectedGroupName(specialty.groupName ?? "");
                   wizard.update({ categoryId: specialty.id });
                 }}
                 className="mt-2 h-12 w-full rounded-xl border border-foreground/15 bg-background px-3 text-sm outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
@@ -137,8 +152,10 @@ export function RequestWizard({
             <SpecialtyStep
               value={wizard.draft.categoryId}
               accessToken={accessToken}
-              onChange={(categoryId, name) => {
+              onChange={(categoryId, name, slug, groupName) => {
                 setSelectedSpecialtyName(name);
+                setSelectedSpecialtySlug(slug ?? "");
+                setSelectedGroupName(groupName);
                 wizard.update({ categoryId });
               }}
             />
@@ -150,6 +167,8 @@ export function RequestWizard({
             draft={wizard.draft}
             onChange={wizard.update}
             categoryName={categoryName}
+            specialtySlug={selectedSpecialtySlug}
+            groupName={selectedGroupName}
           />
         )}
 

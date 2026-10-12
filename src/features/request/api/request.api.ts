@@ -34,8 +34,14 @@ export interface ServiceRequestQuote {
   field: string;
   distanceKm: number | null;
   proposedPriceToman: number;
+  laborPriceToman: number;
   quoteNote: string;
   estimatedHours: number | null;
+  items: {
+    name: string;
+    amountToman: number;
+    supplyMode: "CUSTOMER" | "PROVIDER_SEPARATE" | "PROVIDER_INCLUDED";
+  }[];
 }
 
 export interface SubmittedRequest {

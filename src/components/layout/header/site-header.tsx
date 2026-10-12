@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 
@@ -17,6 +17,13 @@ import {
   type HeaderUser,
   type ServiceMenuItem,
 } from "./nav-data";
+import {
+  clearPortalMode,
+  getPortalMode,
+  setPortalMode,
+  subscribePortalMode,
+  type PortalMode,
+} from "@/src/features/auth/utils/portal-mode";
 
 interface SiteHeaderProps {
   user?: HeaderUser | null;
@@ -28,7 +35,19 @@ export function SiteHeader({
   serviceItems = [],
 }: SiteHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
+  const isProvider = user?.role?.toUpperCase() === "PROVIDER";
+  const defaultPortalMode: PortalMode = isProvider
+    ? (user?.portalMode ?? "PROVIDER")
+    : "CUSTOMER";
+  const portalMode = useSyncExternalStore(
+    subscribePortalMode,
+    getPortalMode,
+    () => defaultPortalMode,
+  );
+  const activePortalMode =
+    isProvider && portalMode ? portalMode : defaultPortalMode;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -36,6 +55,11 @@ export function SiteHeader({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const switchPortal = (mode: PortalMode) => {
+    setPortalMode(mode);
+    router.push(mode === "PROVIDER" ? "/provider" : "/customer");
+  };
 
   return (
     <header
@@ -95,20 +119,19 @@ export function SiteHeader({
             {user ? (
               <>
                 <ButtonLink
-                  href={
-                    user.role?.toUpperCase() === "PROVIDER"
-                      ? "/provider"
-                      : "/customer"
-                  }
+                  href={activePortalMode === "PROVIDER" ? "/provider" : "/customer"}
                   variant="outline"
                 >
-                  {user.role?.toUpperCase() === "PROVIDER"
+                  {activePortalMode === "PROVIDER"
                     ? "پنل متخصص"
                     : "پنل مشتری"}
                 </ButtonLink>
                 <button
                   type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => {
+                    clearPortalMode();
+                    void signOut({ callbackUrl: "/" });
+                  }}
                   className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-foreground/15 px-4 text-sm font-medium text-foreground/80 transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 >
                   <LogOut size={16} />
@@ -125,7 +148,12 @@ export function SiteHeader({
             )}
           </div>
 
-          <MobileMenu user={user} serviceItems={serviceItems} />
+          <MobileMenu
+            user={user}
+            serviceItems={serviceItems}
+            portalMode={activePortalMode}
+            onPortalSwitch={switchPortal}
+          />
         </div>
       </Container>
     </header>

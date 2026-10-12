@@ -45,6 +45,17 @@ export type JobStatus =
   | "cancelled"
   | "declined";
 
+export type QuoteItemSupplyMode =
+  | "CUSTOMER"
+  | "PROVIDER_SEPARATE"
+  | "PROVIDER_INCLUDED";
+
+export interface QuoteItem {
+  name: string;
+  amountToman: number;
+  supplyMode: QuoteItemSupplyMode;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -58,6 +69,9 @@ export interface Job {
   proposedPriceToman?: number;
   quoteNote?: string | null;
   quoteSubmitted?: boolean;
+  quoteItems?: QuoteItem[];
+  quoteTotalPriceToman?: number;
+  allowsQuoteItems?: boolean;
   pricingMode?: "QUOTE" | "HOURLY";
   hourlyRateToman?: number | null;
   hourlyUnitLabel?: string | null;

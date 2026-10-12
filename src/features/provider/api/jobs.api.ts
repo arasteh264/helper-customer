@@ -1,5 +1,5 @@
 import { apiClient } from "@/src/lib/api/client";
-import type { Job } from "../types/types";
+import type { Job, QuoteItem } from "../types/types";
 
 const authHeaders = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
@@ -20,6 +20,7 @@ export const providerJobsApi = {
       proposedPriceToman: number;
       quoteNote: string;
       estimatedHours?: number;
+      items?: QuoteItem[];
     },
     accessToken: string,
   ) {
