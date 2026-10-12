@@ -5,7 +5,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 
 import { StatusBadge } from "@/src/components/shared/status-badge";
-import { Job } from "../../types/types";
+import { QuoteItemSupplyMode, type Job, type QuoteItem } from "../../types/types";
 import { JOB_STATUS } from "../../utils/job-status";
 import {
   formatDateTime,
@@ -27,6 +27,7 @@ interface JobCardProps {
     estimatedHours?: number,
     declineReason?: string,
     declineNote?: string,
+    items?: QuoteItem[],
   ) => void;
   onDisputeMessage: (id: string, body: string) => Promise<boolean>;
   onRaiseNonPaymentDispute: (id: string, description: string) => Promise<boolean>;
@@ -53,6 +54,7 @@ export function JobCard({
 }: JobCardProps) {
   const [priceInput, setPriceInput] = useState("");
   const [quoteNote, setQuoteNote] = useState(job.quoteNote ?? "");
+  const [quoteItems, setQuoteItems] = useState<QuoteItem[]>(job.quoteItems ?? []);
   const [hoursInput, setHoursInput] = useState(
     job.estimatedHours?.toString() ?? "",
   );
@@ -75,6 +77,18 @@ export function JobCard({
     platformCommission == null
       ? null
       : proposedPriceToman - platformCommission;
+  const separatelyChargedItems = quoteItems.reduce(
+    (sum, item) =>
+      sum +
+      (item.supplyMode === "PROVIDER_SEPARATE" ? item.amountToman : 0),
+    0,
+  );
+  const totalQuoteToman = proposedPriceToman + separatelyChargedItems;
+  const hasInvalidItems = quoteItems.some(
+    (item) =>
+      !item.name.trim() ||
+      (item.supplyMode === "PROVIDER_SEPARATE" && item.amountToman <= 0),
+  );
   const status = JOB_STATUS[job.status];
   const paymentStatusLabel = job.paymentStatus
     ? {
@@ -191,7 +205,7 @@ export function JobCard({
                 <p className="sm:col-span-3 text-xs leading-5 text-foreground/60">
                   پیشنهاد ثبت‌شده:{" "}
                   <span className="font-semibold text-foreground">
-                    {formatMoney(job.proposedPriceToman ?? job.price)}
+                    {formatMoney(job.quoteTotalPriceToman ?? job.proposedPriceToman ?? job.price)}
                   </span>
                   {" · "}منتظر انتخاب مشتری
                 </p>
@@ -242,6 +256,132 @@ export function JobCard({
                   ) : null}
                 </label>
               )}
+              {job.status === "new" && job.allowsQuoteItems ? (
+                <fieldset className="grid gap-3 rounded-xl border border-foreground/10 p-3 sm:col-span-3">
+                      <legend className="px-1 text-xs font-semibold text-foreground">
+                        قطعات و مواد موردنیاز (اختیاری)
+                      </legend>
+                      <p className="text-[11px] leading-5 text-foreground/55">
+                        اجرت جدا محاسبه می‌شود؛ فقط اقلامی که متخصص جداگانه تهیه می‌کند به مبلغ پرداختی اضافه می‌شوند.
+                      </p>
+                      {quoteItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="grid gap-2 rounded-lg bg-muted/30 p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+                        >
+                          <Input
+                            value={item.name}
+                            maxLength={100}
+                            onChange={(event) =>
+                              setQuoteItems((current) =>
+                                current.map((entry, itemIndex) =>
+                                  itemIndex === index
+                                    ? { ...entry, name: event.target.value }
+                                    : entry,
+                                ),
+                              )
+                            }
+                            placeholder="نام قلم"
+                            aria-label={`نام قلم ${index + 1}`}
+                            className="h-9"
+                          />
+                          <select
+                            value={item.supplyMode}
+                            onChange={(event) => {
+                              const supplyMode = event.target.value as QuoteItemSupplyMode;
+                              setQuoteItems((current) =>
+                                current.map((entry, itemIndex) =>
+                                  itemIndex === index
+                                    ? {
+                                        ...entry,
+                                        supplyMode,
+                                        amountToman:
+                                          supplyMode === "CUSTOMER"
+                                            ? 0
+                                            : entry.amountToman,
+                                      }
+                                    : entry,
+                                ),
+                              );
+                            }}
+                            aria-label={`مسئول تأمین قلم ${index + 1}`}
+                            className="h-9 rounded-md border border-foreground/15 bg-background px-2 text-xs"
+                          >
+                            <option value="CUSTOMER">مشتری تهیه می‌کند</option>
+                            <option value="PROVIDER_SEPARATE">متخصص تهیه می‌کند؛ هزینه جدا</option>
+                            <option value="PROVIDER_INCLUDED">متخصص تهیه می‌کند؛ داخل اجرت</option>
+                          </select>
+                          {item.supplyMode !== "CUSTOMER" ? (
+                            <Input
+                              inputMode="numeric"
+                              dir="ltr"
+                              value={item.amountToman ? formatWithCommas(String(item.amountToman)) : ""}
+                              onChange={(event) => {
+                                const amountToman = Number(
+                                  toEnglishDigits(event.target.value).replace(/\D/g, ""),
+                                );
+                                setQuoteItems((current) =>
+                                  current.map((entry, itemIndex) =>
+                                    itemIndex === index
+                                      ? { ...entry, amountToman }
+                                      : entry,
+                                  ),
+                                );
+                              }}
+                              placeholder={
+                                item.supplyMode === "PROVIDER_INCLUDED"
+                                  ? "مبلغ تخمینی (اختیاری)"
+                                  : "هزینه به تومان"
+                              }
+                              aria-label={`هزینه قلم ${index + 1}`}
+                              className="h-9"
+                            />
+                          ) : (
+                            <span className="flex items-center text-xs text-foreground/50">
+                              بدون هزینه‌ی جدا
+                            </span>
+                          )}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setQuoteItems((current) =>
+                                current.filter((_, itemIndex) => itemIndex !== index),
+                              )
+                            }
+                            aria-label={`حذف قلم ${index + 1}`}
+                          >
+                            حذف
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-fit"
+                        disabled={quoteItems.length >= 20}
+                        onClick={() =>
+                          setQuoteItems((current) => [
+                            ...current,
+                            {
+                              name: "",
+                              amountToman: 0,
+                              supplyMode: "CUSTOMER",
+                            },
+                          ])
+                        }
+                      >
+                        افزودن قلم
+                      </Button>
+                      {proposedPriceToman > 0 ? (
+                        <p className="text-xs font-semibold text-foreground">
+                          اجرت: {formatMoney(proposedPriceToman)} · مبلغ قابل پرداخت: {formatMoney(totalQuoteToman)}
+                        </p>
+                      ) : null}
+                </fieldset>
+              ) : null}
               {proposedPriceToman > 0 ? (
                 <div className="flex flex-wrap gap-x-4 gap-y-1 rounded-lg bg-primary/[0.04] px-3 py-2 text-xs sm:col-span-3">
                   {commissionRate == null ||
@@ -256,7 +396,8 @@ export function JobCard({
                         کارمزد هلپر ({formatNumber(commissionRate)}٪): {formatMoney(platformCommission)}
                       </span>
                       <span className="font-semibold text-foreground">
-                        مبلغ باقی‌مانده برای شما: {formatMoney(providerNet)}
+                        دریافتی پس از کارمزد:{" "}
+                        {formatMoney(providerNet + separatelyChargedItems)}
                       </span>
                     </>
                   )}
@@ -301,6 +442,7 @@ export function JobCard({
                   commissionRate == null ||
                   proposedPriceToman <= 0 ||
                   quoteNote.trim().length < 5 ||
+                  hasInvalidItems ||
                   (job.pricingMode === "HOURLY" && estimatedHours <= 0)
                 }
                 onClick={() =>
@@ -310,6 +452,9 @@ export function JobCard({
                     proposedPriceToman,
                     quoteNote,
                     job.pricingMode === "HOURLY" ? estimatedHours : undefined,
+                    undefined,
+                    undefined,
+                    quoteItems,
                   )
                 }
                 className="w-full sm:w-auto"

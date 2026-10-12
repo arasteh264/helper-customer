@@ -1,10 +1,11 @@
 import type { IconKey } from "@/src/features/provider/lib/icons";
-
+import type { PortalMode } from "@/src/features/auth/utils/portal-mode";
 
 export interface HeaderUser {
   name: string;
   image?: string | null;
   role?: string;
+  portalMode?: PortalMode;
 }
 
 export interface NavLink {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
@@ -24,10 +23,12 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { toEnglishDigits } from "@/src/utils/format";
-import { getPostAuthRedirectPath } from "../utils/post-auth-redirect";
+import { ProviderPortalChooser } from "./provider-portal-chooser";
+import { usePostAuthNavigation } from "../hooks/use-post-auth-navigation";
 
 export function LoginForm() {
-  const router = useRouter();
+  const { portalChooserOpen, continueAfterLogin, choosePortal } =
+    usePostAuthNavigation();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -55,10 +56,11 @@ export function LoginForm() {
     }
 
     toast.success("خوش آمدید");
-    router.push(await getPostAuthRedirectPath());
+    await continueAfterLogin();
   };
 
   return (
+    <>
     <div className="auth-form-card w-full max-w-md">
       <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_22px_55px_-28px_rgba(9,80,72,0.24)]">
         <div className="border-b border-border bg-gradient-to-b from-primary/[0.08] to-transparent px-6 py-7 text-center sm:px-8">
@@ -217,5 +219,10 @@ export function LoginForm() {
         ورود شما با رمزنگاری امن انجام می‌شود
       </p>
     </div>
+    <ProviderPortalChooser
+      open={portalChooserOpen}
+      onChoose={(mode) => void choosePortal(mode)}
+    />
+    </>
   );
 }

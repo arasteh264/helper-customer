@@ -33,14 +33,36 @@ export default async function ProviderOverviewPage() {
     redirect("/login?callbackUrl=%2Fprovider");
   }
 
-  let profile;
-  let jobs;
-  let finance;
-  let verificationDocs: VerificationDoc[];
-
+  let profile: Awaited<ReturnType<typeof providerApi.getProfile>>;
   try {
-    [profile, jobs, finance, verificationDocs] = await Promise.all([
-      providerApi.getProfile(session.accessToken),
+    profile = await providerApi.getProfile(session.accessToken);
+  } catch (error) {
+    console.error("Provider overview profile could not be loaded", error);
+    const message =
+      error instanceof ApiError && error.status === 403
+        ? "حساب متخصص شما هنوز تأیید نشده است."
+        : error instanceof ApiError
+          ? error.message
+          : "دریافت اطلاعات پروفایل متخصص انجام نشد. دوباره تلاش کنید.";
+    return (
+      <div className="space-y-6">
+        <SectionCard title="نمای کلی در دسترس نیست">
+          <div className="flex flex-col items-start gap-4 text-sm text-foreground/65 sm:flex-row sm:items-center sm:justify-between">
+            <p>{message}</p>
+            <Link
+              href="/provider"
+              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 font-medium text-primary-foreground"
+            >
+              تلاش دوباره
+            </Link>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
+
+  const [jobsResult, financeResult, verificationDocsResult] =
+    await Promise.allSettled([
       providerJobsApi.list(session.accessToken),
       walletApi.getSummary(session.accessToken),
       getVerificationDocuments(session.accessToken).then((documents) =>
@@ -69,27 +91,30 @@ export default async function ProviderOverviewPage() {
         }),
       ),
     ]);
-  } catch (error) {
-    const message =
-      error instanceof ApiError && error.status === 403
-        ? "حساب متخصص شما هنوز تأیید نشده است."
-        : "دریافت اطلاعات نمای کلی انجام نشد. دوباره تلاش کنید.";
-    return (
-      <div className="space-y-6">
-        <SectionCard title="نمای کلی در دسترس نیست">
-          <div className="flex flex-col items-start gap-4 text-sm text-foreground/65 sm:flex-row sm:items-center sm:justify-between">
-            <p>{message}</p>
-            <Link
-              href="/provider"
-              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 font-medium text-primary-foreground"
-            >
-              تلاش دوباره
-            </Link>
-          </div>
-        </SectionCard>
-      </div>
-    );
+
+  const warnings: string[] = [];
+  if (jobsResult.status === "rejected") {
+    console.error("Provider overview jobs could not be loaded", jobsResult.reason);
+    warnings.push("درخواست‌های کاری");
   }
+  if (financeResult.status === "rejected") {
+    console.error("Provider overview wallet summary could not be loaded", financeResult.reason);
+    warnings.push("اطلاعات درآمد");
+  }
+  if (verificationDocsResult.status === "rejected") {
+    console.error("Provider overview verification documents could not be loaded", verificationDocsResult.reason);
+    warnings.push("مدارک احراز هویت");
+  }
+
+  const jobs = jobsResult.status === "fulfilled" ? jobsResult.value : [];
+  const finance =
+    financeResult.status === "fulfilled"
+      ? financeResult.value
+      : { monthly: [] };
+  const verificationDocs: VerificationDoc[] =
+    verificationDocsResult.status === "fulfilled"
+      ? verificationDocsResult.value
+      : [];
 
   const { percent, items } = getProfileCompletion(
     {
@@ -125,6 +150,15 @@ export default async function ProviderOverviewPage() {
 
   return (
     <div className="space-y-6">
+      {warnings.length > 0 ? (
+        <div
+          role="status"
+          className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 text-sm text-foreground/70"
+        >
+          بخشی از اطلاعات ({warnings.join("، ")}) بارگذاری نشد؛ سایر بخش‌های نمای کلی در دسترس هستند.
+        </div>
+      ) : null}
+
       {/* خوش‌آمد + وضعیت */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>

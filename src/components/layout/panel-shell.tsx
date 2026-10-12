@@ -6,13 +6,14 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
-import { ExternalLink, HandHelping, LogOut } from "lucide-react";
+import { ArrowLeftRight, ExternalLink, HandHelping, LogOut } from "lucide-react";
 import { ICONS, type IconKey } from "@/src/features/provider/lib/icons";
 import {
   notificationPreferencesApi,
   notificationQueryKeys,
 } from "@/src/features/notifications/api/notification-preferences.api";
 import type { NotificationRole } from "@/src/features/notifications/types/notification-preferences.types";
+import { clearPortalMode, setPortalMode } from "@/src/features/auth/utils/portal-mode";
 
 export interface PanelNavItem {
   label: string;
@@ -88,6 +89,10 @@ export function PanelShell({
   const pathname = usePathname();
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
+  const isProvider = session?.user.role?.toUpperCase() === "PROVIDER";
+  const alternatePortal = pathname.startsWith("/provider")
+    ? { mode: "CUSTOMER" as const, href: "/customer", label: "پنل مشتری" }
+    : { mode: "PROVIDER" as const, href: "/provider", label: "پنل متخصص" };
   const mobileNav = nav.filter((i) => i.mobile).slice(0, 5);
   const mobileNotification = nav.find(
     (item) => item.badgeSource === "notifications",
@@ -165,6 +170,16 @@ export function PanelShell({
         </nav>
 
         <div className="space-y-3 border-t border-foreground/10 p-4">
+          {isProvider ? (
+            <Link
+              href={alternatePortal.href}
+              onClick={() => setPortalMode(alternatePortal.mode)}
+              className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+            >
+              <ArrowLeftRight size={16} />
+              ورود به {alternatePortal.label}
+            </Link>
+          ) : null}
           {extraLink && (
             <Link
               href={extraLink.href}
@@ -189,7 +204,10 @@ export function PanelShell({
             </div>
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => {
+                clearPortalMode();
+                void signOut({ callbackUrl: "/" });
+              }}
               aria-label="خروج از حساب"
               title="خروج"
               className="flex h-9 w-9 items-center justify-center rounded-lg text-foreground/50 transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -211,6 +229,16 @@ export function PanelShell({
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            {isProvider ? (
+              <Link
+                href={alternatePortal.href}
+                onClick={() => setPortalMode(alternatePortal.mode)}
+                aria-label={`ورود به ${alternatePortal.label}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
+              >
+                <ArrowLeftRight size={18} />
+              </Link>
+            ) : null}
             {mobileNotification && (
               <Link
                 href={mobileNotification.href}

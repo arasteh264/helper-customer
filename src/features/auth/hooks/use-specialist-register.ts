@@ -45,15 +45,62 @@ export function useSpecialistRegister() {
     },
   });
 
+  const completeProviderRegistration = async (
+    mobile: string,
+    password: string,
+    fullName: string,
+  ) => {
+    try {
+      const loginResult = await signIn("credentials", {
+        identifier: mobile,
+        password,
+        redirect: false,
+      });
+      if (loginResult?.error) throw new Error("LOGIN_FAILED");
+
+      const session = await getSession();
+      if (!session?.accessToken) throw new Error("SESSION_UNAVAILABLE");
+
+      await providerApi.createProfile(
+        `متخصص ${fullName}`,
+        session.accessToken,
+      );
+
+      const refreshedLogin = await signIn("credentials", {
+        identifier: mobile,
+        password,
+        redirect: false,
+      });
+      if (refreshedLogin?.error) throw new Error("SESSION_REFRESH_FAILED");
+
+      toast.success("حساب متخصص شما ساخته شد. خوش آمدید!");
+      router.push("/provider/profile");
+    } catch {
+      toast.error(
+        "حساب شما ساخته شد، اما ورود خودکار کامل نشد. لطفاً وارد شوید.",
+      );
+      router.push("/login");
+    }
+  };
+
   const submit = form.handleSubmit(async (values) => {
     setServerError(null);
     try {
-      await registerUser({
+      const registration = await registerUser({
         name: values.fullName,
         phone: values.mobile,
         email: values.email,
         password: values.password,
       });
+
+      if (registration.registrationCompleted) {
+        await completeProviderRegistration(
+          values.mobile,
+          values.password,
+          values.fullName,
+        );
+        return;
+      }
 
       setOtp("");
       countdown.start(RESEND_SECONDS);
@@ -100,39 +147,12 @@ export function useSpecialistRegister() {
       return;
     }
 
-    try {
-      const loginResult = await signIn("credentials", {
-        identifier: mobile,
-        password,
-        redirect: false,
-      });
-      if (loginResult?.error) throw new Error("LOGIN_FAILED");
-
-      const session = await getSession();
-      if (!session?.accessToken) throw new Error("SESSION_UNAVAILABLE");
-
-      await providerApi.createProfile(
-        `متخصص ${form.getValues("fullName")}`,
-        session.accessToken,
-      );
-
-      const refreshedLogin = await signIn("credentials", {
-        identifier: mobile,
-        password,
-        redirect: false,
-      });
-      if (refreshedLogin?.error) throw new Error("SESSION_REFRESH_FAILED");
-
-      toast.success("حساب متخصص شما ساخته شد. خوش آمدید!");
-      router.push("/provider/profile");
-    } catch {
-      toast.error(
-        "حساب شما ساخته شد، اما ورود خودکار کامل نشد. لطفاً وارد شوید.",
-      );
-      router.push("/login");
-    } finally {
-      setVerifying(false);
-    }
+    await completeProviderRegistration(
+      mobile,
+      password,
+      form.getValues("fullName"),
+    );
+    setVerifying(false);
   };
 
   const resendCode = async () => {

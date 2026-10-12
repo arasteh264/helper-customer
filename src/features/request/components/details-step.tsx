@@ -4,18 +4,28 @@ import { FileText, Lightbulb } from "lucide-react";
 
 import { repairCategories } from "../api/mock-data";
 import type { NewRequestDraft } from "../types/request.types";
+import { getRequestPlaceholders } from "../utils/request-placeholders";
 import { RequestPhotoUploader } from "./request-photo-uploader";
 
 export function DetailsStep({
   draft,
   onChange,
   categoryName,
+  specialtySlug,
+  groupName,
 }: {
   draft: NewRequestDraft;
   onChange: (patch: Partial<NewRequestDraft>) => void;
   categoryName: string;
+  specialtySlug: string;
+  groupName: string;
 }) {
   const category = repairCategories.find((c) => c.label === categoryName);
+  const placeholders = getRequestPlaceholders(
+    specialtySlug,
+    categoryName,
+    groupName,
+  );
 
   return (
     <div className="space-y-6">
@@ -65,7 +75,7 @@ export function DetailsStep({
           id="req-title"
           value={draft.title}
           onChange={(e) => onChange({ title: e.target.value })}
-          placeholder="مثلاً: نشتی زیر سینک آشپزخانه"
+          placeholder={placeholders.title}
           className="h-11 w-full rounded-xl border border-foreground/15 bg-background px-3.5 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
         />
       </div>
@@ -123,7 +133,7 @@ export function DetailsStep({
           value={draft.description}
           onChange={(e) => onChange({ description: e.target.value })}
           aria-describedby="req-description-hint req-description-count"
-          placeholder="مثلاً: از دیروز زیر سینک آشپزخانه آب نشت می‌کند. اطراف لوله خیس است و هنوز تعمیرکاری آن را بررسی نکرده. لطفاً برای بازدید و اعلام هزینه هماهنگ کنید."
+          placeholder={placeholders.description}
           className="min-h-40 w-full resize-y bg-transparent px-4 py-3 text-sm leading-7 text-foreground outline-none placeholder:text-foreground/40"
         />
 

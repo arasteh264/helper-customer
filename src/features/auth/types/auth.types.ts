@@ -55,7 +55,10 @@ export interface LoginResponse {
 }
 
 export interface RegisterResponse {
-  user: AuthUser;
+  user?: AuthUser;
+  accessToken?: string;
+  registrationCompleted?: boolean;
+  message?: string;
 }
 
 export interface RequestOtpResponse {

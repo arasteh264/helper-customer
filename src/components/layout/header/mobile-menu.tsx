@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
+  ArrowLeftRight,
   ChevronDown,
   ChevronLeft,
   LayoutDashboard,
@@ -24,6 +25,10 @@ import {
   type ServiceMenuItem,
   type HeaderUser,
 } from "./nav-data";
+import {
+  clearPortalMode,
+  type PortalMode,
+} from "@/src/features/auth/utils/portal-mode";
 
 const FOCUSABLE = "a[href], button:not([disabled]), input, summary";
 const subscribeHydration = () => () => {};
@@ -33,9 +38,13 @@ const getServerPortalMounted = () => false;
 export function MobileMenu({
   user,
   serviceItems = [],
+  portalMode = "CUSTOMER",
+  onPortalSwitch,
 }: {
   user?: HeaderUser | null;
   serviceItems?: ServiceMenuItem[];
+  portalMode?: PortalMode;
+  onPortalSwitch: (mode: PortalMode) => void;
 }) {
   const [open, setOpen] = useState(false);
   const portalMounted = useSyncExternalStore(
@@ -241,28 +250,40 @@ export function MobileMenu({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <ButtonLink
-                  href={
-                    user.role?.toUpperCase() === "PROVIDER"
-                      ? "/provider"
-                      : "/customer/profile"
-                  }
+                  href={portalMode === "PROVIDER" ? "/provider" : "/customer"}
                   size="lg"
                   className="gap-1.5"
                 >
                   <LayoutDashboard size={18} />
-                  {user.role?.toUpperCase() === "PROVIDER"
-                    ? "پنل متخصص"
-                    : "مشاهده پروفایل"}
+                  {portalMode === "PROVIDER" ? "پنل متخصص" : "پنل مشتری"}
                 </ButtonLink>
                 <button
                   type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => {
+                    clearPortalMode();
+                    void signOut({ callbackUrl: "/" });
+                  }}
                   className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl border border-foreground/15 text-sm font-medium text-foreground/80 transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <LogOut size={18} />
                   خروج
                 </button>
               </div>
+              {user.role?.toUpperCase() === "PROVIDER" ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    onPortalSwitch(
+                      portalMode === "PROVIDER" ? "CUSTOMER" : "PROVIDER",
+                    );
+                  }}
+                  className="flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  <ArrowLeftRight size={16} />
+                  ورود به پنل {portalMode === "PROVIDER" ? "مشتری" : "متخصص"}
+                </button>
+              ) : null}
             </>
           ) : (
             <>

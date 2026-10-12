@@ -78,6 +78,13 @@ export interface ServiceRequest {
   priceToman?: number;
   proposedPriceToman?: number;
   finalPriceToman?: number;
+  providerLaborPriceToman?: number;
+  providerQuoteNote?: string;
+  providerQuoteItems?: {
+    name: string;
+    amountToman: number;
+    supplyMode: "CUSTOMER" | "PROVIDER_SEPARATE" | "PROVIDER_INCLUDED";
+  }[];
   specialist?: RequestSpecialist;
   reviewed: boolean;
   review?: {

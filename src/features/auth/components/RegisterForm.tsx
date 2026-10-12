@@ -119,12 +119,36 @@ export function RegisterForm() {
     setServerError(null);
 
     try {
-      await registerUser({
+      const registration = await registerUser({
         name: values.name,
         phone: values.phone,
         email: values.email,
         password: values.password,
       });
+
+      if (registration.registrationCompleted) {
+        const result = await signIn("credentials", {
+          identifier: values.phone,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          toast.success("ثبت‌نام انجام شد. برای ورود به حساب خود وارد شوید.");
+          router.push("/login");
+          return;
+        }
+
+        const session = await getSession();
+        const nextRoute =
+          session?.user?.role?.toUpperCase() === "PROVIDER"
+            ? "/provider"
+            : "/customer";
+
+        toast.success("حساب شما ساخته شد. خوش آمدید!");
+        router.push(nextRoute);
+        return;
+      }
 
       setOtp("");
       setSecondsLeft(RESEND_SECONDS);
