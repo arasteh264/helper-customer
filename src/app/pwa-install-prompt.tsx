@@ -164,23 +164,23 @@ export function PwaInstallPrompt() {
           </div>
 
           <p className="mb-2 text-sm font-semibold text-primary">
-            هلپر، همیشه دم دست
+            هلپا24، همیشه دم دست
           </p>
           <h2
             id="pwa-install-title"
             className="text-2xl font-black leading-tight"
           >
             {showInstructions
-              ? "چطور هلپر را نصب کنید؟"
-              : "می‌خواهید هلپر را نصب کنید؟"}
+              ? "چطور هلپا24 را نصب کنید؟"
+              : "می‌خواهید هلپا24 را نصب کنید؟"}
           </h2>
           <p
             id="pwa-install-description"
             className="mt-3 text-sm leading-7 text-muted-foreground"
           >
             {showInstructions
-              ? "در چند قدم کوتاه، میان‌بُر هلپر را روی صفحه‌ی اصلی گوشی بسازید."
-              : "میان‌بُر هلپر را روی صفحه‌ی اصلی بگذارید تا برای ثبت و پیگیری درخواست‌ها همیشه دم دست‌تان باشد؛ بدون دانلود از فروشگاه."}
+              ? "در چند قدم کوتاه، میان‌بُر هلپا24 را روی صفحه‌ی اصلی گوشی بسازید."
+              : "میان‌بُر هلپا24 را روی صفحه‌ی اصلی بگذارید تا برای ثبت و پیگیری درخواست‌ها همیشه دم دست‌تان باشد؛ بدون دانلود از فروشگاه."}
           </p>
 
           {showInstructions ? (
@@ -200,7 +200,7 @@ export function PwaInstallPrompt() {
                   <InstallStep
                     number="۳"
                     icon={<Check className="size-5" />}
-                    text="بالا روی «افزودن» بزنید؛ آیکن هلپر به صفحه‌ی اصلی می‌آید."
+                    text="بالا روی «افزودن» بزنید؛ آیکن هلپا24 به صفحه‌ی اصلی می‌آید."
                   />
                 </>
               ) : (
@@ -242,7 +242,7 @@ export function PwaInstallPrompt() {
               ) : canInstallNatively && !isIOS ? (
                 <>
                   <Download className="size-5" />
-                  نصب هلپر
+                  نصب هلپا24
                 </>
               ) : (
                 isIOS ? "بله، راهنمای نصب" : "راهنمای نصب"

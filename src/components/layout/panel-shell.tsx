@@ -125,7 +125,7 @@ export function PanelShell({
             <HandHelping size={19} strokeWidth={2.4} aria-hidden="true" />
           </span>
           <div className="leading-tight">
-            <p className="text-base font-bold text-foreground">Helper</p>
+            <p className="text-base font-bold text-foreground">Helpa24</p>
             <p className="text-[11px] text-foreground/50">{subtitle}</p>
           </div>
         </Link>

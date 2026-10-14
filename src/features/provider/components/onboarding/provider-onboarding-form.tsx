@@ -515,12 +515,12 @@ export function ProviderOnboardingForm({ token }: { token?: string }) {
           <Link
             href="/"
             className="flex items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            aria-label="هلپر، صفحه اصلی"
+            aria-label="هلپا24، صفحه اصلی"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20">
               <Sparkles size={20} aria-hidden="true" />
             </span>
-            <span className="text-lg font-extrabold text-foreground">هلپر</span>
+            <span className="text-lg font-extrabold text-foreground">هلپا24</span>
           </Link>
           <Link
             href="/login"
@@ -547,7 +547,7 @@ export function ProviderOnboardingForm({ token }: { token?: string }) {
                   دعوت‌نامه‌ی همکاری
                 </p>
                 <h1 className="text-2xl font-extrabold leading-tight sm:text-3xl">
-                  به خانواده‌ی هلپر خوش آمدید
+                  به خانواده‌ی هلپا24 خوش آمدید
                 </h1>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-white/75 sm:text-base">
                   چند قدم کوتاه تا ساخت حساب ارائه‌دهندگی و معرفی خدمات شما.

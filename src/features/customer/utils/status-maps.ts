@@ -13,7 +13,7 @@ export const REQUEST_STATUS: Record<
   { label: string; tone: BadgeTone }
 > = {
   awaiting_admin_review: {
-    label: "در انتظار بررسی هلپر",
+    label: "در انتظار بررسی هلپا24",
     tone: "warning",
   },
   awaiting_offers: { label: "منتظر پیشنهاد", tone: "info" },

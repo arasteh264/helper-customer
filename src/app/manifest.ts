@@ -3,9 +3,9 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "هلپر | خدمات آنلاین شما",
-    short_name: "هلپر",
-    description: "درخواست و مدیریت خدمات آنلاین هلپر",
+    name: "هلپا24 | خدمات آنلاین شما",
+    short_name: "هلپا24",
+    description: "درخواست و مدیریت خدمات آنلاین هلپا24",
     start_url: "/",
     scope: "/",
     display: "standalone",

@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = article.coverImage ? [{ url: article.coverImage, alt: article.coverAlt ?? article.title }] : [];
 
   return {
-    title: `${title} | وبلاگ هلپر`,
+    title: `${title} | وبلاگ هلپا24`,
     description,
     alternates: { canonical },
     keywords: article.tags,
@@ -107,7 +107,7 @@ export default async function ArticlePage({ params }: Props) {
     },
     publisher: {
       "@type": "Organization",
-      name: "هلپر",
+      name: "هلپا24",
       url: SITE_URL,
     },
     mainEntityOfPage: canonical,

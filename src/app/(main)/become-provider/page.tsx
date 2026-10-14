@@ -10,8 +10,8 @@ import { ProviderFinalCta } from "@/src/features/become-provider/components/prov
 import { ProviderHero } from "@/src/features/become-provider/components/hero";
 
 export const metadata: Metadata = {
-  title: "همکاری با هلپر به‌عنوان متخصص",
-  description: "با تخصص‌تان درآمد کسب کنید. همین امروز پروفایل خود را در هلپر بسازید.",
+  title: "همکاری با هلپا24 به‌عنوان متخصص",
+  description: "با تخصص‌تان درآمد کسب کنید. همین امروز پروفایل خود را در هلپا24 بسازید.",
 };
 
 export default async function BecomeProviderPage() {

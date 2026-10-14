@@ -12,18 +12,19 @@ import { blogServerApi } from "@/src/features/blog/api/blog.server";
 import { HomeBlogCarousel } from "@/src/features/home/components/home-blog-carousel";
 import { HomeMaintenanceCarousel } from "@/src/features/home/components/home-maintenance-carousel";
 import type { BlogArticleSummary } from "@/src/features/blog/types/blog.types";
+import { ProviderStoriesRail } from "@/src/features/specialist-profile/components/provider-stories-rail";
 
 export const metadata: Metadata = {
-  title: "هلپر | خدمات خانه، تعمیرات و متخصصان قابل‌مقایسه",
+  title: "هلپا24 | خدمات خانه، تعمیرات و متخصصان قابل‌مقایسه",
   description:
-    "برای تعمیرات و خدمات خانه متخصص پیدا کنید، پیشنهاد قیمت و پروفایل‌ها را مقایسه کنید و راهنماهای کاربردی نگهداری خانه را در هلپر بخوانید.",
+    "برای تعمیرات و خدمات خانه متخصص پیدا کنید، پیشنهاد قیمت و پروفایل‌ها را مقایسه کنید و راهنماهای کاربردی نگهداری خانه را در هلپا24 بخوانید.",
   keywords: [
     "خدمات منزل",
     "تعمیرات خانه",
     "پیدا کردن متخصص",
     "مقایسه قیمت متخصصان",
     "نگهداری خانه",
-    "هلپر",
+    "هلپا24",
   ],
 };
 
@@ -50,6 +51,11 @@ export default async function HomePage() {
   return (
     <main>
       <HeroSection />
+      <section className="py-5 sm:py-7">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ProviderStoriesRail />
+        </div>
+      </section>
       <CategoriesSection />
       <HomeMaintenanceCarousel />
       <SpecialistsSection

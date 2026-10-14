@@ -68,7 +68,7 @@ export function HeroSection() {
 
         <div className="relative mx-auto w-full min-w-0 max-w-[29rem] home-enter home-enter-delay-2">
           <div className="mb-4">
-            <p className="text-xs font-bold text-primary">در هلپر چه اتفاقی می‌افتد؟</p>
+            <p className="text-xs font-bold text-primary">در هلپا24 چه اتفاقی می‌افتد؟</p>
             <h2 className="mt-1 text-xl font-black text-foreground sm:text-2xl">
               مقایسه کن، بعد انتخاب کن
             </h2>

@@ -38,7 +38,7 @@
   --color-ring: #35c4ae;
 }
 @theme inline {
-    --font-sans: var(--font-vazirmatn);
+  --font-sans: var(--font-vazirmatn);
   --color-background: var(--color-background);
   --color-foreground: var(--color-foreground);
   --color-card: var(--color-card);
@@ -136,7 +136,10 @@ body {
   }
 }
 
-input, button, textarea, select {
+input,
+button,
+textarea,
+select {
   font-family: inherit;
   font-feature-settings: inherit;
 }
@@ -149,5 +152,13 @@ input, button, textarea, select {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+@keyframes story-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
   }
 }

@@ -165,7 +165,7 @@ export function SuccessScreen({
             درخواست شما در حال بررسی است
           </h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-7 text-foreground/60">
-            تیم هلپر اطلاعات درخواست را بررسی می‌کند. پس از تأیید، درخواست برای
+            تیم هلپا24 اطلاعات درخواست را بررسی می‌کند. پس از تأیید، درخواست برای
             متخصصان مرتبط ارسال می‌شود و همین صفحه به‌روز خواهد شد.
           </p>
           <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-primary/[0.06] px-4 py-2 text-xs text-primary">

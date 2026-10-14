@@ -38,7 +38,7 @@ export function HomeBlogCarousel({
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
               <BookOpen size={15} aria-hidden="true" />
-              مجله‌ی هلپر
+              مجله‌ی هلپا24
             </span>
             <h2
               id="home-blog-heading"
@@ -83,7 +83,7 @@ export function HomeBlogCarousel({
 
         <ul
           ref={scrollerRef}
-          aria-label="مقاله‌های تازه‌ی مجله‌ی هلپر"
+          aria-label="مقاله‌های تازه‌ی مجله‌ی هلپا24"
           className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-4 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:px-0 [&::-webkit-scrollbar]:hidden"
         >
           {articles.map((article) => (

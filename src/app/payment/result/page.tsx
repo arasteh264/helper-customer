@@ -8,7 +8,7 @@ import { requestApi } from "@/src/features/request/api/request.api";
 import { ApiError } from "@/src/lib/api/error";
 import { PaymentStatusRefresh } from "./payment-status-refresh";
 
-export const metadata: Metadata = { title: "نتیجه‌ی پرداخت | هلپر" };
+export const metadata: Metadata = { title: "نتیجه‌ی پرداخت | هلپا24" };
 
 type PaymentResult = "success" | "failed" | "pending" | "unknown";
 

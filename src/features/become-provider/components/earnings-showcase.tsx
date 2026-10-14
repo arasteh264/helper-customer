@@ -13,7 +13,7 @@ export function EarningsShowcase() {
           align="center"
           eyebrow="برآورد درآمد"
           title="چقدر می‌توانید درآمد داشته باشید؟"
-          description="این‌ها میانگین درآمد هفتگی متخصصان فعال در هلپر است؛ درآمد واقعی شما به تعداد کارها و منطقه بستگی دارد."
+          description="این‌ها میانگین درآمد هفتگی متخصصان فعال در هلپا24 است؛ درآمد واقعی شما به تعداد کارها و منطقه بستگی دارد."
         />
 
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

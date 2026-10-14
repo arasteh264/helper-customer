@@ -1,9 +1,16 @@
 import { BadgeCheck, Briefcase, MapPin, ShieldCheck, Star } from "lucide-react";
+import type { ReactNode } from "react";
 
 import type { SpecialistProfile } from "../types/specialist-profile.types";
 import { formatDate, formatNumber } from "@/src/utils/format";
 
-export function ProfileHeader({ profile }: { profile: SpecialistProfile }) {
+export function ProfileHeader({
+  profile,
+  storyAvatar,
+}: {
+  profile: SpecialistProfile;
+  storyAvatar?: ReactNode;
+}) {
   return (
     <section className="overflow-hidden rounded-3xl border border-foreground/10 bg-card shadow-sm">
       <div className="relative h-28 bg-gradient-to-l from-primary/20 via-primary/10 to-amber-500/10 sm:h-36">
@@ -13,24 +20,25 @@ export function ProfileHeader({ profile }: { profile: SpecialistProfile }) {
         />
         <span className="absolute bottom-4 left-5 inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-background/85 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur">
           <ShieldCheck size={14} aria-hidden="true" />
-          پروفایل متخصص هلپر
+          پروفایل متخصص هلپا24
         </span>
       </div>
 
       <div className="px-5 pb-5 sm:px-8 sm:pb-7">
         <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
-          {profile.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile.avatar}
-              alt={`تصویر ${profile.name}`}
-              className="h-24 w-24 shrink-0 rounded-3xl border-4 border-card bg-card object-cover object-top shadow-lg sm:h-28 sm:w-28"
-            />
-          ) : (
-            <span className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl border-4 border-card bg-primary/10 text-3xl font-bold text-primary shadow-lg sm:h-28 sm:w-28">
-              {profile.name.charAt(0)}
-            </span>
-          )}
+          {storyAvatar ??
+            (profile.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.avatar}
+                alt={`تصویر ${profile.name}`}
+                className="h-24 w-24 shrink-0 rounded-3xl border-4 border-card bg-card object-cover object-top shadow-lg sm:h-28 sm:w-28"
+              />
+            ) : (
+              <span className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl border-4 border-card bg-primary/10 text-3xl font-bold text-primary shadow-lg sm:h-28 sm:w-28">
+                {profile.name.charAt(0)}
+              </span>
+            ))}
 
           <div className="min-w-0 flex-1 pb-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -97,7 +105,7 @@ export function ProfileHeader({ profile }: { profile: SpecialistProfile }) {
         </div>
 
         <p className="mt-4 border-t border-foreground/[0.07] pt-4 text-xs text-foreground/50">
-          عضویت در هلپر از {formatDate(profile.memberSince)}
+          عضویت در هلپا24 از {formatDate(profile.memberSince)}
         </p>
       </div>
     </section>
