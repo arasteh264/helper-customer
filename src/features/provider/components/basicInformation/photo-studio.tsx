@@ -127,7 +127,6 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           await videoRef.current.play();
         }
 
-        setIsCameraReady(true);
         setStatus("چهره را داخل بیضی قرار دهید");
         setErrorText(null);
 
@@ -188,6 +187,13 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         }
 
         const box = face.boundingBox;
+        if (!box) {
+          setStatus("چهره را واضح‌تر روبه‌روی دوربین بگیرید");
+          setCaptureReady(false);
+          requestRef.current = requestAnimationFrame(tick);
+          return;
+        }
+
         const centerX = (box.originX + box.width / 2) / video.videoWidth;
         const centerY = (box.originY + box.height / 2) / video.videoHeight;
         const faceRatio = box.width / video.videoWidth;
@@ -297,6 +303,10 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           height: height * 0.52,
         };
         mask = createFallbackMask(width, height, box);
+      }
+
+      if (!mask) {
+        throw new Error("A foreground mask could not be created.");
       }
 
       const source = context.getImageData(0, 0, width, height).data;
