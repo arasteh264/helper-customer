@@ -57,7 +57,7 @@ export function ProviderPortalChooser({
             id="portal-choice-title"
             className="mt-4 text-xl font-bold text-foreground"
           >
-            چطور وارد هلپر می‌شوید؟
+            چطور وارد هلپا24 می‌شوید؟
           </h2>
           <p
             id="portal-choice-description"

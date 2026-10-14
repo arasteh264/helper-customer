@@ -30,7 +30,8 @@ export interface WalletTransactionResponse {
     | "COMMISSION"
     | "PAYOUT_REQUEST"
     | "PAYOUT_REFUND"
-    | "ADJUSTMENT";
+    | "ADJUSTMENT"
+    | "STORY_PROMOTION";
   amount: number;
   description: string | null;
   createdAt: string;

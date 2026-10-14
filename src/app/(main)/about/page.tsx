@@ -9,8 +9,8 @@ import { TeamGrid } from "@/src/features/about/components/team-grid";
 import { CtaSection } from "@/src/features/home/components/cta-section";
 
 export const metadata: Metadata = {
-  title: "درباره‌ی هلپر",
-  description: "هلپر شما را به متخصصان تأییدشده در هر زمینه‌ای وصل می‌کند. داستان، ارزش‌ها و تیم ما را بشناسید.",
+  title: "درباره‌ی هلپا24",
+  description: "هلپا24 شما را به متخصصان تأییدشده در هر زمینه‌ای وصل می‌کند. داستان، ارزش‌ها و تیم ما را بشناسید.",
 };
 
 export default function AboutPage() {

@@ -8,11 +8,12 @@ import { ProfileAbout } from "@/src/features/specialist-profile/components/profi
 import { ProfilePortfolio } from "@/src/features/specialist-profile/components/profile-portfolio";
 import { BookingPanel } from "@/src/features/specialist-profile/components/booking-panel";
 import { ProfileReviews } from "@/src/features/specialist-profile/components/profile-reviews";
+import { ProviderStoriesRail } from "@/src/features/specialist-profile/components/provider-stories-rail";
 import type { SpecialistProfile } from "@/src/features/specialist-profile/types/specialist-profile.types";
 import Link from "next/link";
 import { ChevronLeft, Home } from "lucide-react";
 
-export const metadata: Metadata = { title: "پروفایل متخصص | هلپر" };
+export const metadata: Metadata = { title: "پروفایل متخصص | هلپا24" };
 
 export default async function SpecialistProfilePage({
   params,
@@ -86,18 +87,33 @@ export default async function SpecialistProfilePage({
               خانه
             </Link>
             <ChevronLeft size={14} aria-hidden="true" />
-            <Link href="/specialists" className="transition-colors hover:text-primary">
+            <Link
+              href="/specialists"
+              className="transition-colors hover:text-primary"
+            >
               متخصصان
             </Link>
             <ChevronLeft size={14} aria-hidden="true" />
-            <span className="font-medium text-foreground/75">{profile.name}</span>
+            <span className="font-medium text-foreground/75">
+              {profile.name}
+            </span>
           </nav>
         </Container>
       </div>
       <Container className="pt-5 sm:pt-7">
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-7">
           <div className="min-w-0 space-y-5 sm:space-y-6">
-            <ProfileHeader profile={profile} />
+            <ProfileHeader
+              profile={profile}
+              storyAvatar={
+                <ProviderStoriesRail
+                  providerId={profile.id}
+                  display="profile-avatar"
+                  providerName={profile.name}
+                  providerAvatarUrl={profile.avatar}
+                />
+              }
+            />
             <ProfileAbout profile={profile} />
             <ProfileReviews
               reviews={profile.reviews}

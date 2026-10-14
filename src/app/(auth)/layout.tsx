@@ -40,7 +40,7 @@ export default function AuthLayout({
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-primary shadow-lg shadow-black/10">
             <HandHelping size={21} strokeWidth={2.4} aria-hidden="true" />
           </span>
-          <span className="text-xl font-semibold">Helper</span>
+          <span className="text-xl font-semibold">Helpa24</span>
         </div>
 
         <div className="relative">
@@ -101,7 +101,7 @@ export default function AuthLayout({
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
               <HandHelping size={17} strokeWidth={2.4} aria-hidden="true" />
             </span>
-            <span className="text-lg font-semibold text-primary">Helper</span>
+            <span className="text-lg font-semibold text-primary">Helpa24</span>
           </div>
 
           <Link

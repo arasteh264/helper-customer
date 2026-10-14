@@ -19,7 +19,7 @@ import type {
 } from "../types/notification-preferences.types";
 
 const CHANNELS: { id: NotificationChannel; label: string }[] = [
-  { id: "inApp", label: "داخل هلپر" },
+  { id: "inApp", label: "داخل هلپا24" },
   { id: "sms", label: "پیامک" },
   { id: "email", label: "ایمیل" },
 ];
@@ -52,7 +52,7 @@ const TOPICS: Record<
     {
       id: "promotions",
       label: "تخفیف‌ها و خبرها",
-      description: "پیشنهادهای ویژه‌ی هلپر",
+      description: "پیشنهادهای ویژه‌ی هلپا24",
     },
   ],
   PROVIDER: [
@@ -78,7 +78,7 @@ const TOPICS: Record<
     },
     {
       id: "promotions",
-      label: "خبرهای هلپر",
+      label: "خبرهای هلپا24",
       description: "اطلاعیه‌ها و پیشنهادهای ویژه",
     },
   ],

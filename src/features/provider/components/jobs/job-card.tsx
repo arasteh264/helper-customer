@@ -393,7 +393,7 @@ export function JobCard({
                   ) : (
                     <>
                       <span className="text-foreground/60">
-                        کارمزد هلپر ({formatNumber(commissionRate)}٪): {formatMoney(platformCommission)}
+                        کارمزد هلپا24 ({formatNumber(commissionRate)}٪): {formatMoney(platformCommission)}
                       </span>
                       <span className="font-semibold text-foreground">
                         دریافتی پس از کارمزد:{" "}

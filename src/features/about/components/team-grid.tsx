@@ -6,7 +6,7 @@ export function TeamGrid() {
   return (
     <section className="py-16 sm:py-20">
       <Container>
-        <SectionHeading align="center" eyebrow="تیم ما" title="آدم‌های پشت هلپر" />
+        <SectionHeading align="center" eyebrow="تیم ما" title="آدم‌های پشت هلپا24" />
 
         <ul className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {team.map((member) => (

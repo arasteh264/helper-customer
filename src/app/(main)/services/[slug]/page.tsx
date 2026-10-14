@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!group) return {};
   const category = normalizeSpecialtyGroup(group);
   return {
-    title: `${category.label} | هلپر`,
-    description: `خدمات ${category.label} را ببینید، متخصص‌های مرتبط را بررسی کنید و درخواستتان را در هلپر ثبت کنید.`,
+    title: `${category.label} | هلپا24`,
+    description: `خدمات ${category.label} را ببینید، متخصص‌های مرتبط را بررسی کنید و درخواستتان را در هلپا24 ثبت کنید.`,
   };
 }
 

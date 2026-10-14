@@ -8,9 +8,9 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://helper-customer.vercel.app";
 
 const baseMetadata: Metadata = {
-  title: "وبلاگ هلپر | راهنمای نگهداری خانه و انتخاب متخصص",
+  title: "وبلاگ هلپا24 | راهنمای نگهداری خانه و انتخاب متخصص",
   description:
-    "راهنمای انتخاب لوله‌کش و متخصص، نکات کاربردی لوله‌کشی و نگهداری خانه، و روش‌های مقایسه‌ی پیشنهادها در هلپر.",
+    "راهنمای انتخاب لوله‌کش و متخصص، نکات کاربردی لوله‌کشی و نگهداری خانه، و روش‌های مقایسه‌ی پیشنهادها در هلپا24.",
 };
 
 export const revalidate = 300;
@@ -63,7 +63,7 @@ export default async function BlogPage({
     <div className="py-10 sm:py-14">
       <Container>
         <div className="mb-8 rounded-3xl bg-secondary/70 px-6 py-8 sm:px-10 sm:py-10">
-          <span className="text-sm font-semibold text-primary">مجله‌ی هلپر</span>
+          <span className="text-sm font-semibold text-primary">مجله‌ی هلپا24</span>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
             راهنمای انتخاب متخصص و نگهداری خانه
           </h1>

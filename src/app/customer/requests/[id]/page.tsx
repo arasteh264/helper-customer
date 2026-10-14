@@ -125,7 +125,7 @@ export default async function CustomerRequestDetailPage({
             </span>
             <div>
               <p className="text-sm font-semibold text-foreground">
-                درخواست شما در صف بررسی هلپر است
+                درخواست شما در صف بررسی هلپا24 است
               </p>
               <p className="mt-1 text-xs leading-6 text-foreground/60">
                 پس از تأیید، درخواست برای متخصصان مناسب ارسال می‌شود. وضعیت این
@@ -136,7 +136,7 @@ export default async function CustomerRequestDetailPage({
         ) : null}
         {request.adminReviewNote ? (
           <p className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2.5 text-xs leading-6 text-amber-900">
-            یادداشت بررسی هلپر: {request.adminReviewNote}
+            یادداشت بررسی هلپا24: {request.adminReviewNote}
           </p>
         ) : null}
         {request.status === "awaiting_confirmation" &&

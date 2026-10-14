@@ -65,7 +65,7 @@ export function PasswordSection() {
       <div className="space-y-3 rounded-2xl border border-primary/15 bg-primary/[0.035] p-4">
         <div>
           <h3 className="text-sm font-semibold text-foreground">
-            پیش از شروع همکاری با هلپر
+            پیش از شروع همکاری با هلپا24
           </h3>
           <ul className="mt-2 space-y-1.5 text-xs leading-6 text-foreground/65">
             <li>قیمت و محدوده‌ی کار را در پیشنهاد خود شفاف اعلام کنید.</li>
@@ -88,7 +88,7 @@ export function PasswordSection() {
               onClick={() => setLegalType("terms")}
               className="font-medium text-primary hover:underline"
             >
-              شرایط همکاری متخصصان هلپر
+              شرایط همکاری متخصصان هلپا24
             </button>{" "}
             و{" "}
             <button

@@ -26,7 +26,7 @@ export function ProfileSummaryCard({ customer }: { customer: Customer }) {
             {customer.name}
           </h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-foreground/55">
-            عضو هلپر از {formatDate(customer.memberSince)}
+            عضو هلپا24 از {formatDate(customer.memberSince)}
             {customer.emailVerified && (
               <span className="inline-flex items-center gap-1 text-xs text-green-700">
                 <BadgeCheck size={14} />

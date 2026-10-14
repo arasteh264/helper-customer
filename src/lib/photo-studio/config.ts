@@ -1,0 +1,36 @@
+export const PHOTO_STUDIO_CONFIG = {
+  WATERMARK: {
+    text: "helpa24",
+    color: "#1f7a5c",
+    opacity: 0.1,
+    sizeRatio: 0.12,
+    position: { x: 50, y: 50 },
+    rotation: 0,
+  },
+  OUTPUT: {
+    width: 1080,
+    height: 1350,
+    background: "#FFFFFF",
+    format: "image/jpeg",
+    quality: 0.9,
+    maxBytes: 500 * 1024,
+  },
+  TEMPLATE: {
+    faceCenterX: 50,
+    faceCenterY: 38,
+    faceWidthRatio: 0.42,
+    faceHeightRatio: 0.43,
+    ellipseWidthRatio: 0.42,
+    ellipseHeightRatio: 0.56,
+  },
+  LIMITS: {
+    minFaceRatio: 0.18,
+    maxFaceRatio: 0.6,
+    maxHeadTilt: 18,
+    minBrightness: 35,
+    maxBrightness: 215,
+    minFaceCoverage: 0.24,
+    maxFaceCoverage: 0.76,
+    minResolution: 720,
+  },
+} as const;
