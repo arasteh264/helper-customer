@@ -51,6 +51,38 @@ function drawWatermark(
   context.restore();
 }
 
+function waitForVideoReady(video: HTMLVideoElement) {
+  if (video.videoWidth > 0 && video.videoHeight > 0) {
+    return Promise.resolve();
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const events = ["loadedmetadata", "loadeddata", "canplay"] as const;
+    const cleanup = () => {
+      events.forEach((event) => video.removeEventListener(event, checkReady));
+      video.removeEventListener("error", onError);
+      window.clearTimeout(timeout);
+    };
+    const checkReady = () => {
+      if (video.videoWidth <= 0 || video.videoHeight <= 0) return;
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error("Camera preview failed to load."));
+    };
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Camera preview did not become ready."));
+    }, 10_000);
+
+    events.forEach((event) => video.addEventListener(event, checkReady));
+    video.addEventListener("error", onError);
+    checkReady();
+  });
+}
+
 export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -126,7 +158,11 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     let streamRequest: Promise<MediaStream>;
     try {
       streamRequest = navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "user" } },
+        video: {
+          facingMode: { ideal: "user" },
+          width: { ideal: 1280 },
+          height: { ideal: 1600 },
+        },
         audio: false,
       });
     } catch (error) {
@@ -149,22 +185,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         video.playsInline = true;
         video.srcObject = stream;
         await video.play();
-        if (!video.videoWidth || !video.videoHeight) {
-          await new Promise<void>((resolve, reject) => {
-            const timeout = window.setTimeout(
-              () => reject(new Error("Camera preview did not become ready.")),
-              5000,
-            );
-            video.addEventListener(
-              "loadedmetadata",
-              () => {
-                window.clearTimeout(timeout);
-                resolve();
-              },
-              { once: true },
-            );
-          });
-        }
+        await waitForVideoReady(video);
         if (initializationId !== initializationIdRef.current) return;
         setCaptureReady(true);
         setStatus("چهره را داخل راهنمای قاب قرار دهید");
@@ -241,11 +262,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       const video = videoRef.current;
       const width = PHOTO_STUDIO_CONFIG.OUTPUT.width;
       const height = PHOTO_STUDIO_CONFIG.OUTPUT.height;
-      if (
-        Math.min(video.videoWidth, video.videoHeight) <
-        PHOTO_STUDIO_CONFIG.LIMITS.minResolution
-      ) {
-        throw new Error("Camera resolution is too low.");
+      if (video.videoWidth <= 0 || video.videoHeight <= 0) {
+        throw new Error("Camera frame is not ready.");
       }
 
       const canvas = document.createElement("canvas");
@@ -451,11 +469,14 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           : "حذف خودکار پس‌زمینه در این دستگاه در دسترس نبود؛ عکس با قاب و واترمارک استاندارد آماده شد.",
       );
     } catch (error) {
+      console.error("Provider photo capture failed", error);
+      const message = error instanceof Error ? error.message : "";
       setErrorText(
-        error instanceof Error &&
-          error.message === "Camera resolution is too low."
-          ? "وضوح دوربین برای ساخت عکس مناسب نیست؛ از دوربین اصلی یا دستگاه دیگری استفاده کنید."
-          : "ساخت عکس مناسب انجام نشد. نور و فاصله را بهتر کنید و دوباره بگیرید.",
+        message === "Camera frame is not ready."
+          ? "تصویر دوربین هنوز آماده نیست؛ چند لحظه صبر کنید و دوباره بگیرید."
+          : message === "Output image exceeds the allowed size."
+            ? "حجم عکس نهایی بیشتر از حد مجاز است؛ دوباره عکس بگیرید."
+            : "آماده‌سازی عکس انجام نشد؛ دوباره تلاش کنید.",
       );
       setStatus("خطا در آماده‌سازی عکس");
     } finally {
