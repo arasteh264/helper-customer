@@ -2,6 +2,12 @@ import axios from "axios";
 import { normalizeError } from "./error";
 import { API_BASE_URL } from "./base-url";
 
+declare module "axios" {
+  interface AxiosRequestConfig {
+    suppressAuthRedirect?: boolean;
+  }
+}
+
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -31,6 +37,7 @@ apiClient.interceptors.response.use(
     if (
       normalizedError.status === 401 &&
       hasBearerToken &&
+      !error.config?.suppressAuthRedirect &&
       typeof window !== "undefined" &&
       !window.location.pathname.startsWith("/login")
     ) {

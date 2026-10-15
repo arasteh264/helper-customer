@@ -2,7 +2,7 @@ export interface Customer {
   id: string;
   name: string;
   phone: string;
-  email: string;
+  email?: string | null;
   emailVerified?: boolean;
   avatar?: string;
   memberSince: string;

@@ -28,36 +28,42 @@ export function AvatarUploader({
     };
   }, []);
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File): Promise<boolean> => {
     if (!file.type.startsWith("image/")) {
       toast.error("فقط فایل تصویری انتخاب کنید");
-      return;
+      return false;
     }
     if (file.size > MAX_SIZE) {
       toast.error("حجم عکس باید کمتر از ۲ مگابایت باشد");
-      return;
+      return false;
     }
 
     if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
     objectUrl.current = URL.createObjectURL(file);
-    setPreview(objectUrl.current);
+    const uploadedPreview = objectUrl.current;
+    setPreview(uploadedPreview);
 
     setLoading(true);
     try {
       const session = await getSession();
       if (!session?.accessToken) {
         toast.error("جلسه کاربری شما منقضی شده است");
+        URL.revokeObjectURL(uploadedPreview);
+        objectUrl.current = null;
         setPreview(initialUrl);
-        return;
+        return false;
       }
       await avatarApi.upload(file, session.accessToken);
       toast.success("عکس پروفایل بروزرسانی شد");
+      return true;
     } catch {
+      URL.revokeObjectURL(uploadedPreview);
+      objectUrl.current = null;
       setPreview(initialUrl);
       toast.error("آپلود عکس با مشکل مواجه شد");
+      return false;
     } finally {
       setLoading(false);
-      setStudioOpen(false);
     }
   };
 
@@ -85,16 +91,16 @@ export function AvatarUploader({
 
   return (
     <>
-      <div id="avatar" className="flex shrink-0 items-center gap-4 scroll-mt-24">
-        <div className="relative">
+      <div id="avatar" className="flex min-w-0 items-center gap-3 scroll-mt-24 sm:gap-4">
+        <div className="relative shrink-0">
           {preview ? (
             <img
               src={preview}
               alt="عکس پروفایل"
-              className="h-24 w-24 rounded-full border border-foreground/10 object-cover"
+              className="h-20 w-20 rounded-full border border-foreground/10 object-cover sm:h-24 sm:w-24"
             />
           ) : (
-            <span className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary">
+            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary sm:h-24 sm:w-24">
               {name.charAt(0)}
             </span>
           )}
@@ -109,7 +115,7 @@ export function AvatarUploader({
             type="button"
             onClick={() => setStudioOpen(true)}
             disabled={loading}
-            className="absolute -bottom-1 -end-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="absolute -bottom-1 -end-1 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground shadow transition-colors hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             aria-label="تغییر عکس پروفایل"
           >
             <Camera size={16} />
@@ -119,7 +125,7 @@ export function AvatarUploader({
             <button
               type="button"
               onClick={onRemove}
-              className="absolute -top-1 -end-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-destructive text-white shadow transition-colors hover:bg-destructive/90"
+              className="absolute -top-1 -end-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-card bg-destructive text-white shadow transition-colors hover:bg-destructive/90"
               aria-label="حذف عکس پروفایل"
             >
               <X size={12} />
@@ -127,10 +133,10 @@ export function AvatarUploader({
           )}
         </div>
 
-        <div className="text-sm leading-6">
+        <div className="min-w-0 text-sm leading-6">
           <p className="font-medium text-foreground">عکس پروفایل</p>
           <p className="text-foreground/55">
-            فقط با دوربین، در یک قاب راهنما و با پس‌زمینه‌ی سفید عکس بگیرید.
+            با دوربین عکس بگیرید؛ تصویر نهایی بدون واترمارک ساخته می‌شود.
           </p>
         </div>
       </div>

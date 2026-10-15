@@ -14,8 +14,9 @@ export const registerSchema = z.object({
   email: z
     .string()
     .trim()
-    .email("ایمیل واردشده معتبر نیست"),
-    
+    .email("ایمیل واردشده معتبر نیست")
+    .or(z.literal(""))
+    .optional(),
 
   password: z
     .string()

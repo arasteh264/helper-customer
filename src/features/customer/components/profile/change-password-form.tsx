@@ -12,7 +12,7 @@ import { Label } from "@/src/components/ui/label";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { changePasswordSchema, ChangePasswordValues } from "../../schemas/change-password.schema";
 import { customerApi } from "../../api/customer.api";
-import { ApiError, ApiErrorCode } from "@/src/lib/api/error";
+import { ApiError } from "@/src/lib/api/error";
 import { getSession } from "next-auth/react";
 
 function PasswordField({
@@ -71,25 +71,25 @@ export function ChangePasswordForm() {
     },
   });
 
-  const onSubmit = async ({
-  confirmPassword,
-  ...payload
-}: ChangePasswordValues) => {
-  try {
-    const session = await getSession();
+  const onSubmit = async (values: ChangePasswordValues) => {
+    try {
+      const session = await getSession();
 
-    if (!session?.accessToken) {
-      toast.error("جلسه کاربری شما منقضی شده است");
-      return;
-    }
+      if (!session?.accessToken) {
+        toast.error("جلسه کاربری شما منقضی شده است");
+        return;
+      }
 
-    await customerApi.changePassword(
-      payload,
-      session.accessToken
-    );
+      await customerApi.changePassword(
+        {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        },
+        session.accessToken,
+      );
 
-    toast.success("رمز عبور شما تغییر کرد");
-    reset();
+      toast.success("رمز عبور شما تغییر کرد");
+      reset();
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401) {
@@ -102,15 +102,13 @@ export function ChangePasswordForm() {
         if (err.status === 400) {
           toast.error(
             err.message ||
-              "رمز جدید معتبر نیست یا با رمز فعلی یکسان است"
+              "رمز جدید معتبر نیست یا با رمز فعلی یکسان است",
           );
           return;
         }
       }
 
-      toast.error(
-        "تغییر رمز عبور انجام نشد. دوباره تلاش کنید."
-      );
+      toast.error("تغییر رمز عبور انجام نشد. دوباره تلاش کنید.");
     }
   };
 

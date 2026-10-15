@@ -4,15 +4,19 @@ This project keeps the MediaPipe runtime and model files on the same host as the
 
 ## Files to place in this folder
 
-Download the official task files to `public/mediapipe/`:
+Run `node scripts/download-mediapipe-assets.mjs` from the repository root to
+download the official models and copy the installed MediaPipe runtime to
+`public/mediapipe/`:
 
-- `face_detection_short_range.tflite`
-- `selfie_segmentation_landscape.tflite`
-- `vision_wasm_internal.js`
-- `vision_wasm_internal.wasm`
-- `vision_wasm_internal.worker.mjs` (if published by your chosen version)
+- `blaze_face_short_range.tflite`
+- `selfie_segmenter.tflite`
+- `vision_wasm_module_internal.js`
+- `vision_wasm_module_internal.wasm`
 
-Then point `FilesetResolver.forVisionTasks("/mediapipe", true)` to this folder.
+The script downloads model files from the official MediaPipe model storage and
+copies wasm files from the installed `@mediapipe/tasks-vision` package. The app
+loads all of them from its own origin through
+`FilesetResolver.forVisionTasks("/mediapipe", true)`.
 
 ## Recommended source
 
@@ -25,4 +29,4 @@ The app must not request these files from a third-party CDN in production. Keep 
 
 ## Local script
 
-A helper script is available at `scripts/download-mediapipe-assets.mjs` to fetch the official model files into this directory.
+A helper script is available at `scripts/download-mediapipe-assets.mjs`.

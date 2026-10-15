@@ -236,7 +236,8 @@ export function ProviderOnboardingForm({ token }: { token?: string }) {
       if (values.name.trim().length < 2) {
         nextErrors.name = "نام و نام خانوادگی را وارد کنید.";
       }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+      const email = values.email?.trim() ?? "";
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         nextErrors.email = "یک نشانی ایمیل معتبر وارد کنید.";
       }
       if (values.password.length < 8) {
@@ -458,7 +459,7 @@ export function ProviderOnboardingForm({ token }: { token?: string }) {
       const response = await providerApi.completeOnboarding({
         token,
         name: values.name.trim(),
-        email: values.email.trim(),
+        ...(values.email?.trim() ? { email: values.email.trim() } : {}),
         password: values.password,
         bio: values.bio.trim(),
         specialtyIds: values.specialtyIds,
@@ -719,7 +720,7 @@ export function ProviderOnboardingForm({ token }: { token?: string }) {
                           htmlFor="provider-email"
                           className="text-sm font-medium"
                         >
-                          ایمیل
+                          ایمیل <span className="text-xs font-normal text-foreground/45">(اختیاری)</span>
                         </label>
                         <Input
                           id="provider-email"

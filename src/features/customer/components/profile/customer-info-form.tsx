@@ -14,7 +14,7 @@ export function CustomerInfoForm({ customer }: { customer: Customer }) {
         <div className="space-y-1">
           <dt className="text-xs text-foreground/55">ایمیل</dt>
           <dd className="text-sm font-medium text-foreground" dir="ltr">
-            {customer.email}
+            {customer.email || "ثبت نشده"}
           </dd>
         </div>
         <div className="space-y-1 sm:col-span-2">
@@ -26,6 +26,9 @@ export function CustomerInfoForm({ customer }: { customer: Customer }) {
       </dl>
       <p className="mt-4 text-xs leading-6 text-foreground/50" role="status">
         ویرایش اطلاعات حساب تا زمان پشتیبانی API در دسترس نیست.
+      </p>
+      <p className="mt-2 text-xs leading-6 text-foreground/50">
+        آدرس ثابتی برای حساب لازم نیست؛ محل انجام هر کار را هنگام ثبت همان درخواست وارد کنید.
       </p>
     </SectionCard>
   );

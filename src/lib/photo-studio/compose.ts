@@ -85,18 +85,16 @@ export function buildLayerStack({
   const output = new Uint8ClampedArray(imageWidth * imageHeight * 4);
 
   for (let index = 0; index < output.length; index += 4) {
-    const maskValue = mask[index] ?? 0;
-    const alpha = maskValue > 128 ? 255 : 0;
+    const alpha = (mask[index] ?? 0) / 255;
 
-    output[index] = alpha ? source[index] : 255;
-    output[index + 1] = alpha ? source[index + 1] : 255;
-    output[index + 2] = alpha ? source[index + 2] : 255;
+    output[index] = Math.round((source[index] ?? 255) * alpha + 255 * (1 - alpha));
+    output[index + 1] = Math.round((source[index + 1] ?? 255) * alpha + 255 * (1 - alpha));
+    output[index + 2] = Math.round((source[index + 2] ?? 255) * alpha + 255 * (1 - alpha));
     output[index + 3] = 255;
   }
 
   return {
     background: "#FFFFFF",
-    watermark: PHOTO_STUDIO_CONFIG.WATERMARK,
     output,
   };
 }

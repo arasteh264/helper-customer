@@ -4,10 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { getSession } from "next-auth/react";
-import { BadgeCheck, Loader2, RotateCcw, Save } from "lucide-react";
+import { Loader2, RotateCcw, Save } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Button } from "@/src/components/ui/button";
 import { SectionCard } from "@/src/components/shared/section-card";
@@ -97,12 +96,12 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
         description="اطلاعاتی که مشتری پیش از انتخاب متخصص می‌بیند."
       >
         <div className="grid gap-5">
-          <div className="flex flex-col gap-4 rounded-xl border border-foreground/10 bg-background p-4">
+          <div className="grid min-w-0 gap-4 rounded-xl border border-foreground/10 bg-background p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-4 sm:p-4">
             <AvatarUploader
               name={provider.user.name}
               initialUrl={provider.avatarUrl ?? undefined}
             />
-            <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
+            <div className="grid min-w-0 gap-2 sm:grid-cols-2 sm:gap-3">
               <div className="min-w-0 rounded-lg bg-card px-3 py-2.5">
                 <p className="text-xs text-foreground/50">نام و نام خانوادگی</p>
                 <p className="mt-1 truncate text-sm font-medium text-foreground">
@@ -118,13 +117,13 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
                   {provider.user.phone}
                 </p>
               </div>
-              <div className="min-w-0 rounded-lg bg-card px-3 py-2.5 sm:col-span-2">
+              <div className="min-w-0 rounded-lg bg-card px-2.5 py-2 sm:col-span-2 sm:px-3 sm:py-2.5">
                 <p className="text-xs text-foreground/50">ایمیل</p>
                 <p
                   className="mt-1 truncate text-start text-sm font-medium text-foreground"
                   dir="ltr"
                 >
-                  {provider.user.email}
+                  {provider.user.email || "ثبت نشده"}
                 </p>
               </div>
             </div>
@@ -170,7 +169,7 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
         <div
           role="region"
           aria-label="ذخیره‌ی تغییرات"
-          className="sticky bottom-24 z-20 mt-4 flex items-center justify-between gap-3 rounded-xl border border-primary/25 bg-card/95 p-3 shadow-lg shadow-foreground/10 backdrop-blur lg:bottom-6"
+          className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-20 mt-4 flex flex-col items-stretch justify-between gap-3 rounded-xl border border-primary/25 bg-card/95 p-3 shadow-lg shadow-foreground/10 backdrop-blur sm:flex-row sm:items-center lg:bottom-6"
         >
           <p className="ps-2 text-sm text-foreground/70">
             تغییرات ذخیره‌نشده دارید
@@ -181,7 +180,7 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
               variant="outline"
               onClick={() => reset()}
               disabled={isSubmitting}
-              className="gap-1.5"
+              className="min-h-11 flex-1 gap-1.5 sm:flex-none"
             >
               <RotateCcw size={16} />
               انصراف
@@ -189,7 +188,7 @@ export function ProfileForm({ provider }: { provider: ProviderProfile }) {
             <Button
               type="submit"
               disabled={isSubmitting || !isDirty}
-              className="gap-1.5"
+              className="min-h-11 flex-1 gap-1.5 sm:flex-none"
             >
               {isSubmitting ? (
                 <Loader2 size={16} className="animate-spin" />

@@ -1,12 +1,4 @@
 export const PHOTO_STUDIO_CONFIG = {
-  WATERMARK: {
-    text: "helpa24",
-    color: "#1f7a5c",
-    opacity: 0.1,
-    sizeRatio: 0.12,
-    position: { x: 50, y: 50 },
-    rotation: 0,
-  },
   OUTPUT: {
     width: 1080,
     height: 1350,

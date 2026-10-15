@@ -14,7 +14,7 @@ import type {
 export interface BackendUser {
   id: string;
   name: string;
-  email: string;
+  email?: string | null;
   phone: string;
   role: string;
   status: string;
@@ -95,6 +95,7 @@ export const customerApi = {
       method: "PATCH",
       data: values,
       headers: authHeaders(accessToken),
+      suppressAuthRedirect: true,
     }),
 
   deleteAccount: () => apiClient("/customer/account", { method: "DELETE" }),

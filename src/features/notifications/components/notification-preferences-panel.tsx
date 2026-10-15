@@ -21,7 +21,7 @@ import type {
 const CHANNELS: { id: NotificationChannel; label: string }[] = [
   { id: "inApp", label: "داخل هلپا24" },
   { id: "sms", label: "پیامک" },
-  { id: "email", label: "ایمیل" },
+  { id: "email", label: "ایمیل (اولویت‌دار)" },
 ];
 
 const TOPICS: Record<
@@ -88,10 +88,12 @@ export function NotificationPreferencesPanel({
   role,
   accessToken,
   initial,
+  hasEmail,
 }: {
   role: NotificationRole;
   accessToken: string;
   initial: UserNotificationPreferences | null;
+  hasEmail: boolean;
 }) {
   const queryClient = useQueryClient();
   const queryKey = notificationQueryKeys.preferences(role);
@@ -137,20 +139,32 @@ export function NotificationPreferencesPanel({
     checked: boolean,
   ) => {
     if (!preferences || updateMutation.isPending) return;
+    if (channel === "email" && !hasEmail) return;
+    const nextTopicPreferences = { ...preferences[topic] };
+    nextTopicPreferences[channel] = checked;
+    if (checked && channel === "email") nextTopicPreferences.sms = false;
+    if (checked && channel === "sms") nextTopicPreferences.email = false;
     const next: UserNotificationPreferences = {
       ...preferences,
-      [topic]: { ...preferences[topic], [channel]: checked },
+      [topic]: nextTopicPreferences,
     };
     updateMutation.mutate(next);
   };
 
   const retry = () => void refetch();
   const saving = updateMutation.isPending;
+  const availableChannels = hasEmail
+    ? CHANNELS
+    : CHANNELS.filter((channel) => channel.id !== "email");
 
   return (
     <SectionCard
       title="اعلان‌ها"
-      description="انتخاب کنید پیام‌ها و رویدادهای حساب از چه راهی به شما اطلاع داده شوند."
+      description={
+        hasEmail
+          ? "ایمیل برای اطلاع‌رسانی بیرونی در اولویت است؛ با فعال‌کردن ایمیل، پیامک همان موضوع خاموش می‌شود. اعلان داخل برنامه مستقل است."
+          : "اطلاعیه‌ها را داخل هلپا24 یا با پیامک دریافت کنید. با ثبت ایمیل، امکان دریافت ایمیلی هم اضافه می‌شود."
+      }
       action={
         saving ? (
           <span className="inline-flex items-center gap-2 text-xs text-foreground/50">
@@ -207,7 +221,7 @@ export function NotificationPreferencesPanel({
                   {topic.description}
                 </p>
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  {CHANNELS.map((channel) => (
+                  {availableChannels.map((channel) => (
                     <div
                       key={channel.id}
                       className="flex min-w-0 flex-col items-center gap-2"
@@ -237,7 +251,7 @@ export function NotificationPreferencesPanel({
                   <th scope="col" className="pb-3 text-start font-medium">
                     موضوع
                   </th>
-                  {CHANNELS.map((channel) => (
+                  {availableChannels.map((channel) => (
                     <th
                       key={channel.id}
                       scope="col"

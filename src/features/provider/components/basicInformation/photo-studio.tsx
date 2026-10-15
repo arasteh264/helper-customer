@@ -2,57 +2,36 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Camera, Check, Loader2, RefreshCw, Sparkles, X } from "lucide-react";
+import type { FaceDetector } from "@mediapipe/tasks-vision";
 import { Button } from "@/src/components/ui/button";
 import { Modal } from "@/src/components/shared/modal";
 import { PHOTO_STUDIO_CONFIG } from "@/src/lib/photo-studio/config";
-import { buildLayerStack } from "@/src/lib/photo-studio/compose";
+import {
+  buildLayerStack,
+  computeMaskCoverage,
+  shouldRejectMask,
+} from "@/src/lib/photo-studio/compose";
 
 type PhotoStudioProps = {
   open: boolean;
   onClose: () => void;
-  onDone: (file: File) => Promise<void> | void;
+  onDone: (file: File) => Promise<boolean>;
 };
 
 const ACCEPTANCE_TEXT =
   "عکس فقط روی دستگاه شما پردازش می‌شود و فقط نسخه‌ی نهایی آپلود می‌شود.";
 
-const createFallbackMask = (
-  width: number,
-  height: number,
-  box?: { x: number; y: number; width: number; height: number },
-) => {
-  const mask = new Uint8ClampedArray(width * height * 4);
-  const centerX = box ? box.x + box.width / 2 : width * 0.5;
-  const centerY = box ? box.y + box.height / 2 : height * 0.48;
-  const ellipseWidth = box ? box.width * 1.25 : width * 0.38;
-  const ellipseHeight = box ? box.height * 1.35 : height * 0.56;
-
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      const dx = x - centerX;
-      const dy = y - centerY;
-      const normalizedX = (dx * dx) / (ellipseWidth * ellipseWidth);
-      const normalizedY = (dy * dy) / (ellipseHeight * ellipseHeight);
-      const inside = normalizedX + normalizedY <= 1;
-      const index = (y * width + x) * 4;
-      mask[index] = inside ? 255 : 0;
-      mask[index + 1] = inside ? 255 : 0;
-      mask[index + 2] = inside ? 255 : 0;
-      mask[index + 3] = 255;
-    }
-  }
-
-  return mask;
-};
-
 export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const detectorRef = useRef<FaceDetector | null>(null);
   const requestRef = useRef<number | null>(null);
+  const lastDetectionAtRef = useRef(0);
   const finalFileRef = useRef<File | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [status, setStatus] = useState("در حال آماده‌سازی دوربین…");
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [captureReady, setCaptureReady] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -74,6 +53,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
   const resetStudio = () => {
     stopStream();
+    detectorRef.current?.close();
+    detectorRef.current = null;
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -95,7 +76,11 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   };
 
   useEffect(() => {
-    return () => stopStream();
+    return () => {
+      stopStream();
+      detectorRef.current?.close();
+      detectorRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -103,6 +88,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
     if (!consentAccepted) return;
 
+    let cancelled = false;
     const startCamera = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
         setErrorText("دوربین در این مرورگر پشتیبانی نمی‌شود. لطفاً از دستگاه یا مرورگر دیگری استفاده کنید.");
@@ -121,66 +107,86 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           audio: false,
         });
 
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
 
+        const { FaceDetector, FilesetResolver } = await import("@mediapipe/tasks-vision");
+        const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
+        const detector = await FaceDetector.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath: "/mediapipe/blaze_face_short_range.tflite",
+          },
+          runningMode: "VIDEO",
+          minDetectionConfidence: 0.65,
+        });
+        if (cancelled) {
+          detector.close();
+          return;
+        }
+        detectorRef.current = detector;
+        setIsLocalProcessingReady(true);
         setStatus("چهره را داخل بیضی قرار دهید");
         setErrorText(null);
-
-        if (typeof window !== "undefined") {
-          try {
-            const taskVision = await import("@mediapipe/tasks-vision");
-            await taskVision.FilesetResolver.forVisionTasks("/mediapipe", true);
-            setIsLocalProcessingReady(true);
-          } catch {
-            setIsLocalProcessingReady(false);
-            setStatus("دوربین آماده است؛ فایل‌های مدل محلی MediaPipe نصب نشده‌اند");
-          }
-        }
-      } catch {
+      } catch (error) {
+        stopStream();
+        setIsLocalProcessingReady(false);
+        setCaptureReady(false);
+        const message =
+          error instanceof DOMException && error.name === "NotAllowedError"
+            ? "اجازه‌ی دوربین داده نشد؛ دسترسی دوربین را در مرورگر فعال کنید."
+            : error instanceof DOMException &&
+                ["NotFoundError", "DevicesNotFoundError"].includes(error.name)
+              ? "دوربین جلویی پیدا نشد؛ دوربین دستگاه را بررسی کنید."
+              : "آماده‌سازی دوربین یا مدل محلی انجام نشد؛ دوباره تلاش کنید.";
         setErrorText(
-          "مجوز دوربین داده نشد. برای این مرحله، اگر دسترسی دوربین ندارید، فقط با عکس‌های دیگر ادامه دهید.",
+          message,
         );
-        setStatus("مجوز دوربین رد شد");
+        setStatus("آماده‌سازی دوربین انجام نشد");
       }
     };
 
     void startCamera();
 
     return () => {
+      cancelled = true;
       stopStream();
+      detectorRef.current?.close();
+      detectorRef.current = null;
     };
   }, [consentAccepted, open]);
 
   useEffect(() => {
-    if (!open || !consentAccepted || mode !== "camera") return;
+    if (!open || !consentAccepted || mode !== "camera" || !isLocalProcessingReady) return;
 
     const tick = async () => {
       const video = videoRef.current;
-      if (!video || video.readyState < 2) {
+      const detector = detectorRef.current;
+      if (!video || video.readyState < 2 || !detector) {
         requestRef.current = requestAnimationFrame(tick);
         return;
       }
 
+      if (performance.now() - lastDetectionAtRef.current < 180) {
+        requestRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      lastDetectionAtRef.current = performance.now();
+
       try {
-        const { FaceDetector, FilesetResolver } = await import("@mediapipe/tasks-vision");
-        const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
-        const detector = await FaceDetector.createFromOptions(fileset, {
-          baseOptions: {
-            modelAssetPath: "/mediapipe/face_detection_short_range.tflite",
-          },
-          runningMode: "VIDEO",
-          minDetectionConfidence: 0.5,
-        });
-
         const result = detector.detectForVideo(video, performance.now());
-        const face = result.detections?.[0];
+        const detections = result.detections ?? [];
+        const face = detections[0];
 
-        if (!face) {
-          setStatus("چهره‌ای پیدا نشد");
+        if (detections.length !== 1 || !face) {
+          setStatus(detections.length > 1 ? "فقط یک نفر در قاب باشد" : "چهره‌ای پیدا نشد");
           setCaptureReady(false);
           requestRef.current = requestAnimationFrame(tick);
           return;
@@ -198,8 +204,11 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         const centerY = (box.originY + box.height / 2) / video.videoHeight;
         const faceRatio = box.width / video.videoWidth;
 
-        if (faceRatio < 0.12) {
+        if (faceRatio < PHOTO_STUDIO_CONFIG.LIMITS.minFaceRatio) {
           setStatus("کمی نزدیک‌تر بایستید");
+          setCaptureReady(false);
+        } else if (faceRatio > PHOTO_STUDIO_CONFIG.LIMITS.maxFaceRatio) {
+          setStatus("کمی از دوربین فاصله بگیرید");
           setCaptureReady(false);
         } else if (Math.abs(centerX - 0.5) > 0.18 || Math.abs(centerY - 0.45) > 0.15) {
           setStatus("چهره را وسط بیضی بگذارید");
@@ -209,8 +218,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           setCaptureReady(true);
         }
       } catch {
-        setStatus("دوربین آماده است؛ برای پردازش دقیق‌تر مدل‌های MediaPipe نصب شوند");
-        setCaptureReady(true);
+        setStatus("بررسی تصویر انجام نشد؛ لطفاً دوباره تلاش کنید");
+        setCaptureReady(false);
       }
 
       requestRef.current = requestAnimationFrame(tick);
@@ -223,13 +232,16 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [consentAccepted, mode, open]);
+  }, [consentAccepted, isLocalProcessingReady, mode, open]);
 
   const resetToCamera = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    finalFileRef.current = null;
     setMode("camera");
     setPreviewUrl(null);
     setIsProcessing(false);
     setCaptureReady(false);
+    setErrorText(null);
   };
 
   const handleCapture = async () => {
@@ -243,6 +255,13 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       const video = videoRef.current;
       const width = PHOTO_STUDIO_CONFIG.OUTPUT.width;
       const height = PHOTO_STUDIO_CONFIG.OUTPUT.height;
+      if (
+        Math.min(video.videoWidth, video.videoHeight) <
+        PHOTO_STUDIO_CONFIG.LIMITS.minResolution
+      ) {
+        throw new Error("Camera resolution is too low.");
+      }
+
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
@@ -254,59 +273,75 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
       context.fillStyle = PHOTO_STUDIO_CONFIG.OUTPUT.background;
       context.fillRect(0, 0, width, height);
-      context.translate(width, 0);
-      context.scale(-1, 1);
-      context.drawImage(video, 0, 0, width, height);
-      context.setTransform(1, 0, 0, 1, 0, 0);
+      const scale = Math.max(width / video.videoWidth, height / video.videoHeight);
+      const drawWidth = video.videoWidth * scale;
+      const drawHeight = video.videoHeight * scale;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(
+        video,
+        (width - drawWidth) / 2,
+        (height - drawHeight) / 2,
+        drawWidth,
+        drawHeight,
+      );
 
-      let mask: Uint8ClampedArray | null = null;
-
-      if (isLocalProcessingReady && typeof window !== "undefined") {
-        try {
-          const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
-          const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
-          const segmenter = await ImageSegmenter.createFromOptions(fileset, {
-            baseOptions: {
-              modelAssetPath: "/mediapipe/selfie_segmentation_landscape.tflite",
-            },
-            runningMode: "IMAGE",
-            outputConfidenceMasks: true,
-            outputCategoryMask: true,
-          });
-          const result = segmenter.segment(video);
-          const sourceMask = result.categoryMask?.getAsUint8Array();
-          if (sourceMask) {
-            mask = new Uint8ClampedArray(sourceMask.length * 4);
-            for (let index = 0; index < sourceMask.length; index += 1) {
-              const value = sourceMask[index] ?? 0;
-              const rgbaIndex = index * 4;
-              mask[rgbaIndex] = value > 128 ? 255 : 0;
-              mask[rgbaIndex + 1] = value > 128 ? 255 : 0;
-              mask[rgbaIndex + 2] = value > 128 ? 255 : 0;
-              mask[rgbaIndex + 3] = 255;
-            }
-          }
-        } catch {
-          const box = {
-            x: width * 0.32,
-            y: height * 0.18,
-            width: width * 0.36,
-            height: height * 0.52,
-          };
-          mask = createFallbackMask(width, height, box);
-        }
-      } else {
-        const box = {
-          x: width * 0.32,
-          y: height * 0.18,
-          width: width * 0.36,
-          height: height * 0.52,
-        };
-        mask = createFallbackMask(width, height, box);
+      const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
+      const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
+      const segmenter = await ImageSegmenter.createFromOptions(fileset, {
+        baseOptions: {
+          modelAssetPath: "/mediapipe/selfie_segmenter.tflite",
+        },
+        runningMode: "IMAGE",
+        outputConfidenceMasks: true,
+        outputCategoryMask: true,
+      });
+      const result = segmenter.segment(canvas);
+      const labels = segmenter.getLabels();
+      const personIndex = labels.findIndex((label) =>
+        /person|human|foreground/i.test(label),
+      );
+      const confidenceIndex = personIndex >= 0 ? personIndex : 0;
+      const confidenceMask = result.confidenceMasks?.[confidenceIndex];
+      const categoryMask = result.categoryMask;
+      const maskWidth = confidenceMask?.width ?? categoryMask?.width ?? 0;
+      const maskHeight = confidenceMask?.height ?? categoryMask?.height ?? 0;
+      const confidenceValues = confidenceMask?.getAsFloat32Array();
+      const categoryValues = categoryMask?.getAsUint8Array();
+      if (!maskWidth || !maskHeight || (!confidenceValues && !categoryValues)) {
+        result.close();
+        segmenter.close();
+        throw new Error("Segmentation model did not return a usable mask.");
       }
 
-      if (!mask) {
-        throw new Error("A foreground mask could not be created.");
+      const mask = new Uint8ClampedArray(width * height * 4);
+      for (let y = 0; y < height; y += 1) {
+        const sourceY = Math.min(maskHeight - 1, Math.floor((y / height) * maskHeight));
+        for (let x = 0; x < width; x += 1) {
+          const sourceX = Math.min(maskWidth - 1, Math.floor((x / width) * maskWidth));
+          const sourceIndex = sourceY * maskWidth + sourceX;
+          let alpha = 0;
+          if (confidenceValues) {
+            let confidence = confidenceValues[sourceIndex] ?? 0;
+            if (confidence > 1) confidence /= 255;
+            alpha = Math.min(1, Math.max(0, (confidence - 0.25) / 0.5));
+          } else if (categoryValues) {
+            const category = categoryValues[sourceIndex] ?? 0;
+            alpha = personIndex >= 0 ? Number(category === personIndex) : Number(category > 0);
+          }
+          const index = (y * width + x) * 4;
+          mask[index] = Math.round(alpha * 255);
+          mask[index + 1] = mask[index];
+          mask[index + 2] = mask[index];
+          mask[index + 3] = 255;
+        }
+      }
+      result.close();
+      segmenter.close();
+
+      const coverage = computeMaskCoverage(mask, width, height);
+      if (shouldRejectMask(coverage, width, height)) {
+        throw new Error("Foreground mask failed quality checks.");
       }
 
       const source = context.getImageData(0, 0, width, height).data;
@@ -324,31 +359,24 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       );
       context.putImageData(output, 0, 0);
 
-      if (typeof document !== "undefined" && "fonts" in document) {
-        await document.fonts.load("500 48px Poppins");
+      let quality = PHOTO_STUDIO_CONFIG.OUTPUT.quality;
+      let blob: Blob | null = null;
+      while (quality >= 0.65) {
+        blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(
+            resolve,
+            PHOTO_STUDIO_CONFIG.OUTPUT.format,
+            quality,
+          ),
+        );
+        if (blob && blob.size <= PHOTO_STUDIO_CONFIG.OUTPUT.maxBytes) break;
+        quality = Math.round((quality - 0.05) * 100) / 100;
+      }
+      if (!blob || blob.size > PHOTO_STUDIO_CONFIG.OUTPUT.maxBytes) {
+        throw new Error("Output image exceeds the allowed size.");
       }
 
-      context.fillStyle = `rgba(31, 122, 92, ${PHOTO_STUDIO_CONFIG.WATERMARK.opacity})`;
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.font = `${Math.round(width * PHOTO_STUDIO_CONFIG.WATERMARK.sizeRatio)}px Poppins, sans-serif`;
-      context.fillText(PHOTO_STUDIO_CONFIG.WATERMARK.text, width / 2, height * 0.52);
-
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (nextBlob) => {
-            if (!nextBlob) {
-              reject(new Error("Final image could not be generated."));
-              return;
-            }
-            resolve(nextBlob);
-          },
-          PHOTO_STUDIO_CONFIG.OUTPUT.format,
-          PHOTO_STUDIO_CONFIG.OUTPUT.quality,
-        );
-      });
-
-      const file = new File([blob], "profile-photo.webp", { type: "image/webp" });
+      const file = new File([blob], "profile-photo.jpg", { type: blob.type });
       finalFileRef.current = file;
       const previewObjectUrl = URL.createObjectURL(blob);
       setPreviewUrl((currentUrl) => {
@@ -358,8 +386,12 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       setMode("preview");
       setStatus("عکس آماده است؛ تأیید یا دوباره گرفتن");
     } catch (error) {
-      console.error(error);
-      setErrorText("پردازش عکس انجام نشد. لطفاً دوباره تلاش کنید.");
+      setErrorText(
+        error instanceof Error &&
+          error.message === "Camera resolution is too low."
+          ? "وضوح دوربین برای ساخت عکس مناسب نیست؛ از دوربین اصلی یا دستگاه دیگری استفاده کنید."
+          : "ساخت عکس مناسب انجام نشد. نور و فاصله را بهتر کنید و دوباره بگیرید.",
+      );
       setStatus("خطا در آماده‌سازی عکس");
     } finally {
       setIsCapturing(false);
@@ -384,13 +416,13 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         </div>
       ) : mode === "camera" ? (
         <div className="space-y-4">
-          <div className="relative overflow-hidden rounded-[2rem] border border-foreground/10 bg-black">
+          <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-black sm:rounded-[2rem]">
             <video
               ref={videoRef}
               playsInline
               autoPlay
               muted
-              className="h-[58dvh] w-full scale-x-[-1] object-cover"
+              className="h-[clamp(17rem,52dvh,32rem)] w-full scale-x-[-1] object-cover"
               aria-label="پیش‌نمایش زنده دوربین"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/25" />
@@ -398,29 +430,35 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
               <div className="h-[72%] w-[68%] rounded-[50%] border-[3px] border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.42)]" />
               <div className="absolute left-1/2 top-[55%] h-[24%] w-[52%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/60" />
             </div>
-            <div className="absolute inset-x-0 bottom-0 bg-black/30 px-4 py-3 text-center text-sm text-white backdrop-blur-sm">
+            <div
+              className="absolute inset-x-0 bottom-0 bg-black/30 px-4 py-3 text-center text-sm text-white backdrop-blur-sm"
+              aria-live="polite"
+            >
               {status}
             </div>
           </div>
 
           {errorText && (
-            <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive">
+            <div
+              role="alert"
+              className="rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive"
+            >
               {errorText}
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               type="button"
               variant="primary"
-              className="flex-1"
+              className="min-h-11 flex-1"
               onClick={handleCapture}
               disabled={!captureReady || isCapturing || isProcessing}
             >
               {isCapturing ? <Loader2 className="animate-spin" size={16} /> : <Camera size={16} />}
               {isCapturing ? "در حال گرفتن عکس…" : "گرفتن عکس"}
             </Button>
-            <Button type="button" variant="outline" onClick={resetToCamera} className="gap-2">
+            <Button type="button" variant="outline" onClick={resetToCamera} className="min-h-11 gap-2">
               <RefreshCw size={16} />
               دوباره
             </Button>
@@ -428,50 +466,58 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-foreground/10 bg-card p-3">
+          <div className="rounded-2xl border border-foreground/10 bg-white p-2 sm:p-3">
             {previewUrl ? (
               <img
                 src={previewUrl}
                 alt="پیش‌نمایش عکس نهایی"
-                className="h-[420px] w-full rounded-xl object-cover"
+                className="mx-auto aspect-[4/5] max-h-[62dvh] w-auto max-w-full rounded-xl object-contain"
               />
             ) : (
-              <div className="flex h-[420px] items-center justify-center rounded-xl bg-foreground/5 text-sm text-foreground/60">
+              <div className="flex aspect-[4/5] max-h-[62dvh] items-center justify-center rounded-xl bg-foreground/5 text-sm text-foreground/60">
                 تصویر آماده نیست
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {errorText && (
+            <div
+              role="alert"
+              className="rounded-xl border border-destructive/25 bg-destructive/5 p-3 text-sm text-destructive"
+            >
+              {errorText}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 sm:flex-row">
             <Button
               type="button"
               variant="primary"
-              className="flex-1"
+              className="min-h-11 flex-1"
               onClick={async () => {
                 if (!finalFileRef.current) return;
-                await onDone(finalFileRef.current);
-                if (!errorText) {
-                  handleModalClose();
+                setIsUploading(true);
+                setErrorText(null);
+                try {
+                  const uploaded = await onDone(finalFileRef.current);
+                  if (uploaded) handleModalClose();
+                  else setErrorText("آپلود عکس انجام نشد؛ اتصال را بررسی کنید و دوباره تلاش کنید.");
+                } catch {
+                  setErrorText("آپلود عکس انجام نشد؛ اتصال را بررسی کنید و دوباره تلاش کنید.");
+                } finally {
+                  setIsUploading(false);
                 }
               }}
+              disabled={isUploading}
             >
-              <Check size={16} />
-              تأیید و آپلود
+              {isUploading ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
+              {isUploading ? "در حال آپلود…" : "تأیید و آپلود"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => {
-              setMode("camera");
-              setPreviewUrl((currentUrl) => {
-                if (currentUrl) URL.revokeObjectURL(currentUrl);
-                return null;
-              });
-              setStatus("چهره را داخل بیضی قرار دهید");
-              setCaptureReady(false);
-              setErrorText(null);
-            }} className="gap-2">
+            <Button type="button" variant="outline" onClick={resetToCamera} className="min-h-11 gap-2" disabled={isUploading}>
               <Sparkles size={16} />
               گرفتن دوباره
             </Button>
-            <Button type="button" variant="ghost" onClick={handleModalClose} className="gap-2">
+            <Button type="button" variant="ghost" onClick={handleModalClose} className="min-h-11 gap-2" disabled={isUploading}>
               <X size={16} />
               بستن
             </Button>

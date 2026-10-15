@@ -82,7 +82,7 @@ export default async function ProviderProfilePage() {
 
       <nav
         aria-label="بخش‌های پروفایل"
-        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
       >
         {[
           { href: "#basic", label: "اطلاعات پایه", Icon: UserRound },
@@ -96,7 +96,7 @@ export default async function ProviderProfilePage() {
           <a
             key={href}
             href={href}
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-foreground/10 bg-card px-3 text-xs font-medium text-foreground/65 transition-colors hover:border-primary/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-lg border border-foreground/10 bg-card px-2 text-center text-[11px] font-medium text-foreground/65 transition-colors hover:border-primary/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:justify-start sm:px-3 sm:text-xs"
           >
             <Icon size={15} />
             {label}
@@ -138,6 +138,7 @@ export default async function ProviderProfilePage() {
             role="PROVIDER"
             accessToken={session.accessToken}
             initial={notificationPreferences}
+            hasEmail={Boolean(provider.user.email)}
           />
         </div>
       </div>
