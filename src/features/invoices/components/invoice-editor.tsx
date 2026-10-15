@@ -30,6 +30,7 @@ export function InvoiceEditor({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [invoiceDoesNotExist, setInvoiceDoesNotExist] = useState(false);
 
   async function loadInvoice() {
     setLoading(true);
@@ -40,6 +41,7 @@ export function InvoiceEditor({
         accessToken,
       );
       setInvoice(existing);
+      setInvoiceDoesNotExist(false);
       setItems(existing.items.map(({ description, quantity, unitPriceToman }) => ({
         description,
         quantity,
@@ -48,6 +50,8 @@ export function InvoiceEditor({
     } catch (caught) {
       if (!(caught instanceof ApiError) || caught.status !== 404) {
         setError(caught instanceof ApiError ? caught.message : "دریافت فاکتور انجام نشد.");
+      } else {
+        setInvoiceDoesNotExist(true);
       }
     } finally {
       setLoading(false);
@@ -65,6 +69,7 @@ export function InvoiceEditor({
         accessToken,
       );
       setInvoice(created);
+      setInvoiceDoesNotExist(false);
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "ساخت فاکتور انجام نشد.");
     } finally {
@@ -114,11 +119,11 @@ export function InvoiceEditor({
         </div>
       ) : null}
 
-      {loaded && !invoice ? (
+      {loaded && !invoice && invoiceDoesNotExist ? (
         <div className="space-y-3">
           <h4 className="font-semibold">ساخت فاکتور</h4>
-          <p className="text-xs leading-5 text-foreground/60">
-            مبلغ‌ها بر اساس تومان ثبت می‌شوند. تا پیش از ارسال می‌توانید فاکتور را ویرایش کنید.
+              <p className="text-xs leading-5 text-foreground/60">
+                مبلغ‌ها بر اساس تومان ثبت می‌شوند. پیش‌نویس را بررسی کنید و سپس برای مشتری بفرستید.
           </p>
           {items.map((item, index) => (
             <div key={index} className="grid gap-2 rounded-lg border border-foreground/10 bg-background p-2 sm:grid-cols-[minmax(0,1.5fr)_90px_minmax(0,1fr)_44px]">
@@ -148,6 +153,7 @@ export function InvoiceEditor({
                 قیمت واحد (تومان)
                 <input
                   inputMode="numeric"
+                  max={1_000_000_000}
                   value={formatWithCommas(String(item.unitPriceToman || ""))}
                   onChange={(event) => setItems((rows) => rows.map((row, i) => i === index ? { ...row, unitPriceToman: Number(toEnglishDigits(event.target.value).replace(/\D/g, "")) } : row))}
                   className="h-10 min-w-0 rounded-lg border border-foreground/15 bg-background px-3 text-sm"
@@ -160,7 +166,7 @@ export function InvoiceEditor({
             </div>
           ))}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Button type="button" variant="outline" onClick={() => setItems((rows) => [...rows, { description: "", quantity: 1, unitPriceToman: 0 }])}>
+            <Button type="button" variant="outline" disabled={items.length >= 100} onClick={() => setItems((rows) => [...rows, { description: "", quantity: 1, unitPriceToman: 0 }])}>
               <Plus size={16} /> افزودن ردیف
             </Button>
             <p className="text-sm font-semibold">جمع تقریبی: {formatMoney(items.reduce((sum, item) => sum + item.quantity * item.unitPriceToman, 0))}</p>

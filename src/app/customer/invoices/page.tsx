@@ -6,6 +6,7 @@ import { PageHeader } from "@/src/components/shared/page-header";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { CustomerInvoiceList } from "@/src/features/invoices/components/customer-invoice-list";
 import { customerInvoicesApi } from "@/src/features/invoices/api/invoices.api";
+import type { Invoice } from "@/src/features/invoices/types/invoice.types";
 
 export const metadata: Metadata = { title: "فاکتورهای من | پنل مشتری" };
 
@@ -13,7 +14,7 @@ export default async function CustomerInvoicesPage() {
   const session = await auth();
   if (!session?.accessToken) redirect("/login");
 
-  let invoices;
+  let invoices: Invoice[] = [];
   let loadError = false;
   try {
     invoices = await customerInvoicesApi.listMine(session.accessToken);

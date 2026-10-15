@@ -5,6 +5,7 @@ import { BlogExplorer } from "@/src/features/blog/components/blog-explorer";
 import { blogServerApi } from "@/src/features/blog/api/blog.server";
 import { publicProviderArticlesApi } from "@/src/features/articles/api/provider-articles.api";
 import { ExpertArticlesSection } from "@/src/features/articles/components/expert-articles-section";
+import type { ProviderArticle } from "@/src/features/articles/types/provider-article.types";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://helper-customer.vercel.app";
@@ -60,7 +61,7 @@ export default async function BlogPage({
     initialError = true;
     initialPage = { items: [], total: 0, page: 1, pageSize: 9, categories: [] };
   }
-  let expertArticles = [];
+  let expertArticles: ProviderArticle[] = [];
   let expertArticlesError = false;
   try {
     expertArticles = (await publicProviderArticlesApi.list({ page: 1, pageSize: 6 })).items;

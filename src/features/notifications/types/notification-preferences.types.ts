@@ -27,6 +27,7 @@ export interface UserNotification {
   title: string;
   body: string;
   serviceRequestId?: string | null;
+  invoiceId?: string | null;
   chatMessageId?: string | null;
   readAt: string | null;
   createdAt: string;

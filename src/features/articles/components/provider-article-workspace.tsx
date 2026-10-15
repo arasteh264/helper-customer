@@ -81,7 +81,27 @@ export function ProviderArticleWorkspace({
   )];
 
   function toggleSpecialty(id: string) {
-    setSpecialtyIds((ids) => ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]);
+    if (specialtyIds.includes(id)) {
+      setSpecialtyIds((ids) => ids.filter((item) => item !== id));
+      setError("");
+      return;
+    }
+    if (specialtyIds.length >= 50) {
+      setError("حداکثر ۵۰ تخصص برای هر مقاله قابل انتخاب است.");
+      return;
+    }
+    const nextIds = [...specialtyIds, id];
+    const nextCategoryIds = new Set(
+      groups
+        .filter((item) => item.specialties.some((specialty) => nextIds.includes(specialty.id)))
+        .map((item) => item.id),
+    );
+    if (nextCategoryIds.size > 30) {
+      setError("تخصص‌های انتخاب‌شده نباید از ۳۰ گروه بیشتر باشند.");
+      return;
+    }
+    setSpecialtyIds(nextIds);
+    setError("");
   }
 
   function updateBlock(index: number, patch: Partial<DraftBlock>) {
@@ -144,8 +164,8 @@ export function ProviderArticleWorkspace({
         ? { type: "list", items: block.text.split(/\r?\n/).map((item) => item.trim()).filter(Boolean) }
         : { type: block.type, text: block.text.trim() },
     );
-    if (content.some((block) => block.type === "list" && !block.items.length)) {
-      setError("برای فهرست دست‌کم یک مورد در هر خط بنویسید.");
+    if (content.some((block) => block.type === "list" && (!block.items.length || block.items.length > 100))) {
+      setError("هر فهرست باید بین ۱ تا ۱۰۰ مورد داشته باشد؛ هر مورد را در خط جداگانه بنویسید.");
       return;
     }
 
@@ -199,7 +219,7 @@ export function ProviderArticleWorkspace({
       <section className="rounded-2xl border border-foreground/10 bg-card p-4 sm:p-6">
         <h2 className="text-lg font-bold">نوشتن مقاله‌ی آموزشی</h2>
         <p className="mt-1 text-sm leading-6 text-foreground/60">
-          مقاله باید علمی و کاربردی باشد، نه تبلیغاتی. پس از ثبت، مدیر آن را بررسی می‌کند.
+          مقاله باید علمی و کاربردی باشد، نه تبلیغاتی یا دارای شماره تماس و ایمیل. پس از ثبت، مدیر آن را بررسی می‌کند.
         </p>
         {taxonomyError ? (
           <p className="mt-4 rounded-lg bg-amber-500/10 p-3 text-sm leading-6 text-amber-900" role="status">
@@ -244,7 +264,7 @@ export function ProviderArticleWorkspace({
               <div className="grid gap-2 sm:grid-cols-2">
                 {group.specialties.map((specialty) => (
                   <label key={specialty.id} className="flex min-h-11 items-center gap-2 rounded-lg bg-foreground/[0.025] px-3 text-sm">
-                    <input type="checkbox" checked={specialtyIds.includes(specialty.id)} onChange={() => toggleSpecialty(specialty.id)} />
+                    <input type="checkbox" checked={specialtyIds.includes(specialty.id)} disabled={!specialtyIds.includes(specialty.id) && specialtyIds.length >= 50} onChange={() => toggleSpecialty(specialty.id)} />
                     {specialty.name}
                   </label>
                 ))}
@@ -256,7 +276,7 @@ export function ProviderArticleWorkspace({
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-semibold">متن مقاله</h3>
-              <Button type="button" variant="outline" onClick={() => setBlocks((current) => [...current, { type: "paragraph", text: "" }])}>
+              <Button type="button" variant="outline" disabled={blocks.length >= 100} onClick={() => setBlocks((current) => [...current, { type: "paragraph", text: "" }])}>
                 <Plus size={16} /> افزودن بخش
               </Button>
             </div>
