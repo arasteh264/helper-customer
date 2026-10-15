@@ -369,6 +369,7 @@ export function RequestPaymentActions({
 
       {showCompletion ? (
         <SectionCard
+          id="request-issue"
           title="تأیید انجام کار"
           description="پس از بررسی کار، آن را تأیید کنید یا برای ثبت اختلاف اقدام کنید."
         >
@@ -441,6 +442,7 @@ export function RequestPaymentActions({
 
       {hasDisputeCase ? (
         <SectionCard
+          id="request-dispute"
           title={dispute?.resolved ? "نتیجه‌ی رسیدگی به اختلاف" : "پیگیری اختلاف"}
           description={
             dispute?.resolved
