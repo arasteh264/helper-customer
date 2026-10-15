@@ -21,6 +21,7 @@ export interface PanelNavItem {
   icon: IconKey;
   exact?: boolean;
   mobile?: boolean;
+  mobileLabel?: string;
   badgeSource?: "notifications";
   /** عدد واقعی (مثلاً درخواست‌های فعال)؛ صفر یا undefined = نمایش داده نمی‌شود */
   badge?: number;
@@ -327,7 +328,7 @@ export function PanelShell({
                       </span>
                     )}
                   </span>
-                  {item.label}
+                  {item.mobileLabel ?? item.label}
                 </Link>
               </li>
             );
