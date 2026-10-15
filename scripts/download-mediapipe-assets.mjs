@@ -24,6 +24,8 @@ const models = [
 const wasmFiles = [
   "vision_wasm_module_internal.js",
   "vision_wasm_module_internal.wasm",
+  "vision_wasm_nosimd_internal.js",
+  "vision_wasm_nosimd_internal.wasm",
 ];
 
 await fs.mkdir(targetDir, { recursive: true });
