@@ -287,14 +287,6 @@ export function PanelShell({
       <nav
         aria-label="منوی پنل"
         className="fixed inset-x-0 bottom-0 z-50 border-t border-foreground/10 bg-background pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.08)] lg:hidden"
-        style={{
-          position: "fixed",
-          insetInline: 0,
-          bottom: 0,
-          zIndex: 50,
-          display: "block",
-          backgroundColor: "var(--color-background)",
-        }}
       >
         <ul
           className="grid"

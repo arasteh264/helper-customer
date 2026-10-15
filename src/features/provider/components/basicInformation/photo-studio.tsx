@@ -54,7 +54,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const [errorText, setErrorText] = useState<string | null>(null);
   const [mode, setMode] = useState<"camera" | "preview">("camera");
   const [isLocalProcessingReady, setIsLocalProcessingReady] = useState(false);
-  const [cameraAttempt, setCameraAttempt] = useState(0);
+  const initializationIdRef = useRef(0);
 
   const stopStream = () => {
     if (streamRef.current) {
@@ -69,6 +69,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   };
 
   const resetStudio = () => {
+    initializationIdRef.current += 1;
     stopStream();
     detectorRef.current?.close();
     detectorRef.current = null;
@@ -95,54 +96,65 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
   useEffect(() => {
     return () => {
+      initializationIdRef.current += 1;
       stopStream();
       detectorRef.current?.close();
       detectorRef.current = null;
     };
   }, []);
 
-  useEffect(() => {
-    if (!open) return;
+  const startCamera = () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setErrorText(
+        window.isSecureContext
+          ? "دوربین در این مرورگر در دسترس نیست؛ دسترسی دوربین را بررسی کنید یا مرورگر دیگری را امتحان کنید."
+          : "برای استفاده از دوربین، صفحه را با اتصال امن HTTPS باز کنید.",
+      );
+      setStatus("دوربین در دسترس نیست");
+      return;
+    }
 
-    if (!consentAccepted) return;
+    const initializationId = ++initializationIdRef.current;
+    let failedAt = "دوربین";
+    setErrorText(null);
+    setCaptureReady(false);
+    setIsLocalProcessingReady(false);
+    setStatus("در حال درخواست مجوز دوربین…");
 
-    let cancelled = false;
-    const startCamera = async () => {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        setErrorText(
-          window.isSecureContext
-            ? "دوربین در این مرورگر در دسترس نیست؛ اجازه‌ی دوربین را بررسی کنید یا مرورگر دیگری را امتحان کنید."
-            : "برای استفاده از دوربین، صفحه را با اتصال امن HTTPS باز کنید.",
-        );
-        setStatus("دوربین در دسترس نیست");
-        return;
-      }
+    let streamRequest: Promise<MediaStream>;
+    try {
+      streamRequest = navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "user" } },
+        audio: false,
+      });
+    } catch (error) {
+      streamRequest = Promise.reject(error);
+    }
 
+    void (async () => {
       try {
-        setStatus("در حال درخواست مجوز دوربین…");
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "user",
-            width: { ideal: 1280 },
-            height: { ideal: 1600 },
-          },
-          audio: false,
-        });
-
-        if (cancelled) {
+        const stream = await streamRequest;
+        if (initializationId !== initializationIdRef.current) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
 
         streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-        }
+        failedAt = "پخش تصویر دوربین";
+        const video = videoRef.current;
+        if (!video) throw new Error("Camera preview is not mounted.");
+        video.muted = true;
+        video.playsInline = true;
+        video.srcObject = stream;
+        await video.play();
 
         setStatus("آماده‌سازی ابزار تشخیص چهره…");
+        failedAt = "بارگذاری ابزار تشخیص چهره";
         const { FaceDetector } = await import("@mediapipe/tasks-vision");
         const fileset = await createVisionFileset();
+        if (initializationId !== initializationIdRef.current) return;
+
+        failedAt = "بارگذاری مدل تشخیص چهره";
         const detector = await FaceDetector.createFromOptions(fileset, {
           baseOptions: {
             modelAssetPath: "/mediapipe/blaze_face_short_range.tflite",
@@ -150,7 +162,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           runningMode: "VIDEO",
           minDetectionConfidence: 0.65,
         });
-        if (cancelled) {
+        if (initializationId !== initializationIdRef.current) {
           detector.close();
           return;
         }
@@ -159,32 +171,48 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         setStatus("چهره را داخل بیضی قرار دهید");
         setErrorText(null);
       } catch (error) {
+        if (initializationId !== initializationIdRef.current) return;
         stopStream();
         setIsLocalProcessingReady(false);
         setCaptureReady(false);
-        const message =
-          error instanceof DOMException && error.name === "NotAllowedError"
-            ? "اجازه‌ی دوربین داده نشد؛ دسترسی دوربین را در مرورگر فعال کنید."
-            : error instanceof DOMException &&
-                ["NotFoundError", "DevicesNotFoundError"].includes(error.name)
-              ? "دوربین جلویی پیدا نشد؛ دوربین دستگاه را بررسی کنید."
-              : "آماده‌سازی دوربین یا مدل محلی انجام نشد؛ دوباره تلاش کنید.";
-        setErrorText(
-          message,
-        );
-        setStatus("آماده‌سازی دوربین انجام نشد");
+        const errorName =
+          error instanceof DOMException || error instanceof Error
+            ? error.name
+            : "UnknownError";
+        console.error("Provider photo studio initialization failed", {
+          stage: failedAt,
+          error,
+        });
+
+        if (errorName === "NotAllowedError" || errorName === "SecurityError") {
+          setErrorText(
+            "دسترسی دوربین مسدود است. مجوز دوربین این سایت را در تنظیمات مرورگر فعال کنید و صفحه را با HTTPS باز کنید.",
+          );
+        } else if (
+          errorName === "NotFoundError" ||
+          errorName === "DevicesNotFoundError"
+        ) {
+          setErrorText("دوربین دستگاه پیدا نشد.");
+        } else if (
+          errorName === "NotReadableError" ||
+          errorName === "AbortError"
+        ) {
+          setErrorText(
+            "دوربین در دسترس نیست یا برنامه‌ی دیگری از آن استفاده می‌کند. برنامه‌های دوربین را ببندید و دوباره تلاش کنید.",
+          );
+        } else if (failedAt.includes("مدل") || failedAt.includes("ابزار")) {
+          setErrorText(
+            `بارگذاری ${failedAt} ناموفق بود. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.`,
+          );
+        } else {
+          setErrorText(
+            `راه‌اندازی ${failedAt} ناموفق بود. دوربین را آزاد کنید و دوباره تلاش کنید.`,
+          );
+        }
+        setStatus(`راه‌اندازی ${failedAt} انجام نشد`);
       }
-    };
-
-    void startCamera();
-
-    return () => {
-      cancelled = true;
-      stopStream();
-      detectorRef.current?.close();
-      detectorRef.current = null;
-    };
-  }, [cameraAttempt, consentAccepted, open]);
+    })();
+  };
 
   useEffect(() => {
     if (!open || !consentAccepted || mode !== "camera" || !isLocalProcessingReady) return;
@@ -277,6 +305,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   };
 
   const retryCamera = () => {
+    initializationIdRef.current += 1;
     stopStream();
     detectorRef.current?.close();
     detectorRef.current = null;
@@ -285,7 +314,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     faceBoundsRef.current = null;
     setErrorText(null);
     setStatus("در حال آماده‌سازی دوربین…");
-    setCameraAttempt((attempt) => attempt + 1);
+    startCamera();
   };
 
   const handleCapture = async () => {
@@ -524,7 +553,10 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
             <Button
               variant="primary"
               size="md"
-              onClick={() => setConsentAccepted(true)}
+              onClick={() => {
+                setConsentAccepted(true);
+                startCamera();
+              }}
               className="min-h-11 w-full sm:w-auto"
             >
               <Camera size={16} />
