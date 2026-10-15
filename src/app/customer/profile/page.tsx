@@ -41,6 +41,7 @@ export default async function CustomerProfilePage() {
         role="CUSTOMER"
         accessToken={accessToken}
         initial={notificationPreferences}
+        hasEmail={Boolean(customer.email)}
       />
       <ChangePasswordForm />
     </div>

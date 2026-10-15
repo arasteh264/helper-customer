@@ -7,7 +7,7 @@ export interface LoginInput {
 export interface RegisterInput {
   name: string;
   phone: string;
-  email: string;
+  email?: string;
   password: string;
   confirmPassword?: string;
 }
@@ -43,7 +43,7 @@ export type UserRole = "customer" | "provider" | "admin";
 export interface AuthUser {
   id: string;
   name: string;
-  email: string;
+  email?: string | null;
   phone: string;
   role: UserRole;
 }

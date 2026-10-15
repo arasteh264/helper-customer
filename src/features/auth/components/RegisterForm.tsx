@@ -122,7 +122,7 @@ export function RegisterForm() {
       const registration = await registerUser({
         name: values.name,
         phone: values.phone,
-        email: values.email,
+        ...(values.email?.trim() ? { email: values.email.trim() } : {}),
         password: values.password,
       });
 
@@ -140,10 +140,10 @@ export function RegisterForm() {
         }
 
         const session = await getSession();
-        const nextRoute =
-          session?.user?.role?.toUpperCase() === "PROVIDER"
-            ? "/provider"
-            : "/customer";
+        const role =
+          session?.user?.role?.toUpperCase() ??
+          registration.user?.role?.toUpperCase();
+        const nextRoute = role === "PROVIDER" ? "/provider" : "/";
 
         toast.success("حساب شما ساخته شد. خوش آمدید!");
         router.push(nextRoute);
@@ -191,10 +191,18 @@ export function RegisterForm() {
       });
 
       const session = await getSession();
-      const nextRoute = session?.user?.role?.toUpperCase() === "PROVIDER" ? "/provider" : "/customer";
+      const role = session?.user?.role?.toUpperCase();
+      const nextRoute = role === "PROVIDER" ? "/provider" : "/";
+
+      if (result?.error || !session) {
+        toast.success("حساب شما ساخته شد. برای ورود به حساب، وارد شوید.");
+        router.replace("/login");
+        return;
+      }
 
       toast.success("حساب شما ساخته شد. خوش آمدید!");
-      router.push(result?.error ? "/login" : nextRoute);
+      router.replace(nextRoute);
+      router.refresh();
     } catch (err) {
       console.log("verify error:", err);
       setServerError(normalizeError(err).message);

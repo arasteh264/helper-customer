@@ -139,7 +139,7 @@ export interface ProviderProfile {
   providerAddressType: "HOME" | "BUSINESS";
   user: {
     name: string;
-    email: string;
+    email?: string | null;
     phone: string;
   };
   skills: ProviderSkill[];
@@ -161,7 +161,7 @@ export interface UpdateProviderProfileValues {
 export interface ProviderOnboardingValues {
   token: string;
   name: string;
-  email: string;
+  email?: string;
   password: string;
   bio: string;
   specialtyIds: string[];
