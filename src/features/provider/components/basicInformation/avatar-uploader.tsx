@@ -131,10 +131,10 @@ export function AvatarUploader({
           )}
         </div>
 
-        <div className="min-w-0 text-sm leading-6">
+        <div className="min-w-0 flex-1 text-sm leading-6">
           <p className="font-medium text-foreground">عکس پروفایل</p>
           <p className="text-foreground/55">
-            با دوربین عکس بگیرید؛ تصویر نهایی بدون واترمارک ساخته می‌شود.
+            عکس را از طریق استودیو بگیرید تا همه‌ی پروفایل‌ها قالب یکسانی داشته باشند.
           </p>
         </div>
       </div>

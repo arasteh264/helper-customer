@@ -23,7 +23,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="auth-shell flex min-h-screen flex-col bg-background lg:flex-row">
-      <aside className="auth-float relative order-2 hidden overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.18),_transparent_36%),linear-gradient(135deg,#0b9b89_0%,#087c70_52%,#124d4b_100%)] px-12 py-10 lg:flex lg:w-1/2 lg:flex-col lg:justify-between xl:w-[42%]">
+      <aside className="auth-float relative order-2 hidden overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.18),_transparent_36%),linear-gradient(135deg,#155e59_0%,#104b47_52%,#123f3b_100%)] px-12 py-10 lg:flex lg:w-1/2 lg:flex-col lg:justify-between xl:w-[42%]">
         <div
           aria-hidden
           className="auth-glow pointer-events-none absolute inset-0 opacity-[0.1]"
@@ -98,7 +98,7 @@ export default function AuthLayout({
       <main className="relative order-1 flex flex-1 flex-col bg-background">
         <header className="flex items-center justify-between px-6 pt-6 sm:px-10">
           <div className="flex items-center gap-2 lg:hidden">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-primary-foreground">
               <HandHelping size={17} strokeWidth={2.4} aria-hidden="true" />
             </span>
             <span className="text-lg font-semibold text-primary">Helpa24</span>

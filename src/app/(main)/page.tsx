@@ -13,6 +13,7 @@ import { HomeBlogCarousel } from "@/src/features/home/components/home-blog-carou
 import { HomeMaintenanceCarousel } from "@/src/features/home/components/home-maintenance-carousel";
 import type { BlogArticleSummary } from "@/src/features/blog/types/blog.types";
 import { ProviderStoriesRail } from "@/src/features/specialist-profile/components/provider-stories-rail";
+import { WhyHelperSection } from "@/src/features/home/components/why-helper-section";
 
 export const metadata: Metadata = {
   title: "هلپا24 | خدمات خانه، تعمیرات و متخصصان قابل‌مقایسه",
@@ -63,6 +64,7 @@ export default async function HomePage() {
         loadFailed={providerLoadFailed}
       />
       <HowItWorksSection />
+      <WhyHelperSection />
       <TestimonialsSection providers={providers} />
       <HomeBlogCarousel articles={blogArticles} />
       <TrustFaqSection />

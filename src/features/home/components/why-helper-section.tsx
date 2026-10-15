@@ -7,7 +7,7 @@ import { features } from "../api/data";
 
 export function WhyHelperSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-[#087c70] py-16 text-white sm:py-20">
+    <section className="relative isolate overflow-hidden bg-[#164e4a] py-12 text-white sm:py-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-28 -top-28 -z-10 h-80 w-80 rounded-full bg-[#d99c5c]/20 blur-3xl"

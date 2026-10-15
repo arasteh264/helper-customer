@@ -7,6 +7,15 @@ export const PHOTO_STUDIO_CONFIG = {
     quality: 0.9,
     maxBytes: 500 * 1024,
   },
+  WATERMARK: {
+    text: "هلپا۲۴",
+    color: "#155E59",
+    opacity: 0.08,
+    fontSize: 38,
+    horizontalSpacing: 300,
+    verticalSpacing: 220,
+    rotation: -Math.PI / 6,
+  },
   TEMPLATE: {
     faceCenterX: 50,
     faceCenterY: 38,

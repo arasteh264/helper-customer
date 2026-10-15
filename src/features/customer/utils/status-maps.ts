@@ -32,30 +32,52 @@ export const REQUEST_STATUS: Record<
 /** مراحل نمایش‌داده‌شده در نوار پیشرفت هر درخواست */
 export const REQUEST_STEPS = [
   "ثبت درخواست",
-  "بررسی و یافتن متخصص",
+  "دریافت پیشنهاد",
+  "انتخاب و پرداخت",
   "انجام کار",
-  "تکمیل",
+  "تأیید نهایی",
 ];
 
-/** شماره‌ی مرحله‌ی فعلی (۰ تا ۳) */
+/** شماره‌ی مرحله‌ی فعلی (۰ تا ۴) */
 export function getRequestStep(status: RequestStatus): number {
   switch (status) {
     case "awaiting_admin_review":
-      return 1;
     case "awaiting_offers":
       return 1;
     case "awaiting_payment":
-      return 1;
     case "offers_received":
-      return 1;
+      return 2;
     case "in_progress":
+      return 3;
     case "awaiting_confirmation":
     case "disputed":
-      return 3;
     case "completed":
-      return 3;
+      return 4;
     default:
       return 0;
+  }
+}
+
+export function getRequestNextAction(status: RequestStatus): string {
+  switch (status) {
+    case "awaiting_admin_review":
+      return "در حال بررسی هلپا24 هستیم؛ نتیجه را از همین صفحه پیگیری کنید.";
+    case "awaiting_offers":
+      return "پیشنهاد متخصصان را مقایسه کنید و گزینه‌ی مناسب را انتخاب کنید.";
+    case "awaiting_payment":
+      return "برای شروع کار، پرداخت درخواست را تکمیل کنید.";
+    case "offers_received":
+      return "برای هماهنگی زمان و جزئیات کار با متخصص در ارتباط باشید.";
+    case "in_progress":
+      return "روند انجام کار را از گفتگو با متخصص پیگیری کنید.";
+    case "awaiting_confirmation":
+      return "کار را بررسی کنید؛ سپس آن را تأیید یا اختلاف ثبت کنید.";
+    case "disputed":
+      return "پاسخ‌ها و نتیجه‌ی رسیدگی را در پرونده‌ی اختلاف ببینید.";
+    case "completed":
+      return "این درخواست تکمیل شده است.";
+    case "cancelled":
+      return "این درخواست لغو شده است.";
   }
 }
 

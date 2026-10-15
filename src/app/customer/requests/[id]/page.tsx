@@ -26,6 +26,8 @@ import { formatNumber } from "@/src/utils/format";
 import { ApiError } from "@/src/lib/api/error";
 import { RequestEditDialog } from "@/src/features/customer/components/request-edit-dialog";
 import { RequestDiscoveryPanel } from "@/src/features/customer/components/request-discovery-panel";
+import { RequestOffersComparison } from "@/src/features/customer/components/request-offers-comparison";
+import { contactInfo } from "@/src/components/layout/footer/footer-data";
 
 export const metadata: Metadata = { title: "پیگیری درخواست | پنل مشتری" };
 
@@ -149,6 +151,14 @@ export default async function CustomerRequestDetailPage({
         ) : null}
       </SectionCard>
 
+      {request.status === "awaiting_offers" ? (
+        <RequestOffersComparison
+          requestId={request.id}
+          accessToken={session.accessToken}
+          scheduledAt={request.scheduledAt}
+        />
+      ) : null}
+
       <RequestPaymentActions
         key={`${id}-${request.status}-${request.dispute?.updatedAt ?? ""}`}
         requestId={id}
@@ -159,6 +169,43 @@ export default async function CustomerRequestDetailPage({
         initialDispute={request.dispute ?? null}
         accessToken={session.accessToken}
       />
+
+      <SectionCard
+        title="پشتیبانی همین درخواست"
+        description="برای پیگیری سریع‌تر، کد این درخواست در پیام پشتیبانی درج می‌شود."
+      >
+        <div className="flex flex-col gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm leading-6 text-foreground/70">
+            {request.status === "disputed"
+              ? "پیام‌ها و نتیجه‌ی رسیدگی به اختلاف را در پرونده‌ی همین درخواست دنبال کنید."
+              : request.status === "awaiting_confirmation"
+                ? "برای گزارش مشکل مربوط به انجام کار، ثبت اختلاف را از همین صفحه انجام دهید."
+                : "برای هرگونه سؤال یا مشکل درباره‌ی این درخواست، با پشتیبانی تماس بگیرید."}
+          </p>
+          {request.status === "disputed" ? (
+            <a
+              href="#request-dispute"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              پیگیری پرونده
+            </a>
+          ) : request.status === "awaiting_confirmation" ? (
+            <a
+              href="#request-issue"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              ثبت مشکل کار
+            </a>
+          ) : (
+            <a
+              href={`mailto:${contactInfo.email}?subject=${encodeURIComponent(`پشتیبانی درخواست ${request.code}`)}&body=${encodeURIComponent(`سلام، درباره‌ی درخواست ${request.title} با کد پیگیری ${request.code} کمک می‌خواهم.\n\nشرح موضوع:`)}`}
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              تماس با پشتیبانی
+            </a>
+          )}
+        </div>
+      </SectionCard>
 
       {request.specialist ? (
         <RequestChat
