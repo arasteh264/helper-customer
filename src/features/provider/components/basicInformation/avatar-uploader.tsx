@@ -7,6 +7,7 @@ import { getSession } from "next-auth/react";
 
 import { avatarApi } from "../../api/avatar.api";
 import { PhotoStudio } from "./photo-studio";
+import { normalizeError } from "@/src/lib/api/error";
 
 const MAX_SIZE = 2 * 1024 * 1024;
 
@@ -47,21 +48,18 @@ export function AvatarUploader({
     try {
       const session = await getSession();
       if (!session?.accessToken) {
-        toast.error("جلسه کاربری شما منقضی شده است");
-        URL.revokeObjectURL(uploadedPreview);
-        objectUrl.current = null;
-        setPreview(initialUrl);
-        return false;
+        throw new Error("نشست شما منقضی شده است؛ دوباره وارد شوید.");
       }
       await avatarApi.upload(file, session.accessToken);
       toast.success("عکس پروفایل بروزرسانی شد");
       return true;
-    } catch {
+    } catch (error) {
       URL.revokeObjectURL(uploadedPreview);
       objectUrl.current = null;
       setPreview(initialUrl);
-      toast.error("آپلود عکس با مشکل مواجه شد");
-      return false;
+      const normalized = normalizeError(error);
+      toast.error(normalized.message);
+      throw normalized;
     } finally {
       setLoading(false);
     }

@@ -111,6 +111,7 @@ export default async function ProviderProfilePage() {
           <ProfileForm provider={provider} />
           <SkillsSection
             initial={provider.specialties ?? []}
+            initialSkills={provider.skills ?? []}
             accessToken={session.accessToken}
           />
         </div>

@@ -3,14 +3,16 @@ import type { Metadata } from "next";
 import { Container } from "@/src/components/shared/container";
 import { BlogExplorer } from "@/src/features/blog/components/blog-explorer";
 import { blogServerApi } from "@/src/features/blog/api/blog.server";
+import { publicProviderArticlesApi } from "@/src/features/articles/api/provider-articles.api";
+import { ExpertArticlesSection } from "@/src/features/articles/components/expert-articles-section";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://helper-customer.vercel.app";
 
 const baseMetadata: Metadata = {
-  title: "وبلاگ هلپا24 | راهنمای نگهداری خانه و انتخاب متخصص",
+  title: "دانستنی‌ها و مقاله‌های تخصصی | هلپا24",
   description:
-    "راهنمای انتخاب لوله‌کش و متخصص، نکات کاربردی لوله‌کشی و نگهداری خانه، و روش‌های مقایسه‌ی پیشنهادها در هلپا24.",
+    "دانستنی‌های کاربردی برای نگهداری خانه و انتخاب آگاهانه‌ی متخصص در هلپا24.",
 };
 
 export const revalidate = 300;
@@ -58,6 +60,14 @@ export default async function BlogPage({
     initialError = true;
     initialPage = { items: [], total: 0, page: 1, pageSize: 9, categories: [] };
   }
+  let expertArticles = [];
+  let expertArticlesError = false;
+  try {
+    expertArticles = (await publicProviderArticlesApi.list({ page: 1, pageSize: 6 })).items;
+  } catch (error) {
+    console.error("Failed to load approved provider articles.", error);
+    expertArticlesError = true;
+  }
 
   return (
     <div className="py-10 sm:py-14">
@@ -65,11 +75,11 @@ export default async function BlogPage({
         <div className="mb-8 rounded-3xl bg-secondary/70 px-6 py-8 sm:px-10 sm:py-10">
           <span className="text-sm font-semibold text-primary">مجله‌ی هلپا24</span>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
-            راهنمای انتخاب متخصص و نگهداری خانه
+            دانستنی‌ها برای انتخاب بهتر و نگهداری خانه
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-foreground/65 sm:text-base">
-            جواب سؤال‌های روزمره‌تان را پیدا کنید؛ از این‌که چطور لوله‌کش مناسب
-            پیدا کنید تا کارهایی که پیش از تعمیر باید بدانید.
+            راهنماهای کاربردی را بخوانید؛ از انتخاب متخصص مناسب تا نکته‌هایی که
+            پیش از تعمیر و نگهداری خانه به کارتان می‌آیند.
           </p>
         </div>
 
@@ -79,6 +89,10 @@ export default async function BlogPage({
           initialCategory={initialCategory}
           initialTag={initialTag}
           initialSearch={initialSearch}
+        />
+        <ExpertArticlesSection
+          articles={expertArticles}
+          error={expertArticlesError}
         />
       </Container>
     </div>

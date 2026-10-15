@@ -23,8 +23,8 @@ export interface ServiceMenuItem {
 
 export const navLinks: NavLink[] = [
   { label: "متخصصان", href: "/specialists" },
-  { label: "نحوه‌ی کار", href: "/#how-it-works" },
-  { label: "وبلاگ", href: "/blog" },
+  { label: "نحوه‌ی کار", href: "/how-it-works" },
+  { label: "دانستنی‌ها", href: "/blog" },
   { label: "درباره‌ی ما", href: "/about" },
 ];
 

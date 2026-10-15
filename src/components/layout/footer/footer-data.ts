@@ -21,7 +21,7 @@ export const footerColumns: FooterColumn[] = [
     links: [
       { label: "درباره‌ی ما", href: "/about" },
       { label: "ایمیل پشتیبانی", href: "mailto:support@helper.ir" },
-      { label: "وبلاگ", href: "/blog" },
+      { label: "دانستنی‌ها و مقاله‌ها", href: "/blog" },
       {
         label: "پیوستن به‌عنوان متخصص",
         href: "/become-provider",

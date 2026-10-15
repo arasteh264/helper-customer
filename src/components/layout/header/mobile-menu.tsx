@@ -140,7 +140,7 @@ export function MobileMenu({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5">
+        <div className="flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <form
             action="/search"
             method="get"
@@ -183,6 +183,7 @@ export function MobileMenu({
                         <li key={item.href}>
                           <Link
                             href={item.href}
+                            onClick={() => setOpen(false)}
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
                             <span
@@ -200,6 +201,7 @@ export function MobileMenu({
                     <li>
                       <Link
                         href="/services"
+                        onClick={() => setOpen(false)}
                         className="flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-primary"
                       >
                         مشاهده‌ی همه‌ی خدمات
@@ -216,6 +218,7 @@ export function MobileMenu({
                   <li key={link.href}>
                     <Link
                       href={link.href}
+                      onClick={() => setOpen(false)}
                       aria-current={active ? "page" : undefined}
                       className={[
                         "flex items-center justify-between rounded-xl px-3 py-3.5 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",

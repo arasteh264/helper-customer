@@ -11,6 +11,7 @@ interface ModalProps {
   children: ReactNode;
   /** عرض حداکثر پنجره */
   size?: "sm" | "md" | "lg";
+  fullScreenOnMobile?: boolean;
 }
 
 const SIZES = { sm: "max-w-sm", md: "max-w-md", lg: "max-w-xl" };
@@ -27,6 +28,7 @@ export function Modal({
   description,
   children,
   size = "md",
+  fullScreenOnMobile = false,
 }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -47,10 +49,15 @@ export function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
       aria-labelledby={titleId}
-      className={`m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${SIZES[size]} overflow-y-auto rounded-2xl border border-foreground/10 bg-card p-0 text-foreground shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm`}
+      className={[
+        fullScreenOnMobile
+          ? `fixed inset-0 m-0 h-[100dvh] max-h-[100dvh] w-full max-w-none overflow-hidden rounded-none sm:relative sm:inset-auto sm:m-auto sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100%-2rem)] ${SIZES[size]} sm:overflow-y-auto sm:rounded-2xl`
+          : `m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${SIZES[size]} overflow-y-auto rounded-2xl`,
+        "border border-foreground/10 bg-card p-0 text-foreground shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm",
+      ].join(" ")}
     >
       {open && (
-        <div className="p-5 sm:p-6">
+        <div className={fullScreenOnMobile ? "p-3 sm:p-6" : "p-5 sm:p-6"}>
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 id={titleId} className="text-lg font-semibold">

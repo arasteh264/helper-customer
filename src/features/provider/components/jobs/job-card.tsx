@@ -14,6 +14,7 @@ import {
   formatWithCommas,
   toEnglishDigits,
 } from "@/src/utils/format";
+import { InvoiceEditor } from "@/src/features/invoices/components/invoice-editor";
 
 export type JobAction = "quote" | "reject" | "start" | "complete";
 
@@ -32,6 +33,7 @@ interface JobCardProps {
   onDisputeMessage: (id: string, body: string) => Promise<boolean>;
   onRaiseNonPaymentDispute: (id: string, description: string) => Promise<boolean>;
   commissionRate: number | null;
+  accessToken: string;
   busy?: boolean;
 }
 
@@ -50,6 +52,7 @@ export function JobCard({
   onDisputeMessage,
   onRaiseNonPaymentDispute,
   commissionRate,
+  accessToken,
   busy = false,
 }: JobCardProps) {
   const [priceInput, setPriceInput] = useState("");
@@ -595,6 +598,9 @@ export function JobCard({
             ثبت برای بررسی ادمین
           </Button>
         </div>
+      ) : null}
+      {["accepted", "awaiting_payment", "in_progress", "awaiting_confirmation", "completed"].includes(job.status) ? (
+        <InvoiceEditor serviceRequestId={job.id} accessToken={accessToken} />
       ) : null}
       {job.disputeReason ? (
         <div className="mt-4 space-y-3 border-t border-foreground/10 pt-4">

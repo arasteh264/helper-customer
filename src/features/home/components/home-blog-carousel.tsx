@@ -38,13 +38,13 @@ export function HomeBlogCarousel({
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
               <BookOpen size={15} aria-hidden="true" />
-              مجله‌ی هلپا24
+              دانستنی‌ها و مقاله‌های هلپا24
             </span>
             <h2
               id="home-blog-heading"
               className="mt-3 text-2xl font-bold leading-9 text-foreground sm:text-3xl"
             >
-              راهنمایی‌های کاربردی برای انتخاب بهتر
+              دانستنی‌های کاربردی برای انتخاب بهتر
             </h2>
             <p className="mt-3 text-sm leading-7 text-foreground/65 sm:text-base">
               نکته‌های مفید درباره‌ی نگهداری خانه، انتخاب متخصص و انجام مطمئن
@@ -57,7 +57,7 @@ export function HomeBlogCarousel({
               href="/blog"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-background px-4 text-sm font-semibold text-primary transition-colors hover:border-primary/40 hover:bg-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              همه‌ی مقاله‌ها
+              دیدن همه‌ی دانستنی‌ها
               <ArrowLeft size={16} aria-hidden="true" />
             </Link>
             <div className="flex gap-2">
@@ -83,7 +83,7 @@ export function HomeBlogCarousel({
 
         <ul
           ref={scrollerRef}
-          aria-label="مقاله‌های تازه‌ی مجله‌ی هلپا24"
+          aria-label="دانستنی‌های تازه‌ی هلپا24"
           className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-4 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:px-0 [&::-webkit-scrollbar]:hidden"
         >
           {articles.map((article) => (

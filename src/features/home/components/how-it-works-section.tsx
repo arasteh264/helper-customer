@@ -8,7 +8,7 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-20 bg-secondary/55 py-16 sm:py-24"
+      className="scroll-mt-20 bg-secondary/55 py-10 sm:py-24"
     >
       <Container>
         <SectionHeading

@@ -14,6 +14,12 @@ export const customerNav: PanelNavItem[] = [
     icon: "listChecks",
     mobile: true,
   },
+  {
+    label: "فاکتورها",
+    href: "/customer/invoices",
+    icon: "wallet",
+    mobile: true,
+  },
   // {
   //   label: "علاقه‌مندی‌ها",
   //   href: "/customer/favorites",

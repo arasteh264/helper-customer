@@ -54,12 +54,28 @@ export default function ServiceAreaMap({
       maxZoom: 19,
     }).addTo(map);
 
+    let resizeFrame = window.requestAnimationFrame(() => {
+      map.invalidateSize({ pan: false });
+    });
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            window.cancelAnimationFrame(resizeFrame);
+            resizeFrame = window.requestAnimationFrame(() => {
+              map.invalidateSize({ pan: false });
+            });
+          })
+        : null;
+    resizeObserver?.observe(containerRef.current);
+
     map.on("click", (e: L.LeafletMouseEvent) => {
       onMoveRef.current(e.latlng.lat, e.latlng.lng);
     });
 
     mapRef.current = map;
     return () => {
+      resizeObserver?.disconnect();
+      window.cancelAnimationFrame(resizeFrame);
       map.remove();
       mapRef.current = null;
       markerRef.current = null;
@@ -126,7 +142,7 @@ export default function ServiceAreaMap({
   return (
     <div
       ref={containerRef}
-      className="z-0 h-72 w-full overflow-hidden rounded-xl border border-foreground/15"
+      className="z-0 h-64 min-w-0 w-full max-w-full overflow-hidden rounded-xl border border-foreground/15 sm:h-72"
     />
   );
 }
