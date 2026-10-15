@@ -36,8 +36,24 @@ export function Modal({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+    if (open && !dialog.open) {
+      if (typeof dialog.showModal === "function") {
+        try {
+          dialog.showModal();
+          return;
+        } catch {
+          // Fall back to a visible dialog in browsers with incomplete support.
+        }
+      }
+      dialog.setAttribute("open", "");
+    }
+    if (!open && dialog.open) {
+      if (typeof dialog.close === "function") {
+        dialog.close();
+      } else {
+        dialog.removeAttribute("open");
+      }
+    }
   }, [open]);
 
   return (
