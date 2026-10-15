@@ -5,7 +5,7 @@ export const PHOTO_STUDIO_CONFIG = {
     background: "#FFFFFF",
     format: "image/jpeg",
     quality: 0.9,
-    maxBytes: 500 * 1024,
+    maxBytes: 2 * 1024 * 1024,
   },
   WATERMARK: {
     text: "هلپا۲۴",
