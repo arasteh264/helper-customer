@@ -39,6 +39,13 @@ export const providerNav: PanelNavItem[] = [
     mobile: false,
   },
   {
+    label: "مقاله‌های من",
+    mobileLabel: "مقاله‌ها",
+    href: "/provider/articles",
+    icon: "graduationCap",
+    mobile: true,
+  },
+  {
     label: "اعلان‌ها",
     href: "/provider/notifications",
     icon: "bell",

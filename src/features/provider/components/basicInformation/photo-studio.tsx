@@ -400,7 +400,13 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   };
 
   return (
-    <Modal open={open} onClose={handleModalClose} title="استودیو عکس پروفایل" size="lg">
+    <Modal
+      open={open}
+      onClose={handleModalClose}
+      title="استودیو عکس پروفایل"
+      size="lg"
+      fullScreenOnMobile
+    >
       {!consentAccepted ? (
         <div className="space-y-5">
           <div className="rounded-xl bg-foreground/5 p-4 text-sm leading-7 text-foreground/75">
@@ -422,7 +428,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
               playsInline
               autoPlay
               muted
-              className="h-[clamp(17rem,52dvh,32rem)] w-full scale-x-[-1] object-cover"
+              className="h-[min(52dvh,26rem)] min-h-[220px] w-full scale-x-[-1] object-cover"
               aria-label="پیش‌نمایش زنده دوربین"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/25" />
@@ -471,10 +477,10 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
               <img
                 src={previewUrl}
                 alt="پیش‌نمایش عکس نهایی"
-                className="mx-auto aspect-[4/5] max-h-[62dvh] w-auto max-w-full rounded-xl object-contain"
+                className="mx-auto aspect-[4/5] max-h-[48dvh] w-auto max-w-full rounded-xl object-contain"
               />
             ) : (
-              <div className="flex aspect-[4/5] max-h-[62dvh] items-center justify-center rounded-xl bg-foreground/5 text-sm text-foreground/60">
+              <div               className="flex aspect-[4/5] max-h-[48dvh] items-center justify-center rounded-xl bg-foreground/5 text-sm text-foreground/60">
                 تصویر آماده نیست
               </div>
             )}
@@ -502,8 +508,12 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
                   const uploaded = await onDone(finalFileRef.current);
                   if (uploaded) handleModalClose();
                   else setErrorText("آپلود عکس انجام نشد؛ اتصال را بررسی کنید و دوباره تلاش کنید.");
-                } catch {
-                  setErrorText("آپلود عکس انجام نشد؛ اتصال را بررسی کنید و دوباره تلاش کنید.");
+                } catch (error) {
+                  setErrorText(
+                    error instanceof Error && error.message.trim()
+                      ? error.message
+                      : "آپلود عکس انجام نشد؛ اتصال را بررسی کنید و دوباره تلاش کنید.",
+                  );
                 } finally {
                   setIsUploading(false);
                 }

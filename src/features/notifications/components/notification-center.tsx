@@ -52,6 +52,7 @@ const TYPE_PRESENTATION: Record<
 };
 
 function notificationHref(role: NotificationRole, item: UserNotification) {
+  if (role === "CUSTOMER" && item.invoiceId) return "/customer/invoices";
   if (!item.serviceRequestId) return null;
   const requestId = encodeURIComponent(item.serviceRequestId);
   return role === "CUSTOMER"

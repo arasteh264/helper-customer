@@ -424,6 +424,7 @@ export function JobsBoard({
                   onDisputeMessage={handleDisputeMessage}
                   onRaiseNonPaymentDispute={handleNonPaymentDispute}
                   commissionRate={commissionRate}
+                  accessToken={accessToken}
                   busy={pendingJobId === job.id}
                 />
               </li>

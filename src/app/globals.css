@@ -64,6 +64,18 @@ body {
   font-family: var(--font-vazirmatn), sans-serif;
 }
 
+@media (max-width: 767px) {
+  html,
+  body {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @keyframes authFadeIn {
   0% {
     opacity: 0;

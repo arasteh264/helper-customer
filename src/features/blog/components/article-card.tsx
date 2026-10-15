@@ -53,6 +53,9 @@ export function ArticleCard({
         <p className="mt-2 flex-1 text-xs leading-6 text-foreground/55 sm:text-sm">
           {article.excerpt}
         </p>
+        <p className="mt-3 line-clamp-1 text-[11px] text-foreground/50">
+          {article.authorName} · {article.authorRole}
+        </p>
 
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-foreground/5 pt-3 text-[11px] text-foreground/45">
           <span>

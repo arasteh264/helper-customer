@@ -6,7 +6,7 @@ const fa = new Intl.NumberFormat("fa-IR", { minimumIntegerDigits: 2 });
 
 export function OnboardingSteps() {
   return (
-    <section id="how-it-works" className="scroll-mt-20 bg-foreground/[0.03] py-16 sm:py-20">
+    <section id="provider-steps" className="scroll-mt-20 bg-foreground/[0.03] py-16 sm:py-20">
       <Container>
         <SectionHeading align="center" eyebrow="مراحل" title="در ۴ قدم شروع کنید" />
 

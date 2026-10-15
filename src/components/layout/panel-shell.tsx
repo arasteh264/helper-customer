@@ -21,6 +21,7 @@ export interface PanelNavItem {
   icon: IconKey;
   exact?: boolean;
   mobile?: boolean;
+  mobileLabel?: string;
   badgeSource?: "notifications";
   /** عدد واقعی (مثلاً درخواست‌های فعال)؛ صفر یا undefined = نمایش داده نمی‌شود */
   badge?: number;
@@ -93,7 +94,7 @@ export function PanelShell({
   const alternatePortal = pathname.startsWith("/provider")
     ? { mode: "CUSTOMER" as const, href: "/customer", label: "پنل مشتری" }
     : { mode: "PROVIDER" as const, href: "/provider", label: "پنل متخصص" };
-  const mobileNav = nav.filter((i) => i.mobile).slice(0, 5);
+  const mobileNav = nav.filter((i) => i.mobile).slice(0, 6);
   const mobileNotification = nav.find(
     (item) => item.badgeSource === "notifications",
   );
@@ -219,8 +220,8 @@ export function PanelShell({
       </aside>
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-foreground/10 bg-background/85 px-4 backdrop-blur-xl lg:hidden">
-          <Link href="/" className="flex items-center gap-2.5">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-foreground/10 bg-background/85 px-3 backdrop-blur-xl lg:hidden sm:px-4">
+          <Link href="/" className="flex min-h-11 min-w-0 items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
               <HandHelping size={17} strokeWidth={2.4} aria-hidden="true" />
             </span>
@@ -234,7 +235,7 @@ export function PanelShell({
                 href={alternatePortal.href}
                 onClick={() => setPortalMode(alternatePortal.mode)}
                 aria-label={`ورود به ${alternatePortal.label}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
               >
                 <ArrowLeftRight size={18} />
               </Link>
@@ -247,7 +248,7 @@ export function PanelShell({
                     ? `اعلان‌ها، ${formatBadge(unreadCount)} خوانده‌نشده`
                     : "اعلان‌ها"
                 }
-                className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 transition-colors hover:bg-foreground/5"
+                className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-foreground/60 transition-colors hover:bg-foreground/5"
               >
                 {(() => {
                   const Icon = ICONS[mobileNotification.icon];
@@ -264,12 +265,12 @@ export function PanelShell({
               <Link
                 href={extraLink.href}
                 aria-label={extraLink.label}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-foreground/60 hover:bg-foreground/5"
               >
                 <ExternalLink size={18} />
               </Link>
             )}
-            <Avatar name={name} src={avatar} size={34} />
+            <Avatar name={name} src={avatar} size={36} />
           </div>
         </header>
 
@@ -285,7 +286,15 @@ export function PanelShell({
 
       <nav
         aria-label="منوی پنل"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/10 bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-foreground/10 bg-background pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(0,0,0,0.08)] lg:hidden"
+        style={{
+          position: "fixed",
+          insetInline: 0,
+          bottom: 0,
+          zIndex: 50,
+          display: "block",
+          backgroundColor: "var(--color-background)",
+        }}
       >
         <ul
           className="grid"
@@ -303,7 +312,7 @@ export function PanelShell({
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={[
-                    "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
+                    "flex min-h-[64px] flex-col items-center justify-center gap-1 px-0.5 py-2 text-[10px] font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:text-[11px]",
                     active ? "text-primary" : "text-foreground/55",
                   ].join(" ")}
                 >
@@ -319,7 +328,7 @@ export function PanelShell({
                       </span>
                     )}
                   </span>
-                  {item.label}
+                  {item.mobileLabel ?? item.label}
                 </Link>
               </li>
             );
