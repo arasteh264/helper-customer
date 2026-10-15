@@ -14,14 +14,14 @@ import { HeroSearch } from "./hero-search";
 
 export function HeroSection() {
   return (
-    <section className="relative isolate overflow-hidden bg-[#eaf5f2] dark:bg-[#102521]">
+    <section className="relative isolate overflow-hidden bg-[#fbf2e8] dark:bg-[#2b211b]">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-24 -top-32 size-[28rem] rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -right-24 -top-32 size-[28rem] rounded-full bg-amber-300/25 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-48 left-[28%] size-[24rem] rounded-full bg-amber-300/15 blur-3xl"
+        className="pointer-events-none absolute -bottom-48 left-[28%] size-[24rem] rounded-full bg-primary/10 blur-3xl"
       />
 
       <Container className="relative grid grid-cols-1 items-center gap-8 py-9 sm:py-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:py-14">
@@ -74,7 +74,7 @@ export function HeroSection() {
             </h2>
           </div>
 
-          <div className="relative overflow-hidden rounded-[1.65rem] border border-primary/10 bg-gradient-to-br from-primary/[0.11] via-card to-amber-100/60 p-4 shadow-xl shadow-primary/[0.08] sm:p-5 dark:to-amber-900/10">
+          <div className="relative overflow-hidden rounded-[1.65rem] border border-primary/10 bg-gradient-to-br from-amber-100/90 via-card to-orange-50 p-4 shadow-xl shadow-amber-950/[0.08] sm:rounded-[2rem] sm:p-5 dark:from-amber-900/25 dark:to-orange-950/20">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -right-16 -top-16 size-52 rounded-full bg-primary/10 blur-3xl"

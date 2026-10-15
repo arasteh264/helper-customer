@@ -112,7 +112,7 @@ export function SiteFooter({
               className="inline-flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="هلپا24، صفحه‌ی اصلی"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground shadow-lg shadow-primary/25">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground shadow-lg shadow-primary/25">
                 <HandHelping size={21} strokeWidth={2.4} aria-hidden="true" />
               </span>
               <span className="text-xl font-bold text-foreground">Helpa24</span>

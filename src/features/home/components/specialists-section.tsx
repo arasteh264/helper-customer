@@ -14,23 +14,52 @@ export function SpecialistsSection({
   providers: PublicProvider[];
   loadFailed: boolean;
 }) {
-  const specialists: DirectorySpecialist[] = providers
-    .slice(0, 8)
-    .map(mapPublicProvider);
+  const groups = new Map<
+    string,
+    { name: string; specialists: DirectorySpecialist[] }
+  >();
+
+  for (const provider of providers) {
+    const specialist = mapPublicProvider(provider);
+    const providerGroups = new Map(
+      (provider.specialties ?? []).map(({ groupId, groupName }) => [
+        groupId,
+        groupName,
+      ]),
+    );
+
+    if (providerGroups.size === 0) {
+      providerGroups.set("recommended", "متخصصان پیشنهادی");
+    }
+
+    for (const [groupId, groupName] of providerGroups) {
+      const group = groups.get(groupId) ?? {
+        name: groupName,
+        specialists: [],
+      };
+      group.specialists.push(specialist);
+      groups.set(groupId, group);
+    }
+  }
+
+  const specialistGroups = [...groups.entries()].sort(
+    ([, first], [, second]) =>
+      second.specialists.length - first.specialists.length,
+  );
 
   return (
     <section
       id="specialists"
-      className="scroll-mt-20 overflow-hidden bg-gradient-to-b from-primary/[0.035] to-transparent py-16 sm:py-20"
+      className="scroll-mt-20 overflow-hidden bg-gradient-to-b from-primary/[0.055] via-background to-secondary/35 py-12 sm:py-20"
     >
       <Container>
-        <div className="mb-7 flex flex-col gap-5 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-7 flex flex-col gap-4 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <span className="inline-flex rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+            <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
               <BadgeCheck size={15} className="ml-1.5" aria-hidden="true" />
               متخصصان آماده‌ی خدمت
             </span>
-            <h2 className="mt-3 text-2xl font-bold leading-9 text-foreground sm:text-3xl">
+            <h2 className="mt-3 text-[1.65rem] font-black leading-9 text-foreground sm:text-3xl">
               متخصص مناسب را با خیال راحت انتخاب کنید
             </h2>
             <p className="mt-3 text-sm leading-7 text-foreground/65 sm:text-base">
@@ -47,8 +76,41 @@ export function SpecialistsSection({
           </Link>
         </div>
 
-        {specialists.length > 0 ? (
-          <SpecialistsCarousel specialists={specialists} />
+        {specialistGroups.length > 0 ? (
+          <div className="space-y-5 sm:space-y-7">
+            {specialistGroups.map(([groupId, group]) => (
+              <section
+                key={groupId}
+                aria-labelledby={`specialist-group-${groupId}`}
+                className="overflow-hidden rounded-[1.5rem] border border-primary/10 bg-card/80 py-4 shadow-sm shadow-foreground/[0.025] sm:rounded-[1.75rem] sm:py-6"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3 px-4 sm:px-6">
+                  <div className="min-w-0">
+                    <h3
+                      id={`specialist-group-${groupId}`}
+                      className="truncate text-base font-bold text-foreground sm:text-lg"
+                    >
+                      {group.name}
+                    </h3>
+                    <p className="mt-1 text-xs text-foreground/55">
+                      پروفایل‌ها را ببینید و مقایسه کنید
+                    </p>
+                  </div>
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-primary">
+                    <BadgeCheck size={14} aria-hidden="true" />
+                    {new Intl.NumberFormat("fa-IR").format(
+                      group.specialists.length,
+                    )}{" "}
+                    متخصص
+                  </span>
+                </div>
+                <SpecialistsCarousel
+                  specialists={group.specialists}
+                  label={`متخصصان ${group.name}`}
+                />
+              </section>
+            ))}
+          </div>
         ) : (
           <div
             className="rounded-3xl border border-foreground/10 bg-card px-6 py-12 text-center shadow-sm sm:py-16"

@@ -532,7 +532,7 @@ export function ProviderOnboardingForm({ token }: { token?: string }) {
         </header>
 
         <div className="overflow-hidden rounded-[1.75rem] border border-foreground/10 bg-card shadow-[0_24px_80px_-40px_rgba(15,52,43,0.35)]">
-          <div className="relative overflow-hidden bg-[linear-gradient(125deg,#0b9b89,#087c70_58%,#124d4b)] px-5 py-7 text-white sm:px-9 sm:py-9">
+          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-hover to-[#123f3b] px-5 py-7 text-white sm:px-9 sm:py-9">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -left-8 -top-16 h-48 w-48 rounded-full border border-white/10"

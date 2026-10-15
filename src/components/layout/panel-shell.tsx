@@ -122,7 +122,7 @@ export function PanelShell({
           href="/"
           className="flex h-16 items-center gap-2.5 border-b border-foreground/10 px-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground">
             <HandHelping size={19} strokeWidth={2.4} aria-hidden="true" />
           </span>
           <div className="leading-tight">
@@ -222,7 +222,7 @@ export function PanelShell({
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-foreground/10 bg-background/85 px-3 backdrop-blur-xl lg:hidden sm:px-4">
           <Link href="/" className="flex min-h-11 min-w-0 items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-700 text-primary-foreground">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-primary-foreground">
               <HandHelping size={17} strokeWidth={2.4} aria-hidden="true" />
             </span>
             <span className="text-sm font-semibold text-foreground">

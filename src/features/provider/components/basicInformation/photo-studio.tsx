@@ -8,6 +8,8 @@ import { Modal } from "@/src/components/shared/modal";
 import { PHOTO_STUDIO_CONFIG } from "@/src/lib/photo-studio/config";
 import {
   buildLayerStack,
+  calculateTemplateOffset,
+  calculateTemplateScale,
   computeMaskCoverage,
   shouldRejectMask,
 } from "@/src/lib/photo-studio/compose";
@@ -18,8 +20,15 @@ type PhotoStudioProps = {
   onDone: (file: File) => Promise<boolean>;
 };
 
+type FaceBounds = {
+  originX: number;
+  originY: number;
+  width: number;
+  height: number;
+};
+
 const ACCEPTANCE_TEXT =
-  "عکس فقط روی دستگاه شما پردازش می‌شود و فقط نسخه‌ی نهایی آپلود می‌شود.";
+  "عکس را با دوربین بگیرید. تصویر روی دستگاه شما در قالب یکسان و با نشان هلپا24 روی پس‌زمینه آماده می‌شود؛ فقط نسخه‌ی نهایی آپلود خواهد شد.";
 
 export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -27,6 +36,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const detectorRef = useRef<FaceDetector | null>(null);
   const requestRef = useRef<number | null>(null);
   const lastDetectionAtRef = useRef(0);
+  const faceBoundsRef = useRef<FaceBounds | null>(null);
   const finalFileRef = useRef<File | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [status, setStatus] = useState("در حال آماده‌سازی دوربین…");
@@ -38,6 +48,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const [errorText, setErrorText] = useState<string | null>(null);
   const [mode, setMode] = useState<"camera" | "preview">("camera");
   const [isLocalProcessingReady, setIsLocalProcessingReady] = useState(false);
+  const [cameraAttempt, setCameraAttempt] = useState(0);
 
   const stopStream = () => {
     if (streamRef.current) {
@@ -59,6 +70,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       URL.revokeObjectURL(previewUrl);
     }
     finalFileRef.current = null;
+    faceBoundsRef.current = null;
     setConsentAccepted(false);
     setMode("camera");
     setPreviewUrl(null);
@@ -91,7 +103,11 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     let cancelled = false;
     const startCamera = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setErrorText("دوربین در این مرورگر پشتیبانی نمی‌شود. لطفاً از دستگاه یا مرورگر دیگری استفاده کنید.");
+        setErrorText(
+          window.isSecureContext
+            ? "دوربین در این مرورگر در دسترس نیست؛ اجازه‌ی دوربین را بررسی کنید یا مرورگر دیگری را امتحان کنید."
+            : "برای استفاده از دوربین، صفحه را با اتصال امن HTTPS باز کنید.",
+        );
         setStatus("دوربین در دسترس نیست");
         return;
       }
@@ -118,6 +134,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           await videoRef.current.play();
         }
 
+        setStatus("آماده‌سازی ابزار تشخیص چهره…");
         const { FaceDetector, FilesetResolver } = await import("@mediapipe/tasks-vision");
         const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
         const detector = await FaceDetector.createFromOptions(fileset, {
@@ -161,7 +178,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       detectorRef.current?.close();
       detectorRef.current = null;
     };
-  }, [consentAccepted, open]);
+  }, [cameraAttempt, consentAccepted, open]);
 
   useEffect(() => {
     if (!open || !consentAccepted || mode !== "camera" || !isLocalProcessingReady) return;
@@ -186,6 +203,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         const face = detections[0];
 
         if (detections.length !== 1 || !face) {
+          faceBoundsRef.current = null;
           setStatus(detections.length > 1 ? "فقط یک نفر در قاب باشد" : "چهره‌ای پیدا نشد");
           setCaptureReady(false);
           requestRef.current = requestAnimationFrame(tick);
@@ -194,6 +212,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
         const box = face.boundingBox;
         if (!box) {
+          faceBoundsRef.current = null;
           setStatus("چهره را واضح‌تر روبه‌روی دوربین بگیرید");
           setCaptureReady(false);
           requestRef.current = requestAnimationFrame(tick);
@@ -203,6 +222,12 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         const centerX = (box.originX + box.width / 2) / video.videoWidth;
         const centerY = (box.originY + box.height / 2) / video.videoHeight;
         const faceRatio = box.width / video.videoWidth;
+        faceBoundsRef.current = {
+          originX: box.originX,
+          originY: box.originY,
+          width: box.width,
+          height: box.height,
+        };
 
         if (faceRatio < PHOTO_STUDIO_CONFIG.LIMITS.minFaceRatio) {
           setStatus("کمی نزدیک‌تر بایستید");
@@ -237,6 +262,7 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const resetToCamera = () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     finalFileRef.current = null;
+    faceBoundsRef.current = null;
     setMode("camera");
     setPreviewUrl(null);
     setIsProcessing(false);
@@ -244,8 +270,21 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     setErrorText(null);
   };
 
+  const retryCamera = () => {
+    stopStream();
+    detectorRef.current?.close();
+    detectorRef.current = null;
+    setIsLocalProcessingReady(false);
+    setCaptureReady(false);
+    faceBoundsRef.current = null;
+    setErrorText(null);
+    setStatus("در حال آماده‌سازی دوربین…");
+    setCameraAttempt((attempt) => attempt + 1);
+  };
+
   const handleCapture = async () => {
-    if (!videoRef.current || !captureReady) return;
+    const faceBounds = faceBoundsRef.current;
+    if (!videoRef.current || !captureReady || !faceBounds) return;
 
     setIsCapturing(true);
     setIsProcessing(true);
@@ -273,18 +312,35 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
       context.fillStyle = PHOTO_STUDIO_CONFIG.OUTPUT.background;
       context.fillRect(0, 0, width, height);
-      const scale = Math.max(width / video.videoWidth, height / video.videoHeight);
-      const drawWidth = video.videoWidth * scale;
-      const drawHeight = video.videoHeight * scale;
+      const scale = calculateTemplateScale(
+        faceBounds.width,
+        faceBounds.height,
+        width,
+        height,
+      );
+      const faceOffset = calculateTemplateOffset(
+        width,
+        height,
+        faceBounds.width,
+        faceBounds.height,
+        scale,
+      );
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = "high";
+      context.save();
+      context.translate(
+        faceOffset.x - faceBounds.originX * scale,
+        faceOffset.y - faceBounds.originY * scale,
+      );
+      context.scale(scale, scale);
       context.drawImage(
         video,
-        (width - drawWidth) / 2,
-        (height - drawHeight) / 2,
-        drawWidth,
-        drawHeight,
+        0,
+        0,
+        video.videoWidth,
+        video.videoHeight,
       );
+      context.restore();
 
       const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
       const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
@@ -345,11 +401,54 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       }
 
       const source = context.getImageData(0, 0, width, height).data;
+      const backgroundCanvas = document.createElement("canvas");
+      backgroundCanvas.width = width;
+      backgroundCanvas.height = height;
+      const backgroundContext = backgroundCanvas.getContext("2d");
+
+      if (!backgroundContext) {
+        throw new Error("Watermark canvas unavailable.");
+      }
+
+      backgroundContext.fillStyle = PHOTO_STUDIO_CONFIG.OUTPUT.background;
+      backgroundContext.fillRect(0, 0, width, height);
+      backgroundContext.save();
+      backgroundContext.globalAlpha = PHOTO_STUDIO_CONFIG.WATERMARK.opacity;
+      backgroundContext.fillStyle = PHOTO_STUDIO_CONFIG.WATERMARK.color;
+      backgroundContext.font = `700 ${PHOTO_STUDIO_CONFIG.WATERMARK.fontSize}px sans-serif`;
+      backgroundContext.textAlign = "center";
+      backgroundContext.textBaseline = "middle";
+      for (
+        let y = -PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing;
+        y < height + PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing;
+        y += PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing
+      ) {
+        for (
+          let x = -PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing;
+          x < width + PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing;
+          x += PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing
+        ) {
+          backgroundContext.save();
+          backgroundContext.translate(x, y);
+          backgroundContext.rotate(PHOTO_STUDIO_CONFIG.WATERMARK.rotation);
+          backgroundContext.fillText(PHOTO_STUDIO_CONFIG.WATERMARK.text, 0, 0);
+          backgroundContext.restore();
+        }
+      }
+      backgroundContext.restore();
+      const backgroundPixels = backgroundContext.getImageData(
+        0,
+        0,
+        width,
+        height,
+      ).data;
+
       const layered = buildLayerStack({
         imageWidth: width,
         imageHeight: height,
         source,
         mask,
+        backgroundPixels,
       });
 
       const output = new ImageData(
@@ -412,11 +511,18 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           <div className="rounded-xl bg-foreground/5 p-4 text-sm leading-7 text-foreground/75">
             {ACCEPTANCE_TEXT}
           </div>
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-foreground/10 bg-card p-3">
-            <p className="text-sm text-foreground/70">فقط نسخه‌ی نهایی آپلود می‌شود.</p>
-            <Button variant="primary" size="md" onClick={() => setConsentAccepted(true)}>
-              <Check size={16} />
-              شروع
+          <div className="flex flex-col gap-3 rounded-xl border border-foreground/10 bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-foreground/70">
+              با ادامه، اجازه‌ی استفاده از دوربین را می‌دهید.
+            </p>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setConsentAccepted(true)}
+              className="min-h-11 w-full sm:w-auto"
+            >
+              <Camera size={16} />
+              شروع عکاسی
             </Button>
           </div>
         </div>
@@ -464,9 +570,15 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
               {isCapturing ? <Loader2 className="animate-spin" size={16} /> : <Camera size={16} />}
               {isCapturing ? "در حال گرفتن عکس…" : "گرفتن عکس"}
             </Button>
-            <Button type="button" variant="outline" onClick={resetToCamera} className="min-h-11 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={retryCamera}
+              className="min-h-11 gap-2"
+              disabled={isCapturing || isProcessing || isUploading}
+            >
               <RefreshCw size={16} />
-              دوباره
+              راه‌اندازی دوباره
             </Button>
           </div>
         </div>
