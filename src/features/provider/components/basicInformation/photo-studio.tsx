@@ -2,16 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Camera, Check, Loader2, RefreshCw, Sparkles, X } from "lucide-react";
-import type { FaceDetector } from "@mediapipe/tasks-vision";
 import { Button } from "@/src/components/ui/button";
 import { Modal } from "@/src/components/shared/modal";
 import { PHOTO_STUDIO_CONFIG } from "@/src/lib/photo-studio/config";
 import {
-  buildLayerStack,
-  calculateTemplateOffset,
-  calculateTemplateScale,
   computeMaskCoverage,
   shouldRejectMask,
+  buildLayerStack,
 } from "@/src/lib/photo-studio/compose";
 
 type PhotoStudioProps = {
@@ -20,29 +17,43 @@ type PhotoStudioProps = {
   onDone: (file: File) => Promise<boolean>;
 };
 
-type FaceBounds = {
-  originX: number;
-  originY: number;
-  width: number;
-  height: number;
-};
-
 const ACCEPTANCE_TEXT =
-  "عکس را با دوربین بگیرید. تصویر روی دستگاه شما در قالب یکسان و با نشان هلپا24 روی پس‌زمینه آماده می‌شود؛ فقط نسخه‌ی نهایی آپلود خواهد شد.";
+  "عکس را با دوربین بگیرید و چهره را داخل راهنمای قاب قرار دهید. عکس در قالب یکسان و با نشان هلپا24 آماده می‌شود؛ اگر حذف خودکار پس‌زمینه در دسترس نباشد، عکس استاندارد با واترمارک آماده خواهد شد.";
 
-async function createVisionFileset() {
-  const { FilesetResolver } = await import("@mediapipe/tasks-vision");
-  const useSimdModule = await FilesetResolver.isSimdSupported();
-  return FilesetResolver.forVisionTasks("/mediapipe", useSimdModule);
+function drawWatermark(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  context.save();
+  context.globalAlpha = PHOTO_STUDIO_CONFIG.WATERMARK.opacity;
+  context.fillStyle = PHOTO_STUDIO_CONFIG.WATERMARK.color;
+  context.font = `700 ${PHOTO_STUDIO_CONFIG.WATERMARK.fontSize}px sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  for (
+    let y = -PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing;
+    y < height + PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing;
+    y += PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing
+  ) {
+    for (
+      let x = -PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing;
+      x < width + PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing;
+      x += PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing
+    ) {
+      context.save();
+      context.translate(x, y);
+      context.rotate(PHOTO_STUDIO_CONFIG.WATERMARK.rotation);
+      context.fillText(PHOTO_STUDIO_CONFIG.WATERMARK.text, 0, 0);
+      context.restore();
+    }
+  }
+  context.restore();
 }
 
 export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const detectorRef = useRef<FaceDetector | null>(null);
-  const requestRef = useRef<number | null>(null);
-  const lastDetectionAtRef = useRef(0);
-  const faceBoundsRef = useRef<FaceBounds | null>(null);
   const finalFileRef = useRef<File | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [status, setStatus] = useState("در حال آماده‌سازی دوربین…");
@@ -52,8 +63,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [noticeText, setNoticeText] = useState<string | null>(null);
   const [mode, setMode] = useState<"camera" | "preview">("camera");
-  const [isLocalProcessingReady, setIsLocalProcessingReady] = useState(false);
   const initializationIdRef = useRef(0);
 
   const stopStream = () => {
@@ -62,31 +73,24 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       streamRef.current = null;
     }
 
-    if (requestRef.current) {
-      cancelAnimationFrame(requestRef.current);
-      requestRef.current = null;
-    }
   };
 
   const resetStudio = () => {
     initializationIdRef.current += 1;
     stopStream();
-    detectorRef.current?.close();
-    detectorRef.current = null;
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
     finalFileRef.current = null;
-    faceBoundsRef.current = null;
     setConsentAccepted(false);
     setMode("camera");
     setPreviewUrl(null);
     setStatus("در حال آماده‌سازی دوربین…");
     setErrorText(null);
+    setNoticeText(null);
     setCaptureReady(false);
     setIsProcessing(false);
     setIsCapturing(false);
-    setIsLocalProcessingReady(false);
   };
 
   const handleModalClose = () => {
@@ -98,8 +102,6 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     return () => {
       initializationIdRef.current += 1;
       stopStream();
-      detectorRef.current?.close();
-      detectorRef.current = null;
     };
   }, []);
 
@@ -117,8 +119,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     const initializationId = ++initializationIdRef.current;
     let failedAt = "دوربین";
     setErrorText(null);
+    setNoticeText(null);
     setCaptureReady(false);
-    setIsLocalProcessingReady(false);
     setStatus("در حال درخواست مجوز دوربین…");
 
     let streamRequest: Promise<MediaStream>;
@@ -147,33 +149,29 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         video.playsInline = true;
         video.srcObject = stream;
         await video.play();
-
-        setStatus("آماده‌سازی ابزار تشخیص چهره…");
-        failedAt = "بارگذاری ابزار تشخیص چهره";
-        const { FaceDetector } = await import("@mediapipe/tasks-vision");
-        const fileset = await createVisionFileset();
-        if (initializationId !== initializationIdRef.current) return;
-
-        failedAt = "بارگذاری مدل تشخیص چهره";
-        const detector = await FaceDetector.createFromOptions(fileset, {
-          baseOptions: {
-            modelAssetPath: "/mediapipe/blaze_face_short_range.tflite",
-          },
-          runningMode: "VIDEO",
-          minDetectionConfidence: 0.65,
-        });
-        if (initializationId !== initializationIdRef.current) {
-          detector.close();
-          return;
+        if (!video.videoWidth || !video.videoHeight) {
+          await new Promise<void>((resolve, reject) => {
+            const timeout = window.setTimeout(
+              () => reject(new Error("Camera preview did not become ready.")),
+              5000,
+            );
+            video.addEventListener(
+              "loadedmetadata",
+              () => {
+                window.clearTimeout(timeout);
+                resolve();
+              },
+              { once: true },
+            );
+          });
         }
-        detectorRef.current = detector;
-        setIsLocalProcessingReady(true);
-        setStatus("چهره را داخل بیضی قرار دهید");
+        if (initializationId !== initializationIdRef.current) return;
+        setCaptureReady(true);
+        setStatus("چهره را داخل راهنمای قاب قرار دهید");
         setErrorText(null);
       } catch (error) {
         if (initializationId !== initializationIdRef.current) return;
         stopStream();
-        setIsLocalProcessingReady(false);
         setCaptureReady(false);
         const errorName =
           error instanceof DOMException || error instanceof Error
@@ -200,10 +198,6 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
           setErrorText(
             "دوربین در دسترس نیست یا برنامه‌ی دیگری از آن استفاده می‌کند. برنامه‌های دوربین را ببندید و دوباره تلاش کنید.",
           );
-        } else if (failedAt.includes("مدل") || failedAt.includes("ابزار")) {
-          setErrorText(
-            `بارگذاری ${failedAt} ناموفق بود. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.`,
-          );
         } else {
           setErrorText(
             `راه‌اندازی ${failedAt} ناموفق بود. دوربین را آزاد کنید و دوباره تلاش کنید.`,
@@ -214,115 +208,33 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
     })();
   };
 
-  useEffect(() => {
-    if (!open || !consentAccepted || mode !== "camera" || !isLocalProcessingReady) return;
-
-    const tick = async () => {
-      const video = videoRef.current;
-      const detector = detectorRef.current;
-      if (!video || video.readyState < 2 || !detector) {
-        requestRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      if (performance.now() - lastDetectionAtRef.current < 180) {
-        requestRef.current = requestAnimationFrame(tick);
-        return;
-      }
-      lastDetectionAtRef.current = performance.now();
-
-      try {
-        const result = detector.detectForVideo(video, performance.now());
-        const detections = result.detections ?? [];
-        const face = detections[0];
-
-        if (detections.length !== 1 || !face) {
-          faceBoundsRef.current = null;
-          setStatus(detections.length > 1 ? "فقط یک نفر در قاب باشد" : "چهره‌ای پیدا نشد");
-          setCaptureReady(false);
-          requestRef.current = requestAnimationFrame(tick);
-          return;
-        }
-
-        const box = face.boundingBox;
-        if (!box) {
-          faceBoundsRef.current = null;
-          setStatus("چهره را واضح‌تر روبه‌روی دوربین بگیرید");
-          setCaptureReady(false);
-          requestRef.current = requestAnimationFrame(tick);
-          return;
-        }
-
-        const centerX = (box.originX + box.width / 2) / video.videoWidth;
-        const centerY = (box.originY + box.height / 2) / video.videoHeight;
-        const faceRatio = box.width / video.videoWidth;
-        faceBoundsRef.current = {
-          originX: box.originX,
-          originY: box.originY,
-          width: box.width,
-          height: box.height,
-        };
-
-        if (faceRatio < PHOTO_STUDIO_CONFIG.LIMITS.minFaceRatio) {
-          setStatus("کمی نزدیک‌تر بایستید");
-          setCaptureReady(false);
-        } else if (faceRatio > PHOTO_STUDIO_CONFIG.LIMITS.maxFaceRatio) {
-          setStatus("کمی از دوربین فاصله بگیرید");
-          setCaptureReady(false);
-        } else if (Math.abs(centerX - 0.5) > 0.18 || Math.abs(centerY - 0.45) > 0.15) {
-          setStatus("چهره را وسط بیضی بگذارید");
-          setCaptureReady(false);
-        } else {
-          setStatus("حالت گرفتن عکس فعال شد");
-          setCaptureReady(true);
-        }
-      } catch {
-        setStatus("بررسی تصویر انجام نشد؛ لطفاً دوباره تلاش کنید");
-        setCaptureReady(false);
-      }
-
-      requestRef.current = requestAnimationFrame(tick);
-    };
-
-    requestRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current);
-      }
-    };
-  }, [consentAccepted, isLocalProcessingReady, mode, open]);
-
   const resetToCamera = () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     finalFileRef.current = null;
-    faceBoundsRef.current = null;
     setMode("camera");
     setPreviewUrl(null);
     setIsProcessing(false);
     setCaptureReady(false);
     setErrorText(null);
+    setNoticeText(null);
   };
 
   const retryCamera = () => {
     initializationIdRef.current += 1;
     stopStream();
-    detectorRef.current?.close();
-    detectorRef.current = null;
-    setIsLocalProcessingReady(false);
     setCaptureReady(false);
-    faceBoundsRef.current = null;
     setErrorText(null);
     setStatus("در حال آماده‌سازی دوربین…");
     startCamera();
   };
 
   const handleCapture = async () => {
-    const faceBounds = faceBoundsRef.current;
-    if (!videoRef.current || !captureReady || !faceBounds) return;
+    if (!videoRef.current || !captureReady) return;
 
     setIsCapturing(true);
     setIsProcessing(true);
+    setErrorText(null);
+    setNoticeText(null);
     setStatus("در حال آماده‌سازی عکس…");
 
     try {
@@ -347,151 +259,161 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
 
       context.fillStyle = PHOTO_STUDIO_CONFIG.OUTPUT.background;
       context.fillRect(0, 0, width, height);
-      const scale = calculateTemplateScale(
-        faceBounds.width,
-        faceBounds.height,
-        width,
-        height,
-      );
-      const faceOffset = calculateTemplateOffset(
-        width,
-        height,
-        faceBounds.width,
-        faceBounds.height,
-        scale,
-      );
+      const targetAspect = width / height;
+      const sourceAspect = video.videoWidth / video.videoHeight;
+      const sourceWidth =
+        sourceAspect > targetAspect
+          ? video.videoHeight * targetAspect
+          : video.videoWidth;
+      const sourceHeight =
+        sourceAspect > targetAspect
+          ? video.videoHeight
+          : video.videoWidth / targetAspect;
+      const sourceX = (video.videoWidth - sourceWidth) / 2;
+      const sourceY = (video.videoHeight - sourceHeight) / 2;
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = "high";
-      context.save();
-      context.translate(
-        faceOffset.x - faceBounds.originX * scale,
-        faceOffset.y - faceBounds.originY * scale,
-      );
-      context.scale(scale, scale);
       context.drawImage(
         video,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
         0,
         0,
-        video.videoWidth,
-        video.videoHeight,
+        width,
+        height,
       );
-      context.restore();
 
-      const { ImageSegmenter } = await import("@mediapipe/tasks-vision");
-      const fileset = await createVisionFileset();
-      const segmenter = await ImageSegmenter.createFromOptions(fileset, {
-        baseOptions: {
-          modelAssetPath: "/mediapipe/selfie_segmenter.tflite",
-        },
-        runningMode: "IMAGE",
-        outputConfidenceMasks: true,
-        outputCategoryMask: true,
-      });
-      const result = segmenter.segment(canvas);
-      const labels = segmenter.getLabels();
-      const personIndex = labels.findIndex((label) =>
-        /person|human|foreground/i.test(label),
-      );
-      const confidenceIndex = personIndex >= 0 ? personIndex : 0;
-      const confidenceMask = result.confidenceMasks?.[confidenceIndex];
-      const categoryMask = result.categoryMask;
-      const maskWidth = confidenceMask?.width ?? categoryMask?.width ?? 0;
-      const maskHeight = confidenceMask?.height ?? categoryMask?.height ?? 0;
-      const confidenceValues = confidenceMask?.getAsFloat32Array();
-      const categoryValues = categoryMask?.getAsUint8Array();
-      if (!maskWidth || !maskHeight || (!confidenceValues && !categoryValues)) {
-        result.close();
-        segmenter.close();
-        throw new Error("Segmentation model did not return a usable mask.");
-      }
+      let backgroundRemoved = false;
+      try {
+        const { FilesetResolver, ImageSegmenter } = await import(
+          "@mediapipe/tasks-vision"
+        );
+        const useSimdModule = await FilesetResolver.isSimdSupported();
+        const fileset = await FilesetResolver.forVisionTasks(
+          "/mediapipe",
+          useSimdModule,
+        );
+        const segmenter = await ImageSegmenter.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath: "/mediapipe/selfie_segmenter.tflite",
+          },
+          runningMode: "IMAGE",
+          outputConfidenceMasks: true,
+          outputCategoryMask: true,
+        });
 
-      const mask = new Uint8ClampedArray(width * height * 4);
-      for (let y = 0; y < height; y += 1) {
-        const sourceY = Math.min(maskHeight - 1, Math.floor((y / height) * maskHeight));
-        for (let x = 0; x < width; x += 1) {
-          const sourceX = Math.min(maskWidth - 1, Math.floor((x / width) * maskWidth));
-          const sourceIndex = sourceY * maskWidth + sourceX;
-          let alpha = 0;
-          if (confidenceValues) {
-            let confidence = confidenceValues[sourceIndex] ?? 0;
-            if (confidence > 1) confidence /= 255;
-            alpha = Math.min(1, Math.max(0, (confidence - 0.25) / 0.5));
-          } else if (categoryValues) {
-            const category = categoryValues[sourceIndex] ?? 0;
-            alpha = personIndex >= 0 ? Number(category === personIndex) : Number(category > 0);
+        try {
+          const result = segmenter.segment(canvas);
+          try {
+            const labels = segmenter.getLabels();
+            const personIndex = labels.findIndex((label) =>
+              /person|human|foreground/i.test(label),
+            );
+            const confidenceIndex = personIndex >= 0 ? personIndex : 0;
+            const confidenceMask = result.confidenceMasks?.[confidenceIndex];
+            const categoryMask = result.categoryMask;
+            const maskWidth = confidenceMask?.width ?? categoryMask?.width ?? 0;
+            const maskHeight =
+              confidenceMask?.height ?? categoryMask?.height ?? 0;
+            const confidenceValues = confidenceMask?.getAsFloat32Array();
+            const categoryValues = categoryMask?.getAsUint8Array();
+            if (
+              !maskWidth ||
+              !maskHeight ||
+              (!confidenceValues && !categoryValues)
+            ) {
+              throw new Error("Segmentation model returned no usable mask.");
+            }
+
+            const mask = new Uint8ClampedArray(width * height * 4);
+            for (let y = 0; y < height; y += 1) {
+              const maskY = Math.min(
+                maskHeight - 1,
+                Math.floor((y / height) * maskHeight),
+              );
+              for (let x = 0; x < width; x += 1) {
+                const maskX = Math.min(
+                  maskWidth - 1,
+                  Math.floor((x / width) * maskWidth),
+                );
+                const sourceIndex = maskY * maskWidth + maskX;
+                let alpha = 0;
+                if (confidenceValues) {
+                  let confidence = confidenceValues[sourceIndex] ?? 0;
+                  if (confidence > 1) confidence /= 255;
+                  alpha = Math.min(1, Math.max(0, (confidence - 0.25) / 0.5));
+                } else if (categoryValues) {
+                  const category = categoryValues[sourceIndex] ?? 0;
+                  alpha =
+                    personIndex >= 0
+                      ? Number(category === personIndex)
+                      : Number(category > 0);
+                }
+                const index = (y * width + x) * 4;
+                mask[index] = Math.round(alpha * 255);
+                mask[index + 1] = mask[index];
+                mask[index + 2] = mask[index];
+                mask[index + 3] = 255;
+              }
+            }
+
+            const coverage = computeMaskCoverage(mask, width, height);
+            if (shouldRejectMask(coverage, width, height)) {
+              throw new Error("Segmentation mask did not pass quality checks.");
+            }
+
+            const source = context.getImageData(0, 0, width, height).data;
+            const backgroundCanvas = document.createElement("canvas");
+            backgroundCanvas.width = width;
+            backgroundCanvas.height = height;
+            const backgroundContext = backgroundCanvas.getContext("2d");
+            if (!backgroundContext) {
+              throw new Error("Watermark background canvas is unavailable.");
+            }
+            backgroundContext.fillStyle = PHOTO_STUDIO_CONFIG.OUTPUT.background;
+            backgroundContext.fillRect(0, 0, width, height);
+            drawWatermark(backgroundContext, width, height);
+
+            const layered = buildLayerStack({
+              imageWidth: width,
+              imageHeight: height,
+              source,
+              mask,
+              backgroundPixels: backgroundContext.getImageData(
+                0,
+                0,
+                width,
+                height,
+              ).data,
+            });
+            context.putImageData(
+              new ImageData(
+                new Uint8ClampedArray(layered.output),
+                width,
+                height,
+              ),
+              0,
+              0,
+            );
+            backgroundRemoved = true;
+          } finally {
+            result.close();
           }
-          const index = (y * width + x) * 4;
-          mask[index] = Math.round(alpha * 255);
-          mask[index + 1] = mask[index];
-          mask[index + 2] = mask[index];
-          mask[index + 3] = 255;
+        } finally {
+          segmenter.close();
         }
-      }
-      result.close();
-      segmenter.close();
-
-      const coverage = computeMaskCoverage(mask, width, height);
-      if (shouldRejectMask(coverage, width, height)) {
-        throw new Error("Foreground mask failed quality checks.");
+      } catch (error) {
+        console.warn(
+          "Provider photo background removal failed; using standardized photo fallback",
+          error,
+        );
       }
 
-      const source = context.getImageData(0, 0, width, height).data;
-      const backgroundCanvas = document.createElement("canvas");
-      backgroundCanvas.width = width;
-      backgroundCanvas.height = height;
-      const backgroundContext = backgroundCanvas.getContext("2d");
-
-      if (!backgroundContext) {
-        throw new Error("Watermark canvas unavailable.");
+      if (!backgroundRemoved) {
+        drawWatermark(context, width, height);
       }
-
-      backgroundContext.fillStyle = PHOTO_STUDIO_CONFIG.OUTPUT.background;
-      backgroundContext.fillRect(0, 0, width, height);
-      backgroundContext.save();
-      backgroundContext.globalAlpha = PHOTO_STUDIO_CONFIG.WATERMARK.opacity;
-      backgroundContext.fillStyle = PHOTO_STUDIO_CONFIG.WATERMARK.color;
-      backgroundContext.font = `700 ${PHOTO_STUDIO_CONFIG.WATERMARK.fontSize}px sans-serif`;
-      backgroundContext.textAlign = "center";
-      backgroundContext.textBaseline = "middle";
-      for (
-        let y = -PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing;
-        y < height + PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing;
-        y += PHOTO_STUDIO_CONFIG.WATERMARK.verticalSpacing
-      ) {
-        for (
-          let x = -PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing;
-          x < width + PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing;
-          x += PHOTO_STUDIO_CONFIG.WATERMARK.horizontalSpacing
-        ) {
-          backgroundContext.save();
-          backgroundContext.translate(x, y);
-          backgroundContext.rotate(PHOTO_STUDIO_CONFIG.WATERMARK.rotation);
-          backgroundContext.fillText(PHOTO_STUDIO_CONFIG.WATERMARK.text, 0, 0);
-          backgroundContext.restore();
-        }
-      }
-      backgroundContext.restore();
-      const backgroundPixels = backgroundContext.getImageData(
-        0,
-        0,
-        width,
-        height,
-      ).data;
-
-      const layered = buildLayerStack({
-        imageWidth: width,
-        imageHeight: height,
-        source,
-        mask,
-        backgroundPixels,
-      });
-
-      const output = new ImageData(
-        new Uint8ClampedArray(layered.output),
-        width,
-        height,
-      );
-      context.putImageData(output, 0, 0);
 
       let quality = PHOTO_STUDIO_CONFIG.OUTPUT.quality;
       let blob: Blob | null = null;
@@ -518,7 +440,16 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         return previewObjectUrl;
       });
       setMode("preview");
-      setStatus("عکس آماده است؛ تأیید یا دوباره گرفتن");
+      setStatus(
+        backgroundRemoved
+          ? "عکس با پس‌زمینه‌ی استاندارد آماده است"
+          : "عکس استاندارد با واترمارک آماده شد",
+      );
+      setNoticeText(
+        backgroundRemoved
+          ? null
+          : "حذف خودکار پس‌زمینه در این دستگاه در دسترس نبود؛ عکس با قاب و واترمارک استاندارد آماده شد.",
+      );
     } catch (error) {
       setErrorText(
         error instanceof Error &&
@@ -643,6 +574,12 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
             >
               {errorText}
             </div>
+          )}
+
+          {noticeText && (
+            <p className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3 text-sm leading-6 text-amber-900">
+              {noticeText}
+            </p>
           )}
 
           <div className="flex flex-col gap-2 sm:flex-row">
