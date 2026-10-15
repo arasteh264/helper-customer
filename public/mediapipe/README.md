@@ -12,11 +12,15 @@ download the official models and copy the installed MediaPipe runtime to
 - `selfie_segmenter.tflite`
 - `vision_wasm_module_internal.js`
 - `vision_wasm_module_internal.wasm`
+- `vision_wasm_nosimd_internal.js`
+- `vision_wasm_nosimd_internal.wasm`
 
 The script downloads model files from the official MediaPipe model storage and
 copies wasm files from the installed `@mediapipe/tasks-vision` package. The app
 loads all of them from its own origin through
-`FilesetResolver.forVisionTasks("/mediapipe", true)`.
+`FilesetResolver.isSimdSupported()` and selects the matching SIMD or non-SIMD
+runtime files. Keep all four runtime files in sync with the installed
+`@mediapipe/tasks-vision` package.
 
 ## Recommended source
 

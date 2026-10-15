@@ -30,6 +30,12 @@ type FaceBounds = {
 const ACCEPTANCE_TEXT =
   "عکس را با دوربین بگیرید. تصویر روی دستگاه شما در قالب یکسان و با نشان هلپا24 روی پس‌زمینه آماده می‌شود؛ فقط نسخه‌ی نهایی آپلود خواهد شد.";
 
+async function createVisionFileset() {
+  const { FilesetResolver } = await import("@mediapipe/tasks-vision");
+  const useSimdModule = await FilesetResolver.isSimdSupported();
+  return FilesetResolver.forVisionTasks("/mediapipe", useSimdModule);
+}
+
 export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -135,8 +141,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
         }
 
         setStatus("آماده‌سازی ابزار تشخیص چهره…");
-        const { FaceDetector, FilesetResolver } = await import("@mediapipe/tasks-vision");
-        const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
+        const { FaceDetector } = await import("@mediapipe/tasks-vision");
+        const fileset = await createVisionFileset();
         const detector = await FaceDetector.createFromOptions(fileset, {
           baseOptions: {
             modelAssetPath: "/mediapipe/blaze_face_short_range.tflite",
@@ -342,8 +348,8 @@ export function PhotoStudio({ open, onClose, onDone }: PhotoStudioProps) {
       );
       context.restore();
 
-      const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
-      const fileset = await FilesetResolver.forVisionTasks("/mediapipe", true);
+      const { ImageSegmenter } = await import("@mediapipe/tasks-vision");
+      const fileset = await createVisionFileset();
       const segmenter = await ImageSegmenter.createFromOptions(fileset, {
         baseOptions: {
           modelAssetPath: "/mediapipe/selfie_segmenter.tflite",
