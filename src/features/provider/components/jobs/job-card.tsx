@@ -15,6 +15,7 @@ import {
   toEnglishDigits,
 } from "@/src/utils/format";
 import { InvoiceEditor } from "@/src/features/invoices/components/invoice-editor";
+import { formatDate } from "@/src/utils/format";
 
 export type JobAction = "quote" | "reject" | "start" | "complete";
 
@@ -29,6 +30,12 @@ interface JobCardProps {
     declineReason?: string,
     declineNote?: string,
     items?: QuoteItem[],
+    workReport?: {
+      summary: string;
+      materials: string[];
+      warrantyDays?: number;
+      warrantyNote?: string;
+    },
   ) => void;
   onDisputeMessage: (id: string, body: string) => Promise<boolean>;
   onRaiseNonPaymentDispute: (id: string, description: string) => Promise<boolean>;
@@ -67,6 +74,11 @@ export function JobCard({
   const [showDeclineForm, setShowDeclineForm] = useState(false);
   const [declineReason, setDeclineReason] = useState("NOT_MY_SPECIALTY");
   const [declineNote, setDeclineNote] = useState("");
+  const [completionSummary, setCompletionSummary] = useState("");
+  const [completionMaterials, setCompletionMaterials] = useState("");
+  const [warrantyDays, setWarrantyDays] = useState("0");
+  const [warrantyNote, setWarrantyNote] = useState("");
+  const [showCompletionForm, setShowCompletionForm] = useState(false);
   const estimatedHours = Number(toEnglishDigits(hoursInput).replace(",", "."));
   const proposedPriceToman =
     job.pricingMode === "HOURLY" && job.hourlyRateToman
@@ -184,6 +196,24 @@ export function JobCard({
             <p className="mt-1 text-xs font-medium text-green-700">
               انجام کار توسط مشتری تأیید شده است.
             </p>
+          ) : null}
+          {job.workReport ? (
+            <div className="mt-3 rounded-lg border border-primary/15 bg-primary/[0.04] p-3 text-xs leading-6">
+              <p className="font-semibold text-foreground">گزارش پایان کار ثبت‌شده</p>
+              <p className="mt-1 whitespace-pre-wrap text-foreground/70">{job.workReport.summary}</p>
+              {job.workReport.warrantyDays ? (
+                <p className="mt-1 text-emerald-700">
+                  ضمانت {formatNumber(job.workReport.warrantyDays)} روزه
+                  {job.workReport.warrantyExpiresAt
+                    ? ` تا ${formatDate(job.workReport.warrantyExpiresAt)}`
+                    : ""}
+                </p>
+              ) : (
+                <p className="mt-1 text-foreground/55">برای این کار ضمانتی ثبت نشده است.</p>
+              )}
+              {job.workReport.warrantyNote ? <p>{job.workReport.warrantyNote}</p> : null}
+              {job.workReport.materials.length ? <p className="mt-1">اقلام مصرفی: {job.workReport.materials.join("، ")}</p> : null}
+            </div>
           ) : null}
           {job.images && job.images.length > 0 && (
             <div className="mt-3 flex gap-2 overflow-x-auto">
@@ -396,7 +426,7 @@ export function JobCard({
                   ) : (
                     <>
                       <span className="text-foreground/60">
-                        کارمزد هلپا24 ({formatNumber(commissionRate)}٪): {formatMoney(platformCommission)}
+                        کارمزد هلپا۲۴ ({formatNumber(commissionRate)}٪): {formatMoney(platformCommission)}
                       </span>
                       <span className="font-semibold text-foreground">
                         دریافتی پس از کارمزد:{" "}
@@ -483,9 +513,10 @@ export function JobCard({
             <Button
               type="button"
               disabled={busy}
-              onClick={() => onAction(job.id, "complete")}
+              variant={showCompletionForm ? "outline" : "primary"}
+              onClick={() => setShowCompletionForm((shown) => !shown)}
             >
-              {busy ? "در حال ثبت…" : "تکمیل کار"}
+              {showCompletionForm ? "بستن گزارش پایان کار" : "ثبت گزارش و تکمیل کار"}
             </Button>
           )}
           {job.status === "awaiting_payment" && (
@@ -499,6 +530,99 @@ export function JobCard({
             </Button>
           )}
         </div>
+        {showCompletionForm && job.status === "in_progress" ? (
+          <form
+            className="mt-4 space-y-3 rounded-xl border border-primary/20 bg-primary/[0.035] p-3 sm:p-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onAction(
+                job.id,
+                "complete",
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                {
+                  summary: completionSummary.trim(),
+                  materials: completionMaterials
+                    .split(/\r?\n/)
+                    .map((item) => item.trim())
+                    .filter(Boolean),
+                  warrantyDays: Number(warrantyDays),
+                  warrantyNote: warrantyNote.trim() || undefined,
+                },
+              );
+            }}
+          >
+            <div>
+              <h4 className="font-semibold">گزارش پایان کار</h4>
+              <p className="mt-1 text-xs leading-5 text-foreground/55">
+                مشتری این گزارش و ضمانت را در پرونده‌ی درخواست می‌بیند و سپس انجام کار را تأیید می‌کند.
+              </p>
+            </div>
+            <label className="grid gap-1.5 text-sm font-medium">
+              شرح کار انجام‌شده
+              <textarea
+                required
+                minLength={10}
+                maxLength={5000}
+                rows={4}
+                value={completionSummary}
+                onChange={(event) => setCompletionSummary(event.target.value)}
+                placeholder="کارهای انجام‌شده، نتیجه و نکته‌هایی که مشتری باید بداند را بنویسید."
+                className="w-full rounded-lg border border-foreground/15 bg-background p-3 text-sm font-normal leading-6"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium">
+              قطعات یا اقلام مصرف‌شده (اختیاری؛ هر مورد در یک خط)
+              <textarea
+                rows={2}
+                maxLength={10000}
+                value={completionMaterials}
+                onChange={(event) => setCompletionMaterials(event.target.value)}
+                className="w-full rounded-lg border border-foreground/15 bg-background p-3 text-sm font-normal leading-6"
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1.5 text-sm font-medium">
+                مدت ضمانت (روز؛ صفر یعنی بدون ضمانت)
+                <input
+                  type="number"
+                  min={0}
+                  max={3650}
+                  value={warrantyDays}
+                  onChange={(event) => setWarrantyDays(event.target.value)}
+                  className="h-11 rounded-lg border border-foreground/15 bg-background px-3 text-sm font-normal"
+                />
+              </label>
+              <label className="grid gap-1.5 text-sm font-medium">
+                شرایط یا توضیح ضمانت (اختیاری)
+                <input
+                  maxLength={1000}
+                  value={warrantyNote}
+                  onChange={(event) => setWarrantyNote(event.target.value)}
+                  className="h-11 min-w-0 rounded-lg border border-foreground/15 bg-background px-3 text-sm font-normal"
+                />
+              </label>
+            </div>
+            <Button
+              type="submit"
+              disabled={
+                busy ||
+                completionSummary.trim().length < 10 ||
+                !Number.isInteger(Number(warrantyDays)) ||
+                Number(warrantyDays) < 0 ||
+                Number(warrantyDays) > 3650 ||
+                completionMaterials.split(/\r?\n/).filter((item) => item.trim()).length > 50
+              }
+              className="w-full sm:w-auto"
+            >
+              {busy ? "در حال ثبت…" : "ارسال گزارش برای تأیید مشتری"}
+            </Button>
+          </form>
+        ) : null}
       </div>
       {showDeclineForm && job.status === "new" ? (
         <div className="mt-2 flex flex-wrap items-end gap-2 rounded-lg bg-foreground/[0.03] p-2">

@@ -3,9 +3,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import {
   CalendarClock,
+  ClipboardCheck,
   LoaderCircle,
   MapPin,
   Phone,
+  RotateCcw,
+  ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { auth } from "@/src/auth";
@@ -15,7 +18,7 @@ import { REQUEST_STATUS } from "@/src/features/customer/utils/status-maps";
 import { StatusBadge } from "@/src/components/shared/status-badge";
 import { PageHeader } from "@/src/components/shared/page-header";
 import { SectionCard } from "@/src/components/shared/section-card";
-import { formatDateTime, formatMoney } from "@/src/utils/format";
+import { formatDate, formatDateTime, formatMoney } from "@/src/utils/format";
 import { RequestPaymentActions } from "@/src/features/customer/components/request-payment-actions";
 import type { ServiceRequestPayment } from "@/src/features/request/api/request.api";
 import { RequestChat } from "@/src/features/request/components/request-chat";
@@ -127,7 +130,7 @@ export default async function CustomerRequestDetailPage({
             </span>
             <div>
               <p className="text-sm font-semibold text-foreground">
-                درخواست شما در صف بررسی هلپا24 است
+                درخواست شما در صف بررسی هلپا۲۴ است
               </p>
               <p className="mt-1 text-xs leading-6 text-foreground/60">
                 پس از تأیید، درخواست برای متخصصان مناسب ارسال می‌شود. وضعیت این
@@ -138,7 +141,7 @@ export default async function CustomerRequestDetailPage({
         ) : null}
         {request.adminReviewNote ? (
           <p className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2.5 text-xs leading-6 text-amber-900">
-            یادداشت بررسی هلپا24: {request.adminReviewNote}
+            یادداشت بررسی هلپا۲۴: {request.adminReviewNote}
           </p>
         ) : null}
         {request.status === "awaiting_confirmation" &&
@@ -150,6 +153,74 @@ export default async function CustomerRequestDetailPage({
           </p>
         ) : null}
       </SectionCard>
+
+      {request.workReport ? (
+        <SectionCard
+          title="پرونده‌ی خدمت"
+          description="گزارش ثبت‌شده توسط متخصص و جزئیات ضمانت این خدمت."
+        >
+          <div className="rounded-xl border border-primary/15 bg-primary/[0.035] p-4">
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <ClipboardCheck size={20} aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold">شرح کار انجام‌شده</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-foreground/75">
+                  {request.workReport.summary}
+                </p>
+              </div>
+            </div>
+            {request.workReport.materials.length ? (
+              <div className="mt-4 border-t border-foreground/10 pt-3">
+                <p className="text-xs font-semibold text-foreground/65">قطعات و اقلام مصرفی</p>
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {request.workReport.materials.map((material, index) => (
+                    <li key={`${material}-${index}`} className="rounded-full bg-background px-3 py-1.5 text-xs text-foreground/70">
+                      {material}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            <div className="mt-4 flex items-start gap-2 border-t border-foreground/10 pt-3">
+              <ShieldCheck size={18} className="mt-0.5 shrink-0 text-emerald-700" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-semibold">
+                  {request.workReport.warrantyDays && request.workReport.warrantyDays > 0
+                    ? `ضمانت ${formatNumber(request.workReport.warrantyDays)} روزه`
+                    : "ضمانتی برای این خدمت ثبت نشده است"}
+                </p>
+                {request.workReport.warrantyExpiresAt ? (
+                  <p className="mt-1 text-xs text-foreground/60">
+                    اعتبار ضمانت تا {formatDate(request.workReport.warrantyExpiresAt)}
+                  </p>
+                ) : null}
+                {request.workReport.warrantyNote ? (
+                  <p className="mt-1 text-sm leading-6 text-foreground/65">
+                    {request.workReport.warrantyNote}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <p className="mt-4 text-end text-[11px] text-foreground/45">
+              ثبت گزارش: {formatDateTime(request.workReport.completedAt)}
+            </p>
+          </div>
+          {request.status === "completed" ? (
+            <Link
+              href={`/request?${new URLSearchParams({
+                ...(request.specialtyId ? { specialtyId: request.specialtyId } : {}),
+                specialtyName: request.category,
+              }).toString()}`}
+              className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              <RotateCcw size={16} aria-hidden="true" />
+              درخواست دوباره‌ی این خدمت
+            </Link>
+          ) : null}
+        </SectionCard>
+      ) : null}
 
       {request.status === "awaiting_offers" ? (
         <RequestOffersComparison

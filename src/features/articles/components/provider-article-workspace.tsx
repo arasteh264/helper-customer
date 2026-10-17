@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, ImagePlus, LoaderCircle, Plus, Send, Trash2 } from "lucide-react";
 
 import { Button } from "@/src/components/ui/button";
+import { FilePreview } from "@/src/components/shared/file-preview";
 import { ApiError } from "@/src/lib/api/error";
 import { formatDate } from "@/src/utils/format";
 import { providerArticlesApi } from "../api/provider-articles.api";
@@ -314,6 +315,11 @@ export function ProviderArticleWorkspace({
             <p className="text-xs leading-5 text-foreground/55 sm:col-span-2">
               برای تأیید و انتشار مقاله، بارگذاری کاور الزامی است. اگر آپلود ناموفق شود، می‌توانید آن را دوباره انجام دهید.
             </p>
+            {pendingCoverId === null ? (
+              <div className="sm:col-span-2">
+                <FilePreview file={coverFile} />
+              </div>
+            ) : null}
           </section>
           {pendingCoverId ? (
             <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
@@ -363,10 +369,13 @@ export function ProviderArticleWorkspace({
                   }} className="mt-1 min-h-11 w-full min-w-0 text-xs file:me-2 file:min-h-10 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:text-primary" />
                 </label>
                 {pendingCoverId === article.id ? (
-                  <Button type="button" variant="outline" disabled={busy || !coverFile} onClick={() => void retryUpload(article.id)}>
-                    {busy ? <LoaderCircle size={16} className="animate-spin" /> : <ImagePlus size={16} />}
-                    بارگذاری کاور
-                  </Button>
+                  <>
+                    <FilePreview file={coverFile} />
+                    <Button type="button" variant="outline" disabled={busy || !coverFile} onClick={() => void retryUpload(article.id)}>
+                      {busy ? <LoaderCircle size={16} className="animate-spin" /> : <ImagePlus size={16} />}
+                      بارگذاری کاور
+                    </Button>
+                  </>
                 ) : null}
               </div>
             ) : null}

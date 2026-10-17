@@ -17,7 +17,7 @@ export const footerColumns: FooterColumn[] = [
     ],
   },
   {
-    title: "هلپا24",
+    title: "هلپا۲۴",
     links: [
       { label: "درباره‌ی ما", href: "/about" },
       { label: "ایمیل پشتیبانی", href: "mailto:support@helper.ir" },

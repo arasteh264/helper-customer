@@ -12,9 +12,11 @@ import { providerApi } from "@/src/features/provider/api/provider.api";
 
 export function ProviderStartButton({
   authenticated,
+  referralCode,
   className = "",
 }: {
   authenticated: boolean;
+  referralCode?: string;
   className?: string;
 }) {
   const router = useRouter();
@@ -23,7 +25,11 @@ export function ProviderStartButton({
   if (!authenticated) {
     return (
       <ButtonLink
-        href="/register?role=specialist"
+        href={
+          referralCode
+            ? `/register?role=specialist&referralCode=${encodeURIComponent(referralCode)}`
+            : "/register?role=specialist"
+        }
         variant="light"
         size="lg"
         className={className}
@@ -46,7 +52,11 @@ export function ProviderStartButton({
         return;
       }
 
-      await providerApi.createProfile(undefined, session.accessToken);
+      await providerApi.createProfile(
+        undefined,
+        session.accessToken,
+        referralCode,
+      );
       toast.success("پروفایل متخصص برای همین حساب ساخته شد.");
       router.push("/provider/profile");
       router.refresh();

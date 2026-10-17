@@ -54,7 +54,7 @@ export function ProviderAddressEditor({
     <SectionCard
       id="private-address"
       title="نشانی محرمانه"
-      description="برای بررسی‌های امنیتی حساب نگهداری می‌شود و فقط شما و مدیران مجاز هلپا24 آن را می‌بینید."
+      description="برای بررسی‌های امنیتی حساب نگهداری می‌شود و فقط شما و مدیران مجاز هلپا۲۴ آن را می‌بینید."
     >
       <div className="space-y-4">
         <div className="space-y-2">

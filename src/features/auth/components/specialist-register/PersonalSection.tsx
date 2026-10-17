@@ -81,6 +81,32 @@ export function PersonalSection() {
           </div>
           <FieldError id="email-error" message={errors.email?.message} />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="referralCode">کد معرف متخصص (اختیاری)</Label>
+          <Input
+            id="referralCode"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="characters"
+            dir="ltr"
+            maxLength={16}
+            placeholder="مثلاً A1B2C3D4E5"
+            error={!!errors.referralCode}
+            aria-invalid={!!errors.referralCode}
+            aria-describedby={
+              errors.referralCode ? "referralCode-error" : undefined
+            }
+            className="text-left uppercase tracking-wider"
+            {...register("referralCode", {
+              setValueAs: (value: string) => value.trim().toUpperCase(),
+            })}
+          />
+          <FieldError
+            id="referralCode-error"
+            message={errors.referralCode?.message}
+          />
+        </div>
       </div>
     </>
   );

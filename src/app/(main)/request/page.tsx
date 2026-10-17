@@ -7,7 +7,7 @@ import { Container } from "@/src/components/shared/container";
 import { publicProvidersApi } from "@/src/features/catalog/api/providers.api";
 import { ApiError } from "@/src/lib/api/error";
 
-export const metadata: Metadata = { title: "ثبت درخواست تعمیرات | هلپا24" };
+export const metadata: Metadata = { title: "ثبت درخواست تعمیرات | هلپا۲۴" };
 
 export default async function NewRequestPage({
   searchParams,

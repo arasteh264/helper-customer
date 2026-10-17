@@ -50,10 +50,20 @@ export const providerJobsApi = {
     });
   },
 
-  complete(requestId: string, accessToken: string) {
+  complete(
+    requestId: string,
+    input: {
+      summary: string;
+      materials: string[];
+      warrantyDays?: number;
+      warrantyNote?: string;
+    },
+    accessToken: string,
+  ) {
     return apiClient(`/providers/jobs/${requestId}/complete`, {
       method: "POST",
       headers: authHeaders(accessToken),
+      data: input,
     });
   },
 

@@ -14,13 +14,13 @@ export function AboutHero() {
 
       <Container className="flex flex-col items-center text-center">
         <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-          درباره‌ی هلپا24
+          درباره‌ی هلپا۲۴
         </span>
         <h1 className="mt-5 max-w-2xl text-3xl font-bold leading-[1.35] tracking-tight text-foreground sm:text-5xl sm:leading-[1.3]">
           پیدا کردن متخصص مطمئن، دیگر سخت نیست
         </h1>
         <p className="mt-5 max-w-xl text-sm leading-7 text-foreground/65 sm:text-base">
-          هلپا24 برای این ساخته شده که پیدا کردن یک متخصص قابل اعتماد، به اندازه‌ی سفارش غذا ساده
+          هلپا۲۴ برای این ساخته شده که پیدا کردن یک متخصص قابل اعتماد، به اندازه‌ی سفارش غذا ساده
           باشد؛ چه دنبال یک لوله‌کش باشید، چه یک وکیل یا یک طراح.
         </p>
       </Container>

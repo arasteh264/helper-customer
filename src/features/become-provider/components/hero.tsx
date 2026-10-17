@@ -5,8 +5,10 @@ import { ProviderStartButton } from "./provider-start-button";
 
 export function ProviderHero({
   authenticated,
+  referralCode,
 }: {
   authenticated: boolean;
+  referralCode?: string;
 }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary to-primary-hover py-16 text-primary-foreground sm:py-24">
@@ -50,7 +52,10 @@ export function ProviderHero({
         </ul>
 
         <div className="mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-          <ProviderStartButton authenticated={authenticated} />
+          <ProviderStartButton
+            authenticated={authenticated}
+            referralCode={referralCode}
+          />
           <Link
             href="#provider-steps"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/30 px-6 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-base"

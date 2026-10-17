@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
@@ -56,6 +56,10 @@ export function PortfolioUploader({
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [addingImageFor, setAddingImageFor] = useState<string | null>(null);
+  const [addingImagePreviews, setAddingImagePreviews] = useState<
+    Record<string, { file: File; url: string }>
+  >({});
+  const addingImagePreviewUrls = useRef(new Map<string, string>());
 
   useEffect(() => {
     if (sessionStatus === "loading") return;
@@ -66,6 +70,14 @@ export function PortfolioUploader({
       .catch(() => toast.error("دریافت نمونه‌کارها با مشکل مواجه شد"))
       .finally(() => setLoading(false));
   }, [sessionStatus, session?.accessToken]);
+
+  useEffect(
+    () => () => {
+      addingImagePreviewUrls.current.forEach((url) => URL.revokeObjectURL(url));
+      addingImagePreviewUrls.current.clear();
+    },
+    [],
+  );
 
   const roomLeft = MAX_ITEMS - items.length;
 
@@ -156,6 +168,12 @@ export function PortfolioUploader({
     const [valid] = validateFiles([file], 1);
     if (!valid) return;
 
+    const previewUrl = URL.createObjectURL(valid);
+    addingImagePreviewUrls.current.set(itemId, previewUrl);
+    setAddingImagePreviews((previous) => ({
+      ...previous,
+      [itemId]: { file: valid, url: previewUrl },
+    }));
     setAddingImageFor(itemId);
     try {
       const image = await addImageToItem(itemId, valid, session.accessToken);
@@ -169,6 +187,15 @@ export function PortfolioUploader({
     } catch {
       toast.error("افزودن عکس با مشکل مواجه شد");
     } finally {
+      if (addingImagePreviewUrls.current.get(itemId) === previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        addingImagePreviewUrls.current.delete(itemId);
+        setAddingImagePreviews((previous) => {
+          const next = { ...previous };
+          delete next[itemId];
+          return next;
+        });
+      }
       setAddingImageFor(null);
     }
   };
@@ -296,6 +323,19 @@ export function PortfolioUploader({
                   </button>
                 </li>
               ))}
+              {addingImagePreviews[item.id] ? (
+                <li className="relative h-16 w-16">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={addingImagePreviews[item.id].url}
+                    alt={`پیش‌نمایش ${addingImagePreviews[item.id].file.name}`}
+                    className="h-full w-full rounded-lg object-cover opacity-60"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/30 text-white">
+                    <Loader2 size={18} className="animate-spin" />
+                  </span>
+                </li>
+              ) : null}
               <li>
                 <input
                   id={`add-image-${item.id}`}

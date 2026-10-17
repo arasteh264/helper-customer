@@ -6,9 +6,9 @@ import { redirect } from "next/navigation";
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; referralCode?: string }>;
 }) {
-  const { role } = await searchParams;
+  const { role, referralCode } = await searchParams;
 
   if (role === "specialist") {
     const session = await auth();
@@ -16,10 +16,12 @@ export default async function RegisterPage({
       redirect(
         session.user?.role?.toUpperCase() === "PROVIDER"
           ? "/provider/profile"
-          : "/become-provider",
+          : referralCode
+            ? `/become-provider?referralCode=${encodeURIComponent(referralCode)}`
+            : "/become-provider",
       );
     }
-    return <SpecialistRegisterForm />;
+    return <SpecialistRegisterForm referralCode={referralCode} />;
   }
 
   return <RegisterForm />;

@@ -39,7 +39,7 @@ export function CtaSection() {
             <Briefcase size={22} />
           </span>
           <h2 className="mt-6 text-2xl font-bold leading-snug text-foreground sm:text-3xl">
-            متخصص هستید؟ به هلپا24 بپیوندید
+            متخصص هستید؟ به هلپا۲۴ بپیوندید
           </h2>
           <p className="mt-3 max-w-md text-sm leading-7 text-foreground/65 sm:text-base">
             پروفایل تخصصی بسازید، درخواست‌های متناسب را ببینید و قیمت پیشنهادی
@@ -50,7 +50,7 @@ export function CtaSection() {
             size="lg"
             className="mt-8 bg-amber-300 text-slate-950 hover:bg-amber-200"
           >
-            همکاری با هلپا24
+            همکاری با هلپا۲۴
             <ArrowLeft size={18} />
           </ButtonLink>
         </div>

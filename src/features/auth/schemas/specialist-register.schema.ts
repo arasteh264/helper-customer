@@ -16,6 +16,15 @@ export const specialistRegisterSchema = z.object({
 
   email: z.string().trim().email("ایمیل واردشده معتبر نیست"),
 
+  referralCode: z
+    .string()
+    .trim()
+    .max(16, "کد معرف معتبر نیست")
+    .refine(
+      (value) => !value || /^[A-Fa-f0-9]{10}$/.test(value),
+      "کد معرف باید ۱۰ نویسه‌ی انگلیسی باشد",
+    ),
+
   password: z
     .string()
     .min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد")
@@ -26,7 +35,7 @@ export const specialistRegisterSchema = z.object({
     .boolean()
     .refine(
       (v) => v === true,
-      "برای ادامه باید شرایط همکاری متخصصان هلپا24 و حریم خصوصی را بپذیرید",
+      "برای ادامه باید شرایط همکاری متخصصان هلپا۲۴ و حریم خصوصی را بپذیرید",
     ),
 });
 

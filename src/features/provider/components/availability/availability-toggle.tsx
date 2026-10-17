@@ -8,17 +8,32 @@ import { providerApi } from "../../api/provider.api";
 
 interface AvailabilityToggleProps {
   initial?: boolean;
+  verificationStatus:
+    | "PENDING"
+    | "APPROVED"
+    | "REJECTED"
+    | "pending"
+    | "verified"
+    | "rejected"
+    | "missing";
   accessToken?: string;
 }
 
 export function AvailabilityToggle({
   initial = true,
+  verificationStatus,
   accessToken,
 }: AvailabilityToggleProps) {
-  const [on, setOn] = useState(initial);
+  const isApproved =
+    verificationStatus === "APPROVED" || verificationStatus === "verified";
+  const [localAvailability, setLocalAvailability] = useState<boolean | null>(
+    null,
+  );
+  const on = isApproved && (localAvailability ?? initial);
   const [saving, setSaving] = useState(false);
 
   const toggle = async () => {
+    if (!isApproved) return;
     const next = !on;
 
     setSaving(true);
@@ -36,7 +51,7 @@ export function AvailabilityToggle({
         accessToken,
       );
 
-      setOn(next);
+      setLocalAvailability(next);
 
       toast.success(
         next
@@ -66,13 +81,19 @@ export function AvailabilityToggle({
             }`}
           />
 
-          {on ? "آماده‌ی دریافت کار" : "در حال استراحت"}
+          {on
+            ? "آماده‌ی دریافت کار"
+            : !isApproved
+              ? "در انتظار تأیید احراز هویت"
+              : "در حال استراحت"}
         </p>
 
         <p className="mt-1 text-xs leading-5 text-foreground/55">
-          {on
-            ? "مشتریان می‌توانند برایتان درخواست ثبت کنند."
-            : "تا فعال نکنید درخواست جدیدی نمی‌گیرید."}
+          {!isApproved
+            ? "پس از تأیید مدارک و پروفایل توسط مدیر، می‌توانید دریافت کار را فعال کنید."
+            : on
+              ? "مشتریان می‌توانند برایتان درخواست ثبت کنند."
+              : "تا فعال نکنید درخواست جدیدی نمی‌گیرید."}
         </p>
       </div>
 
@@ -81,7 +102,7 @@ export function AvailabilityToggle({
         role="switch"
         aria-checked={on}
         aria-label="آماده‌ی دریافت کار"
-        disabled={saving}
+        disabled={saving || !isApproved}
         onClick={toggle}
         dir="ltr"
         className={[

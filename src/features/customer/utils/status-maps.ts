@@ -13,7 +13,7 @@ export const REQUEST_STATUS: Record<
   { label: string; tone: BadgeTone }
 > = {
   awaiting_admin_review: {
-    label: "در انتظار بررسی هلپا24",
+    label: "در انتظار بررسی هلپا۲۴",
     tone: "warning",
   },
   awaiting_offers: { label: "منتظر پیشنهاد", tone: "info" },
@@ -61,7 +61,7 @@ export function getRequestStep(status: RequestStatus): number {
 export function getRequestNextAction(status: RequestStatus): string {
   switch (status) {
     case "awaiting_admin_review":
-      return "در حال بررسی هلپا24 هستیم؛ نتیجه را از همین صفحه پیگیری کنید.";
+      return "در حال بررسی هلپا۲۴ هستیم؛ نتیجه را از همین صفحه پیگیری کنید.";
     case "awaiting_offers":
       return "پیشنهاد متخصصان را مقایسه کنید و گزینه‌ی مناسب را انتخاب کنید.";
     case "awaiting_payment":

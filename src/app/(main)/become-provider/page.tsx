@@ -10,11 +10,16 @@ import { ProviderFinalCta } from "@/src/features/become-provider/components/prov
 import { ProviderHero } from "@/src/features/become-provider/components/hero";
 
 export const metadata: Metadata = {
-  title: "همکاری با هلپا24 به‌عنوان متخصص",
-  description: "با تخصص‌تان درآمد کسب کنید. همین امروز پروفایل خود را در هلپا24 بسازید.",
+  title: "همکاری با هلپا۲۴ به‌عنوان متخصص",
+  description: "با تخصص‌تان درآمد کسب کنید. همین امروز پروفایل خود را در هلپا۲۴ بسازید.",
 };
 
-export default async function BecomeProviderPage() {
+export default async function BecomeProviderPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ referralCode?: string }>;
+}) {
+  const { referralCode } = await searchParams;
   const session = await auth();
   const authenticated = Boolean(session?.accessToken);
   if (session?.user?.role?.toUpperCase() === "PROVIDER") {
@@ -23,12 +28,18 @@ export default async function BecomeProviderPage() {
 
   return (
     <main>
-      <ProviderHero authenticated={authenticated} />
+      <ProviderHero
+        authenticated={authenticated}
+        referralCode={referralCode}
+      />
       <BenefitsGrid />
       <OnboardingSteps />
       <EarningsShowcase />
       <ProviderFaq />
-      <ProviderFinalCta authenticated={authenticated} />
+      <ProviderFinalCta
+        authenticated={authenticated}
+        referralCode={referralCode}
+      />
     </main>
   );
 }

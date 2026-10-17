@@ -271,8 +271,8 @@ export function CategoriesSection() {
       <Container>
         <SectionHeading
           eyebrow="خدمات بر اساس گروه"
-          title="خدمت‌ها را بخش‌بندی‌شده پیدا کن"
-          description="از خدمات خانه و بازسازی تا زیبایی و آموزش؛ هر گروه را جدا ببین و مستقیم خدمت موردنظرت را انتخاب کن."
+          title="خدمتت را پیدا کن"
+          description="از خدمات خانه تا خودرو و آموزش."
           action={
             <Link
               href="/services"
