@@ -104,6 +104,14 @@ export interface Job {
     completedAt: string;
     warrantyExpiresAt: string | null;
   } | null;
+  cancellationRequest?: {
+    id: string;
+    reason: string;
+    note: string | null;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    requestedAt: string;
+    decisionNote?: string | null;
+  } | null;
 }
 
 export interface Review {

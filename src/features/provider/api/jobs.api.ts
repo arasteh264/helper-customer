@@ -50,6 +50,18 @@ export const providerJobsApi = {
     });
   },
 
+  requestCancellation(
+    requestId: string,
+    input: { reason: string; note?: string },
+    accessToken: string,
+  ) {
+    return apiClient(`/providers/jobs/${requestId}/cancellation`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      data: input,
+    });
+  },
+
   complete(
     requestId: string,
     input: {
