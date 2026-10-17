@@ -22,6 +22,7 @@ import {
   MessagesSquare,
   Bell,
   Images,
+  Gift,
   type LucideIcon,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ export const ICONS = {
   messagesSquare: MessagesSquare,
   bell: Bell,
   images: Images,
+  gift: Gift,
 } as const satisfies Record<string, LucideIcon>;
 
 export type IconKey = keyof typeof ICONS;

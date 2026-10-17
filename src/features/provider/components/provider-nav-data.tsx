@@ -33,6 +33,12 @@ export const providerNav: PanelNavItem[] = [
     mobile: true,
   },
   {
+    label: "دعوت متخصص",
+    href: "/provider/referrals",
+    icon: "gift",
+    mobile: true,
+  },
+  {
     label: "داستان‌ها",
     href: "/provider/stories",
     icon: "images",

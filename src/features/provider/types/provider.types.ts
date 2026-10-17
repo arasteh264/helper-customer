@@ -148,6 +148,24 @@ export interface ProviderProfile {
   updatedAt: string;
 }
 
+export type ProviderReferralRewardType =
+  | "STORY_PUBLISHING"
+  | "ARTICLE_PUBLISHING"
+  | "ZERO_COMMISSION";
+
+export interface ProviderReferralDashboard {
+  code: string | null;
+  referrals: {
+    id: string;
+    providerName: string;
+    verificationStatus: "PENDING" | "APPROVED" | "REJECTED";
+    isVerified: boolean;
+    rewardType: ProviderReferralRewardType | null;
+    rewardedAt: string | null;
+    createdAt: string;
+  }[];
+}
+
 export interface UpdateProviderProfileValues {
   bio?: string;
   isAvailable?: boolean;

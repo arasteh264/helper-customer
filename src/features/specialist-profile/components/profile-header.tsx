@@ -20,7 +20,7 @@ export function ProfileHeader({
         />
         <span className="absolute bottom-4 left-5 inline-flex items-center gap-1.5 rounded-full border border-white/60 bg-background/85 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur">
           <ShieldCheck size={14} aria-hidden="true" />
-          پروفایل متخصص هلپا24
+          پروفایل متخصص هلپا۲۴
         </span>
       </div>
 
@@ -105,7 +105,7 @@ export function ProfileHeader({
         </div>
 
         <p className="mt-4 border-t border-foreground/[0.07] pt-4 text-xs text-foreground/50">
-          عضویت در هلپا24 از {formatDate(profile.memberSince)}
+          عضویت در هلپا۲۴ از {formatDate(profile.memberSince)}
         </p>
       </div>
     </section>

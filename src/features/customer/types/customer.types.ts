@@ -63,6 +63,7 @@ export interface ServiceRequest {
   code: string;
   title: string;
   category: string;
+  specialtyId?: string | null;
   description: string;
   addressLabel: string;
   latitude?: number;
@@ -96,6 +97,14 @@ export interface ServiceRequest {
   customerConfirmationDeadline?: string | null;
   wasPaid?: boolean;
   dispute?: ServiceRequestDispute | null;
+  workReport?: {
+    summary: string;
+    materials: string[];
+    warrantyDays: number | null;
+    warrantyNote: string | null;
+    completedAt: string;
+    warrantyExpiresAt: string | null;
+  } | null;
 }
 
 export type AddressType = "home" | "work" | "other";

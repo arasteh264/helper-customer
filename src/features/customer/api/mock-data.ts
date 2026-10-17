@@ -169,6 +169,6 @@ export const notificationPrefs: NotificationPrefs = {
 };
 
 export const sessions: Session[] = [
-  { id: "s-1", device: "آیفون ۱۴ - اپلیکیشن هلپا24", location: "تهران، ایران", lastActive: "2026-09-22T08:10:00+03:30", current: true },
+  { id: "s-1", device: "آیفون ۱۴ - اپلیکیشن هلپا۲۴", location: "تهران، ایران", lastActive: "2026-09-22T08:10:00+03:30", current: true },
   { id: "s-2", device: "Chrome روی ویندوز", location: "تهران، ایران", lastActive: "2026-09-19T20:40:00+03:30", current: false },
 ];

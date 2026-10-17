@@ -18,7 +18,7 @@ export function ExpertArticlesSection({
           <p className="text-sm font-semibold text-primary">تجربه و دانش متخصصان</p>
           <h2 className="mt-1 text-2xl font-bold">مقاله‌های علمی متخصصان</h2>
           <p className="mt-2 text-sm leading-6 text-foreground/60">
-            محتوای آموزشی پس از بررسی تیم هلپا24 منتشر می‌شود.
+            محتوای آموزشی پس از بررسی تیم هلپا۲۴ منتشر می‌شود.
           </p>
         </div>
       </div>

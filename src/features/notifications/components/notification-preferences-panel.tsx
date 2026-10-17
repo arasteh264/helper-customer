@@ -19,7 +19,7 @@ import type {
 } from "../types/notification-preferences.types";
 
 const CHANNELS: { id: NotificationChannel; label: string }[] = [
-  { id: "inApp", label: "داخل هلپا24" },
+  { id: "inApp", label: "داخل هلپا۲۴" },
   { id: "sms", label: "پیامک" },
   { id: "email", label: "ایمیل (اولویت‌دار)" },
 ];
@@ -52,7 +52,7 @@ const TOPICS: Record<
     {
       id: "promotions",
       label: "تخفیف‌ها و خبرها",
-      description: "پیشنهادهای ویژه‌ی هلپا24",
+      description: "پیشنهادهای ویژه‌ی هلپا۲۴",
     },
   ],
   PROVIDER: [
@@ -78,7 +78,7 @@ const TOPICS: Record<
     },
     {
       id: "promotions",
-      label: "خبرهای هلپا24",
+      label: "خبرهای هلپا۲۴",
       description: "اطلاعیه‌ها و پیشنهادهای ویژه",
     },
   ],
@@ -163,7 +163,7 @@ export function NotificationPreferencesPanel({
       description={
         hasEmail
           ? "ایمیل برای اطلاع‌رسانی بیرونی در اولویت است؛ با فعال‌کردن ایمیل، پیامک همان موضوع خاموش می‌شود. اعلان داخل برنامه مستقل است."
-          : "اطلاعیه‌ها را داخل هلپا24 یا با پیامک دریافت کنید. با ثبت ایمیل، امکان دریافت ایمیلی هم اضافه می‌شود."
+          : "اطلاعیه‌ها را داخل هلپا۲۴ یا با پیامک دریافت کنید. با ثبت ایمیل، امکان دریافت ایمیلی هم اضافه می‌شود."
       }
       action={
         saving ? (

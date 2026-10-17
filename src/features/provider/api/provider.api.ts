@@ -5,6 +5,7 @@ import {
   ProviderSpecialty,
   ProviderSpecialtyGroup,
   ProviderOnboardingValues,
+  ProviderReferralDashboard,
   UpdateProviderProfileValues,
 } from "../types/provider.types";
 
@@ -26,12 +27,35 @@ export const providerApi = {
     return data;
   },
 
-  createProfile: async (bio?: string, accessToken?: string) => {
+  createProfile: async (
+    bio?: string,
+    accessToken?: string,
+    referralCode?: string,
+  ) => {
     const { data } = await apiClient<ProviderProfile>("/providers/profile", {
       method: "POST",
-      data: { bio: bio?.trim() ? bio.trim() : undefined },
+      data: {
+        bio: bio?.trim() ? bio.trim() : undefined,
+        referralCode: referralCode?.trim() || undefined,
+      },
       headers: authHeaders(accessToken),
     });
+    return data;
+  },
+
+  getReferralDashboard: async (accessToken?: string) => {
+    const { data } = await apiClient<ProviderReferralDashboard>(
+      "/providers/referrals",
+      { method: "GET", headers: authHeaders(accessToken) },
+    );
+    return data;
+  },
+
+  createReferralCode: async (accessToken?: string) => {
+    const { data } = await apiClient<{ code: string }>(
+      "/providers/referrals/code",
+      { method: "POST", headers: authHeaders(accessToken) },
+    );
     return data;
   },
 

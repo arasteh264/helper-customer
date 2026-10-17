@@ -174,6 +174,7 @@ export default async function ProviderOverviewPage() {
         <div className="md:w-80">
           <AvailabilityToggle
             initial={profile.isAvailable && Boolean(profile.providerAddress?.trim())}
+            verificationStatus={profile.verificationStatus}
             accessToken={session.accessToken}
           />
         </div>

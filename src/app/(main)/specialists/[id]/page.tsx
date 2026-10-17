@@ -13,7 +13,7 @@ import type { SpecialistProfile } from "@/src/features/specialist-profile/types/
 import Link from "next/link";
 import { ChevronLeft, Home } from "lucide-react";
 
-export const metadata: Metadata = { title: "پروفایل متخصص | هلپا24" };
+export const metadata: Metadata = { title: "پروفایل متخصص | هلپا۲۴" };
 
 export default async function SpecialistProfilePage({
   params,

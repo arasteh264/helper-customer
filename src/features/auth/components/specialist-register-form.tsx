@@ -9,8 +9,12 @@ import { DetailsStep } from "./specialist-register/DetailsStep";
 import { VerifyStep } from "./specialist-register/VerifyStep";
 import { ServerError } from "./specialist-register/shared";
 
-export function SpecialistRegisterForm() {
-  const r = useSpecialistRegister();
+export function SpecialistRegisterForm({
+  referralCode = "",
+}: {
+  referralCode?: string;
+}) {
+  const r = useSpecialistRegister(referralCode);
 
   return (
     <div className="w-full max-w-2xl">

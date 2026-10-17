@@ -96,6 +96,14 @@ export interface Job {
     authorName: string;
     authorRole: string;
   }[];
+  workReport?: {
+    summary: string;
+    materials: string[];
+    warrantyDays: number | null;
+    warrantyNote: string | null;
+    completedAt: string;
+    warrantyExpiresAt: string | null;
+  } | null;
 }
 
 export interface Review {

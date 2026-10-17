@@ -53,7 +53,7 @@ export function printInvoice(invoice: Invoice) {
           </header>
           <table><thead><tr><th>ردیف</th><th>شرح</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead><tbody>${rows}</tbody></table>
           <p class="total">مبلغ نهایی: ${formatMoney(invoice.totalToman)}</p>
-          <footer>این فاکتور از طریق هلپا24 صادر شده است.</footer>
+          <footer>این فاکتور از طریق هلپا۲۴ صادر شده است.</footer>
         </main>
         <script>window.addEventListener("load",()=>window.print())</script>
       </body>

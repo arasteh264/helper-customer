@@ -110,16 +110,16 @@ export function SiteFooter({
             <Link
               href="/"
               className="inline-flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label="هلپا24، صفحه‌ی اصلی"
+              aria-label="هلپا۲۴، صفحه‌ی اصلی"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-primary-foreground shadow-lg shadow-primary/25">
                 <HandHelping size={21} strokeWidth={2.4} aria-hidden="true" />
               </span>
-              <span className="text-xl font-bold text-foreground">Helpa24</span>
+              <span className="text-xl font-bold text-foreground">Helpa۲۴</span>
             </Link>
 
             <p className="mt-4 max-w-sm text-sm leading-7 text-foreground/60">
-              در هلپا24 درخواست خدمات ثبت کنید، پروفایل متخصصان را ببینید و
+              در هلپا۲۴ درخواست خدمات ثبت کنید، پروفایل متخصصان را ببینید و
               جزئیات درخواست و پرداخت را از حساب خود پیگیری کنید.
             </p>
           </div>
@@ -192,7 +192,7 @@ export function SiteFooter({
 
         <div className="mt-8 flex flex-col-reverse items-center justify-between gap-4 border-t border-foreground/10 pt-6 sm:flex-row">
           <p className="text-center text-xs leading-6 text-foreground/50 sm:text-right">
-            © {year} هلپا24. تمامی حقوق محفوظ است.
+            © {year} هلپا۲۴. تمامی حقوق محفوظ است.
           </p>
           <BackToTop />
         </div>

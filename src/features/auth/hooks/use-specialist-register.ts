@@ -24,7 +24,7 @@ export const RESEND_SECONDS = 90;
 
 export type Step = "details" | "verify";
 
-export function useSpecialistRegister() {
+export function useSpecialistRegister(initialReferralCode = "") {
   const router = useRouter();
   const countdown = useCountdown();
 
@@ -40,6 +40,7 @@ export function useSpecialistRegister() {
       fullName: "",
       mobile: "",
       email: "",
+      referralCode: initialReferralCode.trim().toUpperCase(),
       password: "",
       terms: false,
     },
@@ -49,6 +50,7 @@ export function useSpecialistRegister() {
     mobile: string,
     password: string,
     fullName: string,
+    referralCode: string,
   ) => {
     try {
       const loginResult = await signIn("credentials", {
@@ -64,6 +66,7 @@ export function useSpecialistRegister() {
       await providerApi.createProfile(
         `متخصص ${fullName}`,
         session.accessToken,
+        referralCode,
       );
 
       const refreshedLogin = await signIn("credentials", {
@@ -98,6 +101,7 @@ export function useSpecialistRegister() {
           values.mobile,
           values.password,
           values.fullName,
+          values.referralCode,
         );
         return;
       }
@@ -151,6 +155,7 @@ export function useSpecialistRegister() {
       mobile,
       password,
       form.getValues("fullName"),
+      form.getValues("referralCode"),
     );
     setVerifying(false);
   };

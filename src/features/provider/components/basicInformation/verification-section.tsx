@@ -20,6 +20,7 @@ import type {
 import { VERIFICATION_STATUS } from "../../utils/job-status";
 import { SectionCard } from "@/src/components/shared/section-card";
 import { StatusBadge } from "@/src/components/shared/status-badge";
+import { FilePreview } from "@/src/components/shared/file-preview";
 import {
   getVerificationDocuments,
   uploadVerificationDocument,
@@ -72,6 +73,7 @@ export function VerificationSection({
     })),
   );
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<Record<string, File>>({});
 
   useEffect(() => {
     if (sessionStatus !== "authenticated" || !session?.accessToken) return;
@@ -109,6 +111,7 @@ export function VerificationSection({
       toast.error("حجم فایل باید کمتر از ۵ مگابایت باشد");
       return;
     }
+    setSelectedFiles((previous) => ({ ...previous, [id]: file }));
     if (!session?.accessToken) {
       toast.error("برای بارگذاری مدرک وارد حساب خود شوید");
       return;
@@ -170,6 +173,7 @@ export function VerificationSection({
                       {doc.note}
                     </p>
                   )}
+                  <FilePreview file={selectedFiles[doc.id]} />
                 </div>
               </div>
 

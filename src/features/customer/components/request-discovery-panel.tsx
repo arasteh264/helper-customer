@@ -125,7 +125,7 @@ export function RequestDiscoveryPanel({
           </span>
           <div>
             <h3 className="font-semibold text-foreground">
-              درخواست در انتظار بررسی هلپا24 است
+              درخواست در انتظار بررسی هلپا۲۴ است
             </h3>
             <p className="mt-1 text-sm leading-6 text-foreground/60">
               پس از بررسی، درخواست برای متخصصان مرتبط ارسال می‌شود و این بخش به
@@ -155,7 +155,7 @@ export function RequestDiscoveryPanel({
           </p>
         ) : (
           <p className="mt-2 text-sm leading-6 text-foreground/65">
-            برای اطلاعات بیشتر با پشتیبانی هلپا24 در تماس باشید.
+            برای اطلاعات بیشتر با پشتیبانی هلپا۲۴ در تماس باشید.
           </p>
         )}
       </div>

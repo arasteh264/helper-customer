@@ -10,7 +10,7 @@ import Link from "next/link";
 import { ArrowLeft, BadgeCheck, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "متخصصان هلپا24 | جستجو و فیلتر",
+  title: "متخصصان هلپا۲۴ | جستجو و فیلتر",
   description:
     "متخصصان تأییدشده را بر اساس دسته، شهر و امتیاز فیلتر و مقایسه کنید.",
 };

@@ -6,8 +6,8 @@ import { Container } from "@/src/components/shared/container";
 import { ServicesExplorer } from "@/src/features/catalog/components/services-explorer";
 
 export const metadata: Metadata = {
-  title: "دسته‌بندی خدمات | هلپا24",
-  description: "همه‌ی دسته‌بندی‌های خدمات هلپا24 را ببینید و متخصص موردنظرتان را پیدا کنید.",
+  title: "دسته‌بندی خدمات | هلپا۲۴",
+  description: "همه‌ی دسته‌بندی‌های خدمات هلپا۲۴ را ببینید و متخصص موردنظرتان را پیدا کنید.",
 };
 
 export default async function ServicesPage({
@@ -24,7 +24,7 @@ export default async function ServicesPage({
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-background/75 px-3 py-1.5 text-xs font-semibold text-primary">
               <Sparkles size={14} aria-hidden="true" />
-              خدمات متنوع هلپا24
+              خدمات متنوع هلپا۲۴
             </span>
             <h1 className="mt-4 text-3xl font-extrabold leading-tight text-foreground sm:text-4xl">
               چه کاری برایتان انجام دهیم؟

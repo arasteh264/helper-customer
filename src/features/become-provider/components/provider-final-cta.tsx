@@ -3,8 +3,10 @@ import { ProviderStartButton } from "./provider-start-button";
 
 export function ProviderFinalCta({
   authenticated,
+  referralCode,
 }: {
   authenticated: boolean;
+  referralCode?: string;
 }) {
   return (
     <section className="py-16 sm:py-20">
@@ -22,6 +24,7 @@ export function ProviderFinalCta({
           </p>
           <ProviderStartButton
             authenticated={authenticated}
+            referralCode={referralCode}
             className="relative mt-7"
           />
         </div>

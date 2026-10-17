@@ -203,6 +203,12 @@ export function JobsBoard({
     declineReason?: string,
     declineNote?: string,
     items?: QuoteItem[],
+    workReport?: {
+      summary: string;
+      materials: string[];
+      warrantyDays?: number;
+      warrantyNote?: string;
+    },
   ) => {
     setPendingJobId(id);
     try {
@@ -220,6 +226,9 @@ export function JobsBoard({
           { reason: declineReason, note: declineNote },
           accessToken,
         );
+      } else if (action === "complete") {
+        if (!workReport) return;
+        await providerJobsApi.complete(id, workReport, accessToken);
       } else {
         await providerJobsApi[action](id, accessToken);
       }

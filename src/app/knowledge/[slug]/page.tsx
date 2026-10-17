@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticle(slug);
   return {
-    title: `${article.title} | دانستنی‌های هلپا24`,
+    title: `${article.title} | دانستنی‌های هلپا۲۴`,
     description: article.excerpt,
     alternates: { canonical: `${SITE_URL}/knowledge/${article.slug}` },
     openGraph: {
@@ -60,8 +60,8 @@ export default async function ExpertKnowledgeArticlePage({ params }: Props) {
     image: article.coverImage ? [article.coverImage] : undefined,
     datePublished: article.publishedAt ?? undefined,
     dateModified: article.updatedAt,
-    author: { "@type": "Person", name: article.authorName ?? "متخصص هلپا24" },
-    publisher: { "@type": "Organization", name: "هلپا24", url: SITE_URL },
+    author: { "@type": "Person", name: article.authorName ?? "متخصص هلپا۲۴" },
+    publisher: { "@type": "Organization", name: "هلپا۲۴", url: SITE_URL },
     mainEntityOfPage: canonical,
     inLanguage: "fa-IR",
     keywords: article.specialties?.map((specialty) => specialty.name).join(", "),
@@ -91,7 +91,7 @@ export default async function ExpertKnowledgeArticlePage({ params }: Props) {
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-foreground/50">
             {article.publishedAt ? <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time> : null}
             <span className="inline-flex items-center gap-1"><Clock3 size={13} /> {article.readingMinutes} دقیقه مطالعه</span>
-            <span>{article.authorName} · متخصص هلپا24</span>
+            <span>{article.authorName} · متخصص هلپا۲۴</span>
           </div>
         </header>
         <div

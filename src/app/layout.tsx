@@ -35,9 +35,9 @@ const vazirmatn = localFont({
 });
 
 export const metadata: Metadata = {
-  applicationName: "هلپا24",
-  title: "Helpa24 | خدمات آنلاین شما",
-  description: "مارکت‌پلیس خدمات هلپا24",
+  applicationName: "هلپا۲۴",
+  title: "Helpa۲۴ | خدمات آنلاین شما",
+  description: "مارکت‌پلیس خدمات هلپا۲۴",
   icons: {
     icon: [{ url: "/icons/helper.svg", type: "image/svg+xml" }],
     apple: [
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "هلپا24",
+    title: "هلپا۲۴",
     statusBarStyle: "default",
   },
 };
