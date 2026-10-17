@@ -28,7 +28,7 @@ import {
 
 const statusLabels: Record<ProviderStory["status"], string> = {
   DRAFT: "پیش‌نویس",
-  PENDING_REVIEW: "در انتظار بررسی مدیر",
+  PENDING_REVIEW: "در انتظار بررسی پشتیبانی",
   APPROVED: "تأیید شده",
   REJECTED: "رد شده",
   EXPIRED: "منقضی شده",
@@ -265,7 +265,7 @@ export function ProviderStoriesManager({
           );
       if (submitAfterSave) {
         await providerStoriesApi.submit(accessToken, story.id);
-        toast.success("داستان برای بررسی مدیر ارسال شد.");
+        toast.success("داستان برای بررسی پشتیبانی ارسال شد.");
       } else {
         toast.success("پیش‌نویس داستان ذخیره شد.");
       }
@@ -284,7 +284,7 @@ export function ProviderStoriesManager({
     setBusy(true);
     try {
       await providerStoriesApi.submit(accessToken, storyId);
-      toast.success("داستان برای بررسی مدیر ارسال شد.");
+      toast.success("داستان برای بررسی پشتیبانی ارسال شد.");
       await refresh();
     } catch (error) {
       toast.error(getErrorMessage(error));
@@ -356,14 +356,14 @@ export function ProviderStoriesManager({
                 در هر روز فقط یک داستان می‌توانید ثبت کنید؛ با حذف آن امکان ثبت
                 داستان دیگری دارید.
               </li>
-              <li>هر داستان پیش از انتشار عمومی باید توسط مدیر تأیید شود.</li>
+              <li>هر داستان پیش از انتشار عمومی باید توسط پشتیبانی تأیید شود.</li>
               <li>
                 مدت ویدیو محدود نیست؛ حداکثر حجم مجاز فعلی {videoMaxSizeMB}{" "}
                 مگابایت است.
               </li>
               <li>داستان پس از ۲۴ ساعت از انتشار حذف می‌شود.</li>
               <li>
-                مدیر ممکن است برای انتشار هزینه تعیین کند؛ مبلغ فقط پس از تأیید
+                پشتیبانی ممکن است برای انتشار هزینه تعیین کند؛ مبلغ فقط پس از تأیید
                 شما از کیف پول کسر می‌شود.
               </li>
             </ul>

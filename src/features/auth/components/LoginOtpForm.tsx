@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -21,7 +21,7 @@ import { OtpInput, toEnglishDigits } from "./OtpInput";
 import { requestLoginOtp } from "../api/request-login-otp";
 import { ProviderPortalChooser } from "./provider-portal-chooser";
 import { usePostAuthNavigation } from "../hooks/use-post-auth-navigation";
-
+import { normalizeError } from "@/src/lib/api/error";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 120;
@@ -57,53 +57,70 @@ export function LoginOtpForm() {
     return () => clearInterval(id);
   }, [step, secondsLeft]);
 
-const sendCode = async () => {
-  setError(null);
+  const requestInFlight = useRef(false);
 
-  const normalized = toEnglishDigits(mobile).trim();
-  if (!MOBILE_REGEX.test(normalized)) {
-    setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)");
-    return;
-  }
+  const sendCode = async () => {
+    if (requestInFlight.current || loading) return;
+    setError(null);
 
-  setLoading(true);
-  try {
-    await requestLoginOtp({ phone: normalized });
+    const normalized = toEnglishDigits(mobile).trim();
+    if (!MOBILE_REGEX.test(normalized)) {
+      setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)");
+      return;
+    }
 
-    setMobile(normalized);
-    setOtp("");
-    setSecondsLeft(RESEND_SECONDS);
-    setStep("code");
-    toast.success("کد تأیید ارسال شد");
-  } catch {
-    setError("ارسال کد با مشکل مواجه شد. لطفاً دوباره تلاش کنید.");
-  } finally {
-    setLoading(false);
-  }
-};
+    requestInFlight.current = true;
+    setLoading(true);
+    try {
+      await requestLoginOtp({ phone: normalized });
 
-const verifyCode = async (code: string) => {
-  if (loading) return;
-  setError(null);
-  setLoading(true);
+      setMobile(normalized);
+      setOtp("");
+      setSecondsLeft(RESEND_SECONDS);
+      setStep("code");
+      toast.success("کد تأیید ارسال شد");
+    } catch (cause) {
+      setError(normalizeError(cause).message);
+    } finally {
+      requestInFlight.current = false;
+      setLoading(false);
+    }
+  };
 
-  const result = await signIn("otp", {
-    phone: mobile,
-    code,
-    redirect: false,
-  });
+  const verifyCode = async (code: string) => {
+    if (requestInFlight.current || loading) return;
+    const normalizedCode = toEnglishDigits(code).replace(/\D/g, "");
+    if (normalizedCode.length !== OTP_LENGTH) {
+      setError("کد تأیید باید ۶ رقم باشد");
+      return;
+    }
 
-  setLoading(false);
+    requestInFlight.current = true;
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await signIn("otp", {
+        phone: mobile,
+        code: normalizedCode,
+        redirect: false,
+      });
 
-  if (result?.error) {
-    setError("کد وارد شده اشتباه یا منقضی شده است");
-    setOtp("");
-    return;
-  }
+      if (!result || result.error || !result.ok) {
+        setError("کد وارد شده اشتباه یا منقضی شده است");
+        setOtp("");
+        return;
+      }
 
-  toast.success("خوش آمدید");
-  await continueAfterLogin();
-};
+      toast.success("خوش آمدید");
+      await continueAfterLogin();
+    } catch (cause) {
+      setError(normalizeError(cause).message);
+      setOtp("");
+    } finally {
+      requestInFlight.current = false;
+      setLoading(false);
+    }
+  };
 
   const editMobile = () => {
     setStep("mobile");
@@ -180,14 +197,25 @@ const verifyCode = async (code: string) => {
                     maxLength={11}
                     placeholder="09123456789"
                     value={mobile}
+                    aria-invalid={!!error}
+                    aria-describedby={error ? "mobile-error" : undefined}
                     onChange={(e) => {
                       setError(null);
-                      setMobile(toEnglishDigits(e.target.value));
+                      setMobile(
+                        toEnglishDigits(e.target.value)
+                          .replace(/\D/g, "")
+                          .slice(0, 11),
+                      );
                     }}
                     error={!!error}
                     className="pr-10 text-left tracking-wider"
                   />
                 </div>
+                {error ? (
+                  <p id="mobile-error" className="sr-only">
+                    {error}
+                  </p>
+                ) : null}
               </div>
 
               <Button

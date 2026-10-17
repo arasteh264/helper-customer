@@ -18,7 +18,7 @@ export default async function ProviderStoriesPage() {
     <div className="space-y-5">
       <PageHeader
         title="داستان‌ها و معرفی خدمات"
-        description="نمونه‌کار خود را ثبت کنید و پس از تأیید مدیر برای مشتریان نمایش دهید."
+        description="نمونه‌کار خود را ثبت کنید و پس از تأیید پشتیبانی برای مشتریان نمایش دهید."
       />
       <ProviderStoriesManager accessToken={session.accessToken} mode="list" />
       <ProviderStoryInbox accessToken={session.accessToken} />

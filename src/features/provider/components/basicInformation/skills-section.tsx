@@ -61,6 +61,14 @@ export function SkillsSection({
   const [loadingGroupId, setLoadingGroupId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [specialtyQuery, setSpecialtyQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<
+    (ProviderSpecialtyGroup & { specialties: ProviderSpecialty[] })[]
+  >([]);
+  const [searchedQuery, setSearchedQuery] = useState("");
+  const [searchingSpecialties, setSearchingSpecialties] = useState(false);
+  const [specialtySearchError, setSpecialtySearchError] = useState<string | null>(
+    null,
+  );
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
@@ -102,6 +110,40 @@ export function SkillsSection({
     loadSpecialties();
   }, [accessToken, activeGroupId, groupCache]);
 
+  useEffect(() => {
+    const query = specialtyQuery.trim();
+    if (!query) return;
+
+    let active = true;
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        setSearchingSpecialties(true);
+        setSpecialtySearchError(null);
+        const results = await providerApi.getGroupedSpecialties(
+          query,
+          accessToken,
+        );
+        if (active) {
+          setSearchResults(results);
+          setSearchedQuery(query);
+        }
+      } catch {
+        if (active) {
+          setSearchResults([]);
+          setSearchedQuery(query);
+          setSpecialtySearchError("جست‌وجوی تخصص‌ها انجام نشد؛ دوباره تلاش کنید.");
+        }
+      } finally {
+        if (active) setSearchingSpecialties(false);
+      }
+    }, 250);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+    };
+  }, [accessToken, specialtyQuery]);
+
   const selectedSpecialties = useMemo(() => {
     const byId = new Map<string, ProviderSpecialty>();
 
@@ -126,6 +168,20 @@ export function SkillsSection({
       .toLocaleLowerCase("fa-IR")
       .includes(specialtyQuery.trim().toLocaleLowerCase("fa-IR")),
   );
+  const matchingSpecialties = specialtyQuery.trim()
+    ? searchedQuery === specialtyQuery.trim()
+      ? searchResults.flatMap((group) =>
+        group.specialties.map((specialty) => ({
+          ...specialty,
+          groupId: group.id,
+          groupName: group.name,
+        })),
+        )
+      : []
+    : filteredSpecialties;
+  const isSpecialtySearchPending =
+    Boolean(specialtyQuery.trim()) &&
+    (searchingSpecialties || searchedQuery !== specialtyQuery.trim());
   const specialtySelectionChanged =
     selectedIds.length !== initialSelectedIds.length ||
     selectedIds.some((id) => !initialSelectedIds.includes(id));
@@ -425,18 +481,20 @@ export function SkillsSection({
         <div className="mt-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h3 className="min-w-0 text-sm font-medium text-foreground">
-              تخصص‌های گروه انتخاب‌شده
+              {specialtyQuery.trim()
+                ? "نتایج جست‌وجو در همه‌ی زیرگروه‌ها"
+                : "تخصص‌های گروه انتخاب‌شده"}
             </h3>
             <span className="text-xs text-foreground/50">
               {new Intl.NumberFormat("fa-IR").format(
-                filteredSpecialties.length,
+                matchingSpecialties.length,
               )}{" "}
               مورد
             </span>
           </div>
 
           <label className="relative mb-3 block">
-            <span className="sr-only">جست‌وجو بین تخصص‌های این گروه</span>
+            <span className="sr-only">جست‌وجو بین همه‌ی تخصص‌ها</span>
             <Search
               size={17}
               aria-hidden="true"
@@ -446,12 +504,13 @@ export function SkillsSection({
               type="search"
               value={specialtyQuery}
               onChange={(event) => setSpecialtyQuery(event.target.value)}
-              placeholder="جست‌وجو بین تخصص‌های این گروه"
+              placeholder="جست‌وجوی تخصص در همه‌ی زیرگروه‌ها"
               className="h-11 w-full rounded-xl border border-foreground/15 bg-background pe-10 ps-3 text-sm outline-none placeholder:text-foreground/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
             />
           </label>
 
-          {loadingGroupId === activeGroupId ? (
+          {isSpecialtySearchPending ||
+          (!specialtyQuery.trim() && loadingGroupId === activeGroupId) ? (
             <div className="grid gap-3 sm:grid-cols-2">
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
@@ -460,15 +519,26 @@ export function SkillsSection({
                 />
               ))}
             </div>
-          ) : filteredSpecialties.length === 0 ? (
+          ) : specialtyQuery.trim() &&
+            searchedQuery === specialtyQuery.trim() &&
+            specialtySearchError ? (
+            <div
+              className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-4 text-center text-sm text-destructive"
+              role="alert"
+            >
+              {specialtySearchError}
+            </div>
+          ) : matchingSpecialties.length === 0 ? (
             <div className="rounded-xl border border-dashed border-foreground/15 bg-background px-3 py-4 text-center text-sm text-foreground/55">
-              {currentSpecialties.length === 0
+              {specialtyQuery.trim()
+                ? "تخصصی با این جست‌وجو در هیچ زیرگروهی پیدا نشد."
+                : currentSpecialties.length === 0
                 ? "تخصصی برای این گروه وجود ندارد."
                 : "تخصصی با این جست‌وجو پیدا نشد."}
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
-              {filteredSpecialties.map((specialty) => {
+              {matchingSpecialties.map((specialty) => {
                 const Icon = getIcon(specialty.icon);
                 const isChecked = selectedIds.includes(specialty.id);
 
@@ -492,6 +562,11 @@ export function SkillsSection({
                       <span className="block text-sm font-medium text-foreground">
                         {specialty.name}
                       </span>
+                      {specialtyQuery.trim() && specialty.groupName ? (
+                        <span className="mt-1 block text-xs text-primary/75">
+                          {specialty.groupName}
+                        </span>
+                      ) : null}
                       <span className="mt-1 block text-xs text-foreground/55">
                         {new Intl.NumberFormat("fa-IR").format(
                           specialty.activeProvidersCount ?? 0,

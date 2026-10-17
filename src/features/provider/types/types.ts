@@ -58,6 +58,7 @@ export interface QuoteItem {
 
 export interface Job {
   id: string;
+  createdAt?: string;
   title: string;
   service: string;
   customerName: string;
