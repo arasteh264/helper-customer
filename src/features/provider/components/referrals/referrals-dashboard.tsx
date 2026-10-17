@@ -195,6 +195,52 @@ export function ReferralsDashboard({ accessToken }: { accessToken: string }) {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-foreground/[0.08] bg-card p-4 sm:p-5">
+        <h2 className="text-base font-bold text-foreground">
+          بعد از هر دعوت چه اتفاقی می‌افتد؟
+        </h2>
+        <ol className="mt-4 grid gap-3 sm:grid-cols-2">
+          {[
+            {
+              title: "۱. ارسال لینک یا کد",
+              detail:
+                "لینک یا کد اختصاصی‌تان را برای متخصصی بفرستید که هنوز در هلپا۲۴ ثبت‌نام نکرده است.",
+            },
+            {
+              title: "۲. ثبت‌نام و تکمیل پروفایل",
+              detail:
+                "متخصص دعوت‌شده باید با کد شما ثبت‌نام کند و اطلاعات پروفایل و مدارکش را کامل کند.",
+            },
+            {
+              title: "۳. بررسی و تأیید ادمین",
+              detail:
+                "تا وقتی پروفایل و مدارک او تأیید نشده باشد، دعوت در انتظار می‌ماند و جایزه‌ای فعال نمی‌شود.",
+            },
+            {
+              title: "۴. انتخاب و فعال‌سازی یک جایزه",
+              detail:
+                "پس از تأیید، ادمین برای همین دعوت یکی از جایزه‌ها را انتخاب می‌کند؛ جایزه برای شماست و وضعیتش را در فهرست دعوت‌ها می‌بینید.",
+            },
+          ].map(({ title, detail }) => (
+            <li
+              key={title}
+              className="rounded-xl bg-foreground/[0.025] p-3"
+            >
+              <h3 className="text-sm font-semibold text-foreground">
+                {title}
+              </h3>
+              <p className="mt-1 text-xs leading-6 text-foreground/55">
+                {detail}
+              </p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 rounded-xl bg-primary/[0.06] px-3 py-2 text-xs leading-6 text-foreground/65">
+          هر دعوت جداگانه بررسی می‌شود و برای هر متخصص دعوت‌شده فقط یک جایزه
+          انتخاب می‌شود؛ ممکن است جایزه‌ی دعوت‌های مختلف شما متفاوت باشد.
+        </p>
+      </section>
+
       <section className="space-y-3">
         <h2 className="text-base font-bold text-foreground">
           جایزه‌های قابل انتخاب توسط ادمین

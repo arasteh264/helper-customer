@@ -69,6 +69,7 @@ const SUCCESS_MESSAGE: Record<JobAction, string> = {
   reject: "درخواست رد شد",
   start: "کار شروع شد",
   complete: "کار تکمیل شد",
+  "cancel-request": "درخواست لغو برای بررسی مدیر ارسال شد",
 };
 
 export function JobsBoard({
@@ -209,6 +210,8 @@ export function JobsBoard({
       warrantyDays?: number;
       warrantyNote?: string;
     },
+    cancellationReason?: string,
+    cancellationNote?: string,
   ) => {
     setPendingJobId(id);
     try {
@@ -229,6 +232,13 @@ export function JobsBoard({
       } else if (action === "complete") {
         if (!workReport) return;
         await providerJobsApi.complete(id, workReport, accessToken);
+      } else if (action === "cancel-request") {
+        if (!cancellationReason) return;
+        await providerJobsApi.requestCancellation(
+          id,
+          { reason: cancellationReason, note: cancellationNote },
+          accessToken,
+        );
       } else {
         await providerJobsApi[action](id, accessToken);
       }

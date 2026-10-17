@@ -73,6 +73,15 @@ export interface ServiceRequest {
   scheduledAt?: string;
   status: RequestStatus;
   adminReviewNote?: string | null;
+  canRepeat?: boolean;
+  cancellationRequest?: {
+    id: string;
+    reason: string;
+    note: string | null;
+    status: "PENDING" | "APPROVED" | "REJECTED";
+    requestedAt: string;
+    decisionNote: string | null;
+  } | null;
   offersCount: number;
   budget?: { min: number; max: number };
   price?: number;

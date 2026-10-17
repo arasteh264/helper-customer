@@ -15,9 +15,15 @@ import {
   toEnglishDigits,
 } from "@/src/utils/format";
 import { InvoiceEditor } from "@/src/features/invoices/components/invoice-editor";
+import { ProviderPriceAdjustment } from "./provider-price-adjustment";
 import { formatDate } from "@/src/utils/format";
 
-export type JobAction = "quote" | "reject" | "start" | "complete";
+export type JobAction =
+  | "quote"
+  | "reject"
+  | "start"
+  | "complete"
+  | "cancel-request";
 
 interface JobCardProps {
   job: Job;
@@ -36,6 +42,8 @@ interface JobCardProps {
       warrantyDays?: number;
       warrantyNote?: string;
     },
+    cancellationReason?: string,
+    cancellationNote?: string,
   ) => void;
   onDisputeMessage: (id: string, body: string) => Promise<boolean>;
   onRaiseNonPaymentDispute: (id: string, description: string) => Promise<boolean>;
@@ -79,6 +87,11 @@ export function JobCard({
   const [warrantyDays, setWarrantyDays] = useState("0");
   const [warrantyNote, setWarrantyNote] = useState("");
   const [showCompletionForm, setShowCompletionForm] = useState(false);
+  const [showCancellationForm, setShowCancellationForm] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("PROJECT_NOT_FOUND");
+  const [cancellationNote, setCancellationNote] = useState("");
+  const hasPendingCancellation =
+    job.cancellationRequest?.status === "PENDING";
   const estimatedHours = Number(toEnglishDigits(hoursInput).replace(",", "."));
   const proposedPriceToman =
     job.pricingMode === "HOURLY" && job.hourlyRateToman
@@ -501,23 +514,47 @@ export function JobCard({
             </div>
           )}
           {job.status === "accepted" && (
-            <Button
-              type="button"
-              disabled={busy}
-              onClick={() => onAction(job.id, "start")}
-            >
-              {busy ? "در حال ثبت…" : "شروع کار"}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {!hasPendingCancellation ? (
+                <Button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onAction(job.id, "start")}
+                >
+                  {busy ? "در حال ثبت…" : "شروع کار"}
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy || hasPendingCancellation}
+                onClick={() => setShowCancellationForm((shown) => !shown)}
+              >
+                درخواست لغو کار
+              </Button>
+            </div>
           )}
           {job.status === "in_progress" && (
-            <Button
-              type="button"
-              disabled={busy}
-              variant={showCompletionForm ? "outline" : "primary"}
-              onClick={() => setShowCompletionForm((shown) => !shown)}
-            >
-              {showCompletionForm ? "بستن گزارش پایان کار" : "ثبت گزارش و تکمیل کار"}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {!hasPendingCancellation ? (
+                <Button
+                  type="button"
+                  disabled={busy}
+                  variant={showCompletionForm ? "outline" : "primary"}
+                  onClick={() => setShowCompletionForm((shown) => !shown)}
+                >
+                  {showCompletionForm ? "بستن گزارش پایان کار" : "ثبت گزارش و تکمیل کار"}
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={busy || hasPendingCancellation}
+                onClick={() => setShowCancellationForm((shown) => !shown)}
+              >
+                درخواست لغو کار
+              </Button>
+            </div>
           )}
           {job.status === "awaiting_payment" && (
             <Button
@@ -530,7 +567,102 @@ export function JobCard({
             </Button>
           )}
         </div>
-        {showCompletionForm && job.status === "in_progress" ? (
+        {hasPendingCancellation ? (
+          <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-3 text-sm leading-6 text-amber-950">
+            درخواست لغو شما در انتظار بررسی مدیر است. تا اعلام نتیجه، شروع یا
+            تکمیل این کار غیرفعال است.
+          </div>
+        ) : null}
+        {job.cancellationRequest?.status === "REJECTED" ? (
+          <p className="mt-3 rounded-lg border border-rose-500/20 bg-rose-500/[0.04] px-3 py-2 text-xs leading-6 text-foreground/70">
+            درخواست لغو قبلی رد شده است
+            {job.cancellationRequest.decisionNote
+              ? `: ${job.cancellationRequest.decisionNote}`
+              : "؛ در صورت لزوم می‌توانید درخواست تازه‌ای ثبت کنید."}
+          </p>
+        ) : null}
+        {job.cancellationRequest?.status === "APPROVED" ? (
+          <p className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] px-3 py-2 text-xs leading-6 text-foreground/70">
+            مدیر درخواست لغو این کار را تأیید کرده است.
+          </p>
+        ) : null}
+        {showCancellationForm &&
+        ["accepted", "in_progress"].includes(job.status) &&
+        !hasPendingCancellation ? (
+          <form
+            className="mt-4 space-y-3 rounded-xl border border-rose-500/20 bg-rose-500/[0.035] p-3 sm:p-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onAction(
+                job.id,
+                "cancel-request",
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                cancellationReason,
+                cancellationNote,
+              );
+            }}
+          >
+            <p className="text-sm font-semibold">درخواست لغو کار</p>
+            <p className="text-xs leading-6 text-foreground/65">
+              لغو نهایی پس از بررسی و تأیید مدیر انجام می‌شود.
+            </p>
+            <label className="grid gap-1.5 text-xs font-medium">
+              دلیل درخواست
+              <select
+                className="h-11 rounded-lg border border-input bg-background px-3 text-sm"
+                value={cancellationReason}
+                onChange={(event) => setCancellationReason(event.target.value)}
+              >
+                <option value="PROJECT_NOT_FOUND">پروژه یا محل کار وجود ندارد</option>
+                <option value="CUSTOMER_UNAVAILABLE">مشتری در دسترس نیست</option>
+                <option value="ACCESS_ISSUE">مشکل دسترسی به محل</option>
+                <option value="SCOPE_MISMATCH">شرح کار با درخواست متفاوت است</option>
+                <option value="SAFETY_CONCERN">نگرانی ایمنی</option>
+                <option value="OTHER">سایر</option>
+              </select>
+            </label>
+            <label className="grid gap-1.5 text-xs font-medium">
+              توضیحات {cancellationReason === "OTHER" ? "(الزامی)" : "(اختیاری)"}
+              <textarea
+                className="min-h-24 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                maxLength={500}
+                required={cancellationReason === "OTHER"}
+                value={cancellationNote}
+                onChange={(event) => setCancellationNote(event.target.value)}
+                placeholder="جزئیات را برای بررسی مدیر بنویسید"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={
+                  busy ||
+                  (cancellationReason === "OTHER" &&
+                    cancellationNote.trim().length < 5)
+                }
+              >
+                {busy ? "در حال ثبت…" : "ارسال برای بررسی مدیر"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setShowCancellationForm(false)}
+              >
+                انصراف
+              </Button>
+            </div>
+          </form>
+        ) : null}
+        {showCompletionForm &&
+        job.status === "in_progress" &&
+        !hasPendingCancellation ? (
           <form
             className="mt-4 space-y-3 rounded-xl border border-primary/20 bg-primary/[0.035] p-3 sm:p-4"
             onSubmit={(event) => {
@@ -725,6 +857,12 @@ export function JobCard({
       ) : null}
       {["accepted", "awaiting_payment", "in_progress", "awaiting_confirmation", "completed"].includes(job.status) ? (
         <InvoiceEditor serviceRequestId={job.id} accessToken={accessToken} />
+      ) : null}
+      {job.status === "in_progress" ? (
+        <ProviderPriceAdjustment
+          requestId={job.id}
+          accessToken={accessToken}
+        />
       ) : null}
       {job.disputeReason ? (
         <div className="mt-4 space-y-3 border-t border-foreground/10 pt-4">

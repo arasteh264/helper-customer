@@ -31,6 +31,8 @@ import { RequestEditDialog } from "@/src/features/customer/components/request-ed
 import { RequestDiscoveryPanel } from "@/src/features/customer/components/request-discovery-panel";
 import { RequestOffersComparison } from "@/src/features/customer/components/request-offers-comparison";
 import { contactInfo } from "@/src/components/layout/footer/footer-data";
+import { PriceAdjustmentReview } from "@/src/features/customer/components/price-adjustment-review";
+import { RepeatRequestButton } from "@/src/features/customer/components/repeat-request-button";
 
 export const metadata: Metadata = { title: "پیگیری درخواست | پنل مشتری" };
 
@@ -153,6 +155,52 @@ export default async function CustomerRequestDetailPage({
           </p>
         ) : null}
       </SectionCard>
+
+      {request.cancellationRequest ? (
+        <SectionCard
+          title={
+            request.cancellationRequest.status === "PENDING"
+              ? "درخواست لغو در حال بررسی"
+              : request.cancellationRequest.status === "APPROVED"
+                ? "لغو کار تأیید شد"
+                : "درخواست لغو رد شد"
+          }
+          description="تصمیم نهایی درباره‌ی لغو کار را مدیر ثبت می‌کند."
+        >
+          <p className="text-sm leading-7 text-foreground/70">
+            {request.cancellationRequest.status === "PENDING"
+              ? "متخصص برای لغو این کار درخواست داده است. تا زمان بررسی مدیر، وضعیت نهایی درخواست تغییر نمی‌کند."
+              : request.cancellationRequest.status === "APPROVED"
+                ? "مدیر درخواست لغو متخصص را تأیید کرده است. اگر هنوز به این خدمت نیاز دارید، می‌توانید درخواست تازه‌ای با همین اطلاعات ثبت کنید."
+                : "مدیر درخواست لغو متخصص را نپذیرفته است و کار باید طبق وضعیت فعلی پیگیری شود."}
+          </p>
+          {request.cancellationRequest.note ? (
+            <p className="mt-3 rounded-lg bg-foreground/[0.04] px-3 py-2 text-sm leading-6">
+              توضیح متخصص: {request.cancellationRequest.note}
+            </p>
+          ) : null}
+          {request.cancellationRequest.decisionNote ? (
+            <p className="mt-2 rounded-lg bg-foreground/[0.04] px-3 py-2 text-sm leading-6">
+              توضیح مدیر: {request.cancellationRequest.decisionNote}
+            </p>
+          ) : null}
+          {request.canRepeat ? (
+            <div className="mt-4">
+              <RepeatRequestButton
+                requestId={request.id}
+                accessToken={session.accessToken}
+              />
+            </div>
+          ) : null}
+        </SectionCard>
+      ) : null}
+
+      {request.specialist ? (
+        <PriceAdjustmentReview
+          requestId={id}
+          accessToken={session.accessToken}
+        />
+      ) : null}
 
       {request.workReport ? (
         <SectionCard

@@ -83,6 +83,30 @@ export interface UpdateServiceRequestInput {
   budgetMax: number | null;
 }
 
+export type ServicePriceAdjustmentStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "PAID";
+
+export interface ServicePriceAdjustment {
+  id: string;
+  reason: string;
+  items: {
+    description: string;
+    quantity: number;
+    unitPriceToman: number;
+    amountToman: number;
+  }[];
+  previousTotalToman: number;
+  newTotalToman: number;
+  amountToman: number;
+  status: ServicePriceAdjustmentStatus;
+  createdAt: string;
+  respondedAt: string | null;
+  paidAt: string | null;
+}
+
 const authHeaders = (accessToken: string) => ({
   Authorization: `Bearer ${accessToken}`,
 });
@@ -133,6 +157,18 @@ export const requestApi = {
     });
   },
 
+  async repeatCancelledRequest(id: string, accessToken: string) {
+    const { data } = await apiClient<{
+      id: string;
+      status: string;
+      message: string;
+    }>(`/service-requests/${id}/repeat`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
+    return data;
+  },
+
   async getPaymentStatus(requestId: string, accessToken: string) {
     const { data } = await apiClient<
       ServiceRequestPayment | { data: ServiceRequestPayment }
@@ -174,6 +210,57 @@ export const requestApi = {
       headers: authHeaders(accessToken),
     });
     return data;
+  },
+
+  async listPriceAdjustments(requestId: string, accessToken: string) {
+    const { data } = await apiClient<
+      ServicePriceAdjustment[] | { data: ServicePriceAdjustment[] }
+    >(`/service-requests/${requestId}/price-adjustments`, {
+      method: "GET",
+      headers: authHeaders(accessToken),
+    });
+    return Array.isArray(data) ? data : data.data;
+  },
+
+  async createPriceAdjustment(
+    requestId: string,
+    input: {
+      reason: string;
+      items: {
+        description: string;
+        quantity: number;
+        unitPriceToman: number;
+      }[];
+    },
+    accessToken: string,
+  ) {
+    const { data } = await apiClient<ServicePriceAdjustment>(
+      `/service-requests/${requestId}/price-adjustments`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+        data: input,
+      },
+    );
+    return data;
+  },
+
+  async approvePriceAdjustment(adjustmentId: string, accessToken: string) {
+    const { data } = await apiClient<{ paymentUrl: string }>(
+      `/price-adjustments/${adjustmentId}/approve`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken),
+      },
+    );
+    return data;
+  },
+
+  rejectPriceAdjustment(adjustmentId: string, accessToken: string) {
+    return apiClient(`/price-adjustments/${adjustmentId}/reject`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
   },
 
   confirmCompletion(requestId: string, accessToken: string) {
