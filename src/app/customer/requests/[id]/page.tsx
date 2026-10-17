@@ -165,14 +165,14 @@ export default async function CustomerRequestDetailPage({
                 ? "لغو کار تأیید شد"
                 : "درخواست لغو رد شد"
           }
-          description="تصمیم نهایی درباره‌ی لغو کار را مدیر ثبت می‌کند."
+          description="تصمیم نهایی درباره‌ی لغو کار را پشتیبانی ثبت می‌کند."
         >
           <p className="text-sm leading-7 text-foreground/70">
             {request.cancellationRequest.status === "PENDING"
-              ? "متخصص برای لغو این کار درخواست داده است. تا زمان بررسی مدیر، وضعیت نهایی درخواست تغییر نمی‌کند."
+              ? "متخصص برای لغو این کار درخواست داده است. تا زمان بررسی پشتیبانی، وضعیت نهایی درخواست تغییر نمی‌کند."
               : request.cancellationRequest.status === "APPROVED"
-                ? "مدیر درخواست لغو متخصص را تأیید کرده است. اگر هنوز به این خدمت نیاز دارید، می‌توانید درخواست تازه‌ای با همین اطلاعات ثبت کنید."
-                : "مدیر درخواست لغو متخصص را نپذیرفته است و کار باید طبق وضعیت فعلی پیگیری شود."}
+                ? "پشتیبانی درخواست لغو متخصص را تأیید کرده است. اگر هنوز به این خدمت نیاز دارید، می‌توانید درخواست تازه‌ای با همین اطلاعات ثبت کنید."
+                : "پشتیبانی درخواست لغو متخصص را نپذیرفته است و کار باید طبق وضعیت فعلی پیگیری شود."}
           </p>
           {request.cancellationRequest.note ? (
             <p className="mt-3 rounded-lg bg-foreground/[0.04] px-3 py-2 text-sm leading-6">
@@ -181,7 +181,7 @@ export default async function CustomerRequestDetailPage({
           ) : null}
           {request.cancellationRequest.decisionNote ? (
             <p className="mt-2 rounded-lg bg-foreground/[0.04] px-3 py-2 text-sm leading-6">
-              توضیح مدیر: {request.cancellationRequest.decisionNote}
+              توضیح پشتیبانی: {request.cancellationRequest.decisionNote}
             </p>
           ) : null}
           {request.canRepeat ? (
@@ -195,7 +195,7 @@ export default async function CustomerRequestDetailPage({
         </SectionCard>
       ) : null}
 
-      {request.specialist ? (
+      {request.specialist && request.status === "in_progress" ? (
         <PriceAdjustmentReview
           requestId={id}
           accessToken={session.accessToken}

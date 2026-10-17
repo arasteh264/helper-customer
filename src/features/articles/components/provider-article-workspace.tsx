@@ -26,7 +26,7 @@ interface DraftBlock {
 }
 
 const statusLabels: Record<ProviderArticleStatus, string> = {
-  PENDING_REVIEW: "در انتظار بررسی مدیر",
+  PENDING_REVIEW: "در انتظار بررسی پشتیبانی",
   APPROVED: "تأیید و منتشرشده",
   REJECTED: "نیازمند اصلاح",
 };
@@ -125,7 +125,7 @@ export function ProviderArticleWorkspace({
       await providerArticlesApi.uploadCover(articleId, file, coverAlt, accessToken);
       setPendingCoverId(null);
       setCoverFile(null);
-      setNotice("کاور مقاله بارگذاری شد؛ مقاله پس از بررسی مدیر منتشر می‌شود.");
+      setNotice("کاور مقاله بارگذاری شد؛ مقاله پس از بررسی پشتیبانی منتشر می‌شود.");
       try {
         setArticles(await providerArticlesApi.listMine(accessToken));
       } catch {
@@ -188,7 +188,7 @@ export function ProviderArticleWorkspace({
       setReadingMinutes("");
       setSpecialtyIds([]);
       setBlocks([{ type: "paragraph", text: "" }]);
-      setNotice("مقاله ثبت شد و برای بررسی مدیر ارسال شد.");
+      setNotice("مقاله ثبت شد و برای بررسی پشتیبانی ارسال شد.");
       if (coverFile) {
         setBusy(false);
         await uploadCover(article.id, coverFile);
@@ -220,7 +220,7 @@ export function ProviderArticleWorkspace({
       <section className="rounded-2xl border border-foreground/10 bg-card p-4 sm:p-6">
         <h2 className="text-lg font-bold">نوشتن مقاله‌ی آموزشی</h2>
         <p className="mt-1 text-sm leading-6 text-foreground/60">
-          مقاله باید علمی و کاربردی باشد، نه تبلیغاتی یا دارای شماره تماس و ایمیل. پس از ثبت، مدیر آن را بررسی می‌کند.
+          مقاله باید علمی و کاربردی باشد، نه تبلیغاتی یا دارای شماره تماس و ایمیل. پس از ثبت، پشتیبانی آن را بررسی می‌کند.
         </p>
         {taxonomyError ? (
           <p className="mt-4 rounded-lg bg-amber-500/10 p-3 text-sm leading-6 text-amber-900" role="status">
@@ -332,7 +332,7 @@ export function ProviderArticleWorkspace({
           ) : (
             <Button type="submit" disabled={busy || taxonomyError || !slugIsValid || !specialtyIds.length}>
               {busy ? <LoaderCircle size={16} className="animate-spin" /> : <Send size={16} />}
-              ارسال برای بررسی مدیر
+              ارسال برای بررسی پشتیبانی
             </Button>
           )}
           {!slugIsValid && slug ? <p className="text-xs text-destructive">پیوند کوتاه فقط باید حروف انگلیسی کوچک، عدد و خط تیره داشته باشد.</p> : null}
@@ -354,7 +354,7 @@ export function ProviderArticleWorkspace({
               </div>
               {article.status ? <span className={`w-fit rounded-full px-3 py-1.5 text-xs font-medium ${statusClass(article.status)}`}>{statusLabels[article.status]}</span> : null}
             </div>
-            {article.reviewNote ? <p className="mt-3 rounded-lg bg-amber-500/5 p-3 text-sm leading-6">یادداشت مدیر: {article.reviewNote}</p> : null}
+            {article.reviewNote ? <p className="mt-3 rounded-lg bg-amber-500/5 p-3 text-sm leading-6">یادداشت پشتیبانی: {article.reviewNote}</p> : null}
             {article.coverImage ? (
               <p className="mt-3 flex items-center gap-2 text-xs text-emerald-700"><Check size={15} /> تصویر کاور بارگذاری شده</p>
             ) : article.status === "PENDING_REVIEW" ? (

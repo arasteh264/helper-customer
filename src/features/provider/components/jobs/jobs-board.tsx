@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
   BriefcaseBusiness,
+  CalendarClock,
   CircleAlert,
   CircleCheck,
   Inbox,
   Loader2,
+  MapPin,
   RefreshCw,
   Search,
   X,
@@ -15,9 +19,10 @@ import {
 import { ApiError } from "@/src/lib/api/error";
 import { providerJobsApi } from "../../api/jobs.api";
 
-import { formatNumber } from "../../utils/format";
+import { formatDateTime, formatMoney, formatNumber } from "../../utils/format";
 import { JobCard, type JobAction } from "./job-card";
 import type { Job, JobStatus, QuoteItem } from "../../types/types";
+import { JOB_STATUS } from "../../utils/job-status";
 
 type JobFilter = "new" | "active" | "attention" | "completed" | "archive";
 
@@ -69,7 +74,7 @@ const SUCCESS_MESSAGE: Record<JobAction, string> = {
   reject: "درخواست رد شد",
   start: "کار شروع شد",
   complete: "کار تکمیل شد",
-  "cancel-request": "درخواست لغو برای بررسی مدیر ارسال شد",
+  "cancel-request": "درخواست لغو برای بررسی پشتیبانی ارسال شد",
 };
 
 export function JobsBoard({
@@ -77,11 +82,13 @@ export function JobsBoard({
   accessToken,
   commissionRate,
   commissionRateError,
+  detailJobId,
 }: {
   initialJobs: Job[];
   accessToken: string;
   commissionRate: number | null;
   commissionRateError: boolean;
+  detailJobId?: string;
 }) {
   const [jobs, setJobs] = useState(initialJobs);
   const [tab, setTab] = useState<JobFilter>("new");
@@ -166,8 +173,12 @@ export function JobsBoard({
   );
 
   const visible = useMemo(
-    () =>
-      jobs
+    () => {
+      if (detailJobId) {
+        return jobs.filter((job) => job.id === detailJobId);
+      }
+
+      return jobs
         .filter((job) =>
           TABS.find((item) => item.id === tab)?.statuses.includes(job.status),
         )
@@ -178,8 +189,16 @@ export function JobsBoard({
                 .includes(query.trim().toLocaleLowerCase("fa-IR"))
             : true,
         )
-        .sort((a, b) => +new Date(a.scheduledAt) - +new Date(b.scheduledAt)),
-    [jobs, query, tab],
+        .sort((a, b) => {
+          if (tab === "new") {
+            const receivedAt = (job: Job) =>
+              new Date(job.createdAt ?? job.scheduledAt).getTime();
+            return receivedAt(b) - receivedAt(a);
+          }
+          return +new Date(a.scheduledAt) - +new Date(b.scheduledAt);
+        });
+    },
+    [detailJobId, jobs, query, tab],
   );
 
   const refreshJobs = async () => {
@@ -303,6 +322,53 @@ export function JobsBoard({
   };
 
   const active = TABS.find((item) => item.id === tab)!;
+
+  if (detailJobId) {
+    const job = visible[0];
+
+    return (
+      <div className="space-y-4">
+        <Link
+          href="/provider/jobs"
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-foreground/65 transition-colors hover:bg-foreground/[0.04] hover:text-primary"
+        >
+          <ArrowLeft size={16} />
+          بازگشت به فهرست درخواست‌ها
+        </Link>
+        {commissionRateError ? (
+          <p
+            className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-800"
+            role="status"
+          >
+            دریافت نرخ کارمزد پلتفرم انجام نشد؛ برای نمایش مبلغ خالص، صفحه را تازه‌سازی کنید.
+          </p>
+        ) : null}
+        {job ? (
+          <JobCard
+            job={job}
+            onAction={handleAction}
+            onDisputeMessage={handleDisputeMessage}
+            onRaiseNonPaymentDispute={handleNonPaymentDispute}
+            commissionRate={commissionRate}
+            accessToken={accessToken}
+            busy={pendingJobId === job.id}
+          />
+        ) : (
+          <div className="rounded-2xl border border-dashed border-foreground/15 bg-card px-6 py-12 text-center">
+            <p className="text-sm text-foreground/65">
+              این درخواست دیگر در فهرست کارهای شما نیست.
+            </p>
+            <Link
+              href="/provider/jobs"
+              className="mt-4 inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            >
+              رفتن به فهرست درخواست‌ها
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -437,15 +503,51 @@ export function JobsBoard({
           <ul className="grid gap-4 xl:grid-cols-2">
             {visible.map((job) => (
               <li key={job.id}>
-                <JobCard
-                  job={job}
-                  onAction={handleAction}
-                  onDisputeMessage={handleDisputeMessage}
-                  onRaiseNonPaymentDispute={handleNonPaymentDispute}
-                  commissionRate={commissionRate}
-                  accessToken={accessToken}
-                  busy={pendingJobId === job.id}
-                />
+                <Link
+                  href={`/provider/jobs/${encodeURIComponent(job.id)}`}
+                  className="group block h-full rounded-2xl border border-foreground/10 bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs text-foreground/50">{job.service}</p>
+                      <h3 className="mt-1 truncate text-base font-semibold text-foreground">
+                        {job.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-foreground/65">
+                        {job.customerName}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-foreground/[0.06] px-2.5 py-1 text-xs font-medium text-foreground/65">
+                      {JOB_STATUS[job.status].label}
+                    </span>
+                  </div>
+                  <div className="mt-4 grid gap-2 text-xs text-foreground/60 sm:grid-cols-2">
+                    <span className="flex items-center gap-2">
+                      <CalendarClock size={15} />
+                      {formatDateTime(job.scheduledAt)}
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <BriefcaseBusiness size={15} />
+                      {job.price > 0 ? formatMoney(job.price) : "مبلغ پیشنهادی"}
+                    </span>
+                    <span className="flex min-w-0 items-center gap-2 sm:col-span-2">
+                      <MapPin size={15} className="shrink-0" />
+                      <span className="truncate">{job.address}</span>
+                    </span>
+                  </div>
+                  {job.cancellationRequest?.status === "PENDING" ? (
+                    <p className="mt-3 rounded-lg bg-amber-500/[0.07] px-3 py-2 text-xs leading-5 text-amber-800">
+                      درخواست لغو در انتظار بررسی پشتیبانی است.
+                    </p>
+                  ) : null}
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                    مشاهده جزئیات و اقدام
+                    <ArrowLeft
+                      size={16}
+                      className="transition-transform group-hover:-translate-x-1"
+                    />
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

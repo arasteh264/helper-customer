@@ -84,6 +84,7 @@ export interface UpdateServiceRequestInput {
 }
 
 export type ServicePriceAdjustmentStatus =
+  | "PENDING_SUPPORT_REVIEW"
   | "PENDING"
   | "APPROVED"
   | "REJECTED"
@@ -102,6 +103,7 @@ export interface ServicePriceAdjustment {
   newTotalToman: number;
   amountToman: number;
   status: ServicePriceAdjustmentStatus;
+  reviewNote?: string | null;
   createdAt: string;
   respondedAt: string | null;
   paidAt: string | null;

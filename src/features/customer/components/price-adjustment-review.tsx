@@ -14,7 +14,8 @@ import {
 } from "@/src/features/request/api/request.api";
 
 const statusLabels = {
-  PENDING: "در انتظار پاسخ شما",
+  PENDING_SUPPORT_REVIEW: "در انتظار بررسی پشتیبانی",
+  PENDING: "تأیید پشتیبانی؛ در انتظار پاسخ شما",
   APPROVED: "تأیید شده؛ در انتظار پرداخت",
   REJECTED: "رد شده؛ مبلغ قبلی حفظ شده است",
   PAID: "پرداخت و مبلغ نهایی ثبت شده است",
@@ -136,6 +137,11 @@ export function PriceAdjustmentReview({
             <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground/75">
               {adjustment.reason}
             </p>
+            {adjustment.reviewNote ? (
+              <p className="mt-2 rounded-lg bg-foreground/[0.04] px-3 py-2 text-xs leading-6 text-foreground/65">
+                توضیح پشتیبانی: {adjustment.reviewNote}
+              </p>
+            ) : null}
             <ul className="mt-3 divide-y divide-foreground/10 rounded-lg border border-foreground/10">
               {adjustment.items.map((item, index) => (
                 <li

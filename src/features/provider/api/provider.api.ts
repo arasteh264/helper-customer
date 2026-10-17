@@ -99,6 +99,19 @@ export const providerApi = {
     return data.data ?? [];
   },
 
+  getGroupedSpecialties: async (search: string, accessToken?: string) => {
+    const params = new URLSearchParams({ search });
+    const { data } = await apiClient<{
+      data?: (ProviderSpecialtyGroup & {
+        specialties: ProviderSpecialty[];
+      })[];
+    }>(`/specialties/grouped?${params.toString()}`, {
+      method: "GET",
+      headers: authHeaders(accessToken),
+    });
+    return data.data ?? [];
+  },
+
   updateSpecialties: async (specialtyIds: string[], accessToken?: string) =>
     apiClient("/providers/profile/specialties", {
       method: "PUT",

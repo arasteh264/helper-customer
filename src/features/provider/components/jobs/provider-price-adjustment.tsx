@@ -19,7 +19,8 @@ type DraftItem = {
 };
 
 const statusLabels = {
-  PENDING: "در انتظار پاسخ مشتری",
+  PENDING_SUPPORT_REVIEW: "در انتظار بررسی پشتیبانی",
+  PENDING: "تأیید پشتیبانی؛ در انتظار پاسخ مشتری",
   APPROVED: "تأیید شده؛ در انتظار پرداخت",
   REJECTED: "پیشنهاد رد شد؛ مبلغ قبلی پابرجاست",
   PAID: "پرداخت شد و مبلغ نهایی اصلاح شد",
@@ -41,26 +42,32 @@ export function ProviderPriceAdjustment({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      setAdjustments(
-        await requestApi.listPriceAdjustments(requestId, accessToken),
-      );
-      setError("");
-    } catch (cause) {
-      setError(normalizeError(cause).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    void refresh();
+    let mounted = true;
+    requestApi
+      .listPriceAdjustments(requestId, accessToken)
+      .then((result) => {
+        if (mounted) {
+          setAdjustments(result);
+          setError("");
+        }
+      })
+      .catch((cause: unknown) => {
+        if (mounted) setError(normalizeError(cause).message);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, [requestId, accessToken]);
 
   const hasActiveAdjustment = adjustments.some(
-    ({ status }) => status === "PENDING" || status === "APPROVED",
+    ({ status }) =>
+      status === "PENDING_SUPPORT_REVIEW" ||
+      status === "PENDING" ||
+      status === "APPROVED",
   );
   const amountToman = items.reduce(
     (sum, item) => sum + item.quantity * item.unitPriceToman,
@@ -85,7 +92,7 @@ export function ProviderPriceAdjustment({
       setAdjustments((previous) => [adjustment, ...previous]);
       setReason("");
       setItems([{ description: "", quantity: 1, unitPriceToman: 0 }]);
-      toast.success("درخواست افزایش مبلغ برای مشتری ارسال شد");
+      toast.success("درخواست افزایش مبلغ برای بررسی پشتیبانی ارسال شد");
     } catch (cause) {
       toast.error(normalizeError(cause).message || "ثبت درخواست انجام نشد");
     } finally {
@@ -132,6 +139,11 @@ export function ProviderPriceAdjustment({
           <p className="mt-2 whitespace-pre-wrap text-xs leading-6 text-foreground/65">
             {adjustment.reason}
           </p>
+          {adjustment.reviewNote ? (
+            <p className="mt-2 rounded-md bg-foreground/[0.04] px-2.5 py-2 text-xs leading-5 text-foreground/60">
+              توضیح پشتیبانی: {adjustment.reviewNote}
+            </p>
+          ) : null}
           <ul className="mt-2 space-y-1 border-t border-foreground/10 pt-2">
             {adjustment.items.map((item, index) => (
               <li key={`${item.description}-${index}`} className="flex justify-between gap-3 text-xs">

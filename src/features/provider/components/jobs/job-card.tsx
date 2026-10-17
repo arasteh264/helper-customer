@@ -61,6 +61,15 @@ const DISPUTE_REASON_LABELS: Record<string, string> = {
   OTHER: "سایر موارد",
 };
 
+const CANCELLATION_REASON_LABELS: Record<string, string> = {
+  PROJECT_NOT_FOUND: "پروژه یا محل کار وجود ندارد",
+  CUSTOMER_UNAVAILABLE: "مشتری در دسترس نیست",
+  ACCESS_ISSUE: "مشکل دسترسی به محل",
+  SCOPE_MISMATCH: "شرح کار با درخواست متفاوت است",
+  SAFETY_CONCERN: "نگرانی ایمنی",
+  OTHER: "سایر",
+};
+
 export function JobCard({
   job,
   onAction,
@@ -88,6 +97,7 @@ export function JobCard({
   const [warrantyNote, setWarrantyNote] = useState("");
   const [showCompletionForm, setShowCompletionForm] = useState(false);
   const [showCancellationForm, setShowCancellationForm] = useState(false);
+  const [cancellationStep, setCancellationStep] = useState<1 | 2 | 3>(1);
   const [cancellationReason, setCancellationReason] = useState("PROJECT_NOT_FOUND");
   const [cancellationNote, setCancellationNote] = useState("");
   const hasPendingCancellation =
@@ -528,7 +538,10 @@ export function JobCard({
                 type="button"
                 variant="outline"
                 disabled={busy || hasPendingCancellation}
-                onClick={() => setShowCancellationForm((shown) => !shown)}
+                onClick={() => {
+                  setCancellationStep(1);
+                  setShowCancellationForm((shown) => !shown);
+                }}
               >
                 درخواست لغو کار
               </Button>
@@ -550,7 +563,10 @@ export function JobCard({
                 type="button"
                 variant="outline"
                 disabled={busy || hasPendingCancellation}
-                onClick={() => setShowCancellationForm((shown) => !shown)}
+                onClick={() => {
+                  setCancellationStep(1);
+                  setShowCancellationForm((shown) => !shown);
+                }}
               >
                 درخواست لغو کار
               </Button>
@@ -569,7 +585,7 @@ export function JobCard({
         </div>
         {hasPendingCancellation ? (
           <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-3 text-sm leading-6 text-amber-950">
-            درخواست لغو شما در انتظار بررسی مدیر است. تا اعلام نتیجه، شروع یا
+            درخواست لغو شما در انتظار بررسی پشتیبانی است. تا اعلام نتیجه، شروع یا
             تکمیل این کار غیرفعال است.
           </div>
         ) : null}
@@ -583,16 +599,17 @@ export function JobCard({
         ) : null}
         {job.cancellationRequest?.status === "APPROVED" ? (
           <p className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] px-3 py-2 text-xs leading-6 text-foreground/70">
-            مدیر درخواست لغو این کار را تأیید کرده است.
+            پشتیبانی درخواست لغو این کار را تأیید کرده است.
           </p>
         ) : null}
         {showCancellationForm &&
         ["accepted", "in_progress"].includes(job.status) &&
         !hasPendingCancellation ? (
           <form
-            className="mt-4 space-y-3 rounded-xl border border-rose-500/20 bg-rose-500/[0.035] p-3 sm:p-4"
+            className="mt-4 space-y-4 rounded-xl border border-rose-500/20 bg-rose-500/[0.035] p-3 sm:p-4"
             onSubmit={(event) => {
               event.preventDefault();
+              if (cancellationStep !== 3) return;
               onAction(
                 job.id,
                 "cancel-request",
@@ -608,52 +625,128 @@ export function JobCard({
               );
             }}
           >
-            <p className="text-sm font-semibold">درخواست لغو کار</p>
-            <p className="text-xs leading-6 text-foreground/65">
-              لغو نهایی پس از بررسی و تأیید مدیر انجام می‌شود.
-            </p>
-            <label className="grid gap-1.5 text-xs font-medium">
-              دلیل درخواست
-              <select
-                className="h-11 rounded-lg border border-input bg-background px-3 text-sm"
-                value={cancellationReason}
-                onChange={(event) => setCancellationReason(event.target.value)}
-              >
-                <option value="PROJECT_NOT_FOUND">پروژه یا محل کار وجود ندارد</option>
-                <option value="CUSTOMER_UNAVAILABLE">مشتری در دسترس نیست</option>
-                <option value="ACCESS_ISSUE">مشکل دسترسی به محل</option>
-                <option value="SCOPE_MISMATCH">شرح کار با درخواست متفاوت است</option>
-                <option value="SAFETY_CONCERN">نگرانی ایمنی</option>
-                <option value="OTHER">سایر</option>
-              </select>
-            </label>
-            <label className="grid gap-1.5 text-xs font-medium">
-              توضیحات {cancellationReason === "OTHER" ? "(الزامی)" : "(اختیاری)"}
-              <textarea
-                className="min-h-24 rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                maxLength={500}
-                required={cancellationReason === "OTHER"}
-                value={cancellationNote}
-                onChange={(event) => setCancellationNote(event.target.value)}
-                placeholder="جزئیات را برای بررسی مدیر بنویسید"
-              />
-            </label>
+            <div>
+              <p className="text-sm font-semibold">درخواست لغو کار</p>
+              <p className="mt-1 text-xs leading-6 text-foreground/65">
+                درخواست شما برای بررسی به پشتیبانی ارسال می‌شود و لغو نهایی پس از اعلام نتیجه انجام خواهد شد.
+              </p>
+            </div>
+            <ol
+              aria-label="مراحل ثبت درخواست لغو"
+              className="grid grid-cols-3 gap-2 text-center text-[11px] sm:text-xs"
+            >
+              {["دلیل لغو", "توضیحات", "بازبینی"].map((label, index) => {
+                const step = index + 1;
+                const currentOrComplete = step <= cancellationStep;
+                return (
+                  <li
+                    key={label}
+                    aria-current={step === cancellationStep ? "step" : undefined}
+                    className={`rounded-lg px-2 py-2 ${
+                      currentOrComplete
+                        ? "bg-rose-600/10 font-semibold text-rose-800"
+                        : "bg-foreground/[0.04] text-foreground/45"
+                    }`}
+                  >
+                    {step}. {label}
+                  </li>
+                );
+              })}
+            </ol>
+            {cancellationStep === 1 ? (
+              <label className="grid gap-1.5 text-sm font-medium">
+                دلیل درخواست لغو
+                <select
+                  className="h-11 rounded-lg border border-input bg-background px-3 text-sm"
+                  value={cancellationReason}
+                  onChange={(event) => setCancellationReason(event.target.value)}
+                >
+                  {Object.entries(CANCELLATION_REASON_LABELS).map(
+                    ([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+            ) : null}
+            {cancellationStep === 2 ? (
+              <label className="grid gap-1.5 text-sm font-medium">
+                توضیحات {cancellationReason === "OTHER" ? "(الزامی)" : "(اختیاری)"}
+                <textarea
+                  className="min-h-24 rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                  maxLength={500}
+                  required={cancellationReason === "OTHER"}
+                  value={cancellationNote}
+                  onChange={(event) => setCancellationNote(event.target.value)}
+                  placeholder="شرح کوتاهی از شرایط پیش‌آمده بنویسید."
+                />
+              </label>
+            ) : null}
+            {cancellationStep === 3 ? (
+              <div className="space-y-2 rounded-lg border border-foreground/10 bg-background/70 p-3 text-sm">
+                <p className="font-semibold">بازبینی درخواست</p>
+                <p className="text-foreground/70">
+                  <span className="text-foreground/50">دلیل: </span>
+                  {CANCELLATION_REASON_LABELS[cancellationReason] ?? cancellationReason}
+                </p>
+                {cancellationNote.trim() ? (
+                  <p className="whitespace-pre-wrap leading-6 text-foreground/70">
+                    <span className="text-foreground/50">توضیحات: </span>
+                    {cancellationNote.trim()}
+                  </p>
+                ) : null}
+                <p className="text-xs leading-5 text-foreground/55">
+                  پس از ارسال، تا اعلام نتیجه‌ی پشتیبانی امکان شروع یا تکمیل این کار وجود ندارد.
+                </p>
+              </div>
+            ) : null}
             <div className="flex flex-wrap gap-2">
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={
-                  busy ||
-                  (cancellationReason === "OTHER" &&
-                    cancellationNote.trim().length < 5)
-                }
-              >
-                {busy ? "در حال ثبت…" : "ارسال برای بررسی مدیر"}
-              </Button>
+              {cancellationStep > 1 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() =>
+                    setCancellationStep(cancellationStep === 3 ? 2 : 1)
+                  }
+                >
+                  مرحله‌ی قبل
+                </Button>
+              ) : null}
+              {cancellationStep < 3 ? (
+                <Button
+                  type="button"
+                  disabled={
+                    busy ||
+                    (cancellationStep === 2 &&
+                      cancellationReason === "OTHER" &&
+                      cancellationNote.trim().length < 5)
+                  }
+                  onClick={() =>
+                    setCancellationStep(cancellationStep === 1 ? 2 : 3)
+                  }
+                >
+                  ادامه
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  disabled={busy}
+                >
+                  {busy ? "در حال ثبت…" : "ارسال درخواست برای پشتیبانی"}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => setShowCancellationForm(false)}
+                disabled={busy}
+                onClick={() => {
+                  setShowCancellationForm(false);
+                  setCancellationStep(1);
+                }}
               >
                 انصراف
               </Button>
